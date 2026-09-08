@@ -25,8 +25,8 @@ Everything stays on your device. No account, no cloud, no tracking.
 
 ## How to use
 
-1. Open the live page:  
-   **https://sensorylog.github.io/index.html
+1. 1. Open the live page:  
+   https://sensorylog.github.io/sensory-log/
 2. On iPhone: tap the Share button → **Add to Home Screen**  
    On Android: tap the menu → **Add to Home screen** / **Install app**
 
