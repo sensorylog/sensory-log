@@ -1,0 +1,1367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="theme-color" content="#F3F4F0" />
+<meta name="description" content="A calm, private sensory and energy log with pattern insights, trend forecasting and optional AI reflections" />
+<title>Sensory Log</title>
+<style>
+  :root {
+    --bg: #F3F4F0;
+    --surface: #FFFFFF;
+    --ink: #2A2F2A;
+    --muted: #6A7268;
+    --border: #D6DAD2;
+    --teal: #4A6F63;
+    --teal-soft: #E2EDE8;
+    --clay: #A37A58;
+    --clay-soft: #F1E8DF;
+    --rust: #9A5A46;
+    --rust-soft: #F2E5E0;
+    --good: #5A7A4E;
+    --good-soft: #E8F0E5;
+    --sleep: #4E6E8E;
+    --sleep-soft: #E4EAF0;
+    --social: #7A5E85;
+    --social-soft: #EEE6F0;
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --radius: 14px;
+  }
+
+  [data-theme="dark"] {
+    --bg: #1C1F1C;
+    --surface: #272B27;
+    --ink: #E8EBE6;
+    --muted: #9AA399;
+    --border: #3A403A;
+    --teal: #7BA894;
+    --teal-soft: #2A3A34;
+    --clay: #C49A78;
+    --clay-soft: #362D24;
+    --rust: #D08A74;
+    --rust-soft: #3A2E2A;
+    --good: #8BB87A;
+    --good-soft: #2A3528;
+    --sleep: #8FB0D3;
+    --sleep-soft: #262E38;
+    --social: #B79BC2;
+    --social-soft: #332B39;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    padding: 20px 16px calc(56px + var(--safe-bottom));
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .wrap { max-width: 460px; margin: 0 auto; }
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: -0.02em;
+  }
+
+  .header-btns { display: flex; gap: 8px; }
+
+  .theme-btn {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 999px;
+    width: 42px;
+    height: 42px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .subtitle {
+    font-size: 0.92rem;
+    color: var(--muted);
+    margin: 0 0 20px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 16px;
+    margin-bottom: 18px;
+  }
+
+  .date-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 18px;
+  }
+
+  .date-row input[type="date"] {
+    flex: 1;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 11px 12px;
+    font-size: 1rem;
+    font-family: inherit;
+    background: var(--bg);
+    color: var(--ink);
+    -webkit-appearance: none;
+  }
+
+  .field { margin-bottom: 22px; }
+  .field:last-of-type { margin-bottom: 6px; }
+
+  .field-label {
+    font-size: 0.88rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .field-hint {
+    font-weight: 400;
+    color: var(--muted);
+    font-size: 0.8rem;
+  }
+
+  .scale {
+    display: flex;
+    gap: 8px;
+  }
+
+  .scale button {
+    flex: 1;
+    height: 48px;
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+    background: var(--bg);
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    transition: 0.12s;
+  }
+
+  .scale button.on-energy { background: var(--teal); border-color: var(--teal); color: #fff; }
+  .scale button.on-overwhelm { background: var(--rust); border-color: var(--rust); color: #fff; }
+  .scale button.on-recovery { background: var(--clay); border-color: var(--clay); color: #fff; }
+  .scale button.on-sleep { background: var(--sleep); border-color: var(--sleep); color: #fff; }
+  .scale button.on-social { background: var(--social); border-color: var(--social); color: #fff; }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .chip {
+    border: 1.5px solid var(--border);
+    background: var(--bg);
+    color: var(--ink);
+    border-radius: 999px;
+    padding: 9px 14px;
+    font-size: 0.88rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: 0.12s;
+  }
+
+  .chip.active { border-color: var(--teal); background: var(--teal-soft); color: var(--teal); font-weight: 600; }
+  .chip.active-good { border-color: var(--good); background: var(--good-soft); color: var(--good); font-weight: 600; }
+  .chip.active-warn { border-color: var(--rust); background: var(--rust-soft); color: var(--rust); font-weight: 600; }
+  .chip.small { padding: 6px 11px; font-size: 0.8rem; }
+
+  .tag-add {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  input[type="text"], input[type="number"], textarea {
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 1rem;
+    font-family: inherit;
+    background: var(--bg);
+    color: var(--ink);
+    width: 100%;
+    -webkit-appearance: none;
+  }
+
+  input[type="text"] { flex: 1; }
+  textarea { resize: vertical; min-height: 72px; }
+
+  .sleep-hours-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .sleep-hours-row input[type="number"] { width: 90px; flex: none; }
+  .sleep-hours-row span { font-size: 0.85rem; color: var(--muted); }
+
+  .btn {
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    color: var(--ink);
+    border-radius: 12px;
+    padding: 11px 14px;
+    font-size: 0.92rem;
+    font-family: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .btn.on { border-color: var(--teal); background: var(--teal-soft); color: var(--teal); font-weight: 600; }
+  .btn.danger { border-color: var(--rust); color: var(--rust); }
+
+  .btn-primary {
+    width: 100%;
+    background: var(--teal);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    padding: 15px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    margin-top: 6px;
+  }
+
+  .saved-msg { text-align: center; color: var(--teal); font-size: 0.95rem; font-weight: 600; margin-top: 12px; min-height: 1.3em; }
+  .error { color: var(--rust); font-size: 0.9rem; text-align: center; margin: 8px 0 0; }
+
+  h2 { font-size: 1.05rem; font-weight: 700; margin: 26px 0 12px; }
+  h3 { font-size: 0.92rem; font-weight: 700; margin: 0 0 10px; }
+
+  .empty-note { color: var(--muted); font-size: 0.92rem; }
+
+  .window-row, .metric-row { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 12px; }
+
+  .chart-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 14px 12px;
+    margin-bottom: 14px;
+  }
+
+  .legend { display: flex; gap: 12px; font-size: 0.75rem; color: var(--muted); padding: 10px 2px 0; justify-content: center; flex-wrap: wrap; }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 4px; vertical-align: middle; }
+
+  .insight {
+    background: var(--rust-soft);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    font-size: 0.92rem;
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+  .insight.good { background: var(--good-soft); }
+  .insight.neutral { background: var(--sleep-soft); }
+  .insight strong { font-weight: 700; }
+
+  .weekday-grid { display: flex; gap: 5px; align-items: flex-end; height: 90px; margin-top: 4px; }
+  .weekday-col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+  .weekday-bar { width: 70%; border-radius: 4px 4px 0 0; background: var(--teal); min-height: 3px; }
+  .weekday-label { font-size: 0.62rem; color: var(--muted); margin-top: 4px; }
+
+  .live-forecast { font-size: 0.85rem; color: var(--muted); margin-top: -10px; margin-bottom: 20px; line-height: 1.4; }
+  .live-forecast strong { color: var(--ink); }
+
+  details summary { cursor: pointer; font-size: 0.92rem; color: var(--muted); padding: 8px 0; list-style: none; }
+  details summary::-webkit-details-marker { display: none; }
+
+  .log-row { font-size: 0.82rem; line-height: 1.55; border-bottom: 1px solid var(--border); padding: 9px 0; }
+  .outlier-tag { color: var(--rust); font-weight: 600; }
+
+  .backup-card, .ai-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 16px;
+    margin-top: 24px;
+  }
+
+  .backup-title, .ai-title { font-size: 0.98rem; font-weight: 700; margin-bottom: 4px; }
+  .backup-desc, .ai-desc { font-size: 0.88rem; color: var(--muted); margin: 0 0 14px; line-height: 1.45; }
+
+  .backup-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .backup-status { font-size: 0.88rem; color: var(--teal); margin-top: 10px; min-height: 1.2em; }
+  .backup-status.err { color: var(--rust); }
+
+  .checkbox-row { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--muted); margin: 10px 0; }
+  .checkbox-row input { width: 16px; height: 16px; }
+
+  .ai-response {
+    background: var(--sleep-soft);
+    border-radius: 12px;
+    padding: 14px 15px;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    margin-top: 12px;
+    white-space: pre-wrap;
+  }
+
+  .ai-ask-row { display: flex; gap: 8px; margin-top: 14px; }
+
+  .tip {
+    background: var(--teal-soft);
+    border-radius: 12px;
+    padding: 13px 15px;
+    font-size: 0.88rem;
+    color: var(--teal);
+    margin-bottom: 18px;
+    line-height: 1.45;
+  }
+
+  .footnote { font-size: 0.78rem; color: var(--muted); margin-top: 32px; line-height: 1.5; }
+
+  button:focus-visible, textarea:focus, input:focus { outline: 2px solid var(--teal); outline-offset: 2px; }
+
+  .section-divider { height: 1px; background: var(--border); margin: 8px 0 18px; }
+
+  .spinner {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border: 2px solid var(--border);
+    border-top-color: var(--teal);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: -2px;
+    margin-right: 6px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Sensory Log</h1>
+    <div class="header-btns">
+      <button class="theme-btn" id="themeBtn" type="button" aria-label="Toggle dark mode">◐</button>
+    </div>
+  </header>
+  <p class="subtitle">Private tracking for energy, sensory load, body signals and what actually helps recovery.</p>
+
+  <div class="tip" id="phoneTip">
+    <strong>Tip:</strong> Once open in Safari, tap Share → <strong>Add to Home Screen</strong>. Your entries save right on this device — no account, no upload, unless you choose to turn on AI Insights below.
+  </div>
+
+  <div class="card">
+    <div class="date-row">
+      <input type="date" id="dateInput" />
+      <button class="btn" id="todayBtn" type="button">Today</button>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Energy <span class="field-hint">1 = depleted · 5 = solid</span></div>
+      <div class="scale" id="energyScale"></div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Sensory saturation <span class="field-hint">how full your system felt</span></div>
+      <div class="scale" id="overwhelmScale"></div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Time spent masking</div>
+      <div class="chips" id="maskingChips"></div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Body signals <span class="field-hint">optional</span></div>
+      <div class="chips" id="bodyChips"></div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Mood <span class="field-hint">optional</span></div>
+      <div class="chips" id="moodChips"></div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">What drained you</div>
+      <div class="chips" id="drainChips"></div>
+      <div class="tag-add">
+        <input type="text" id="customDrain" placeholder="Add something else…" enterkeyhint="done" />
+        <button class="btn" id="addDrainBtn" type="button">Add</button>
+      </div>
+    </div>
+    <div class="live-forecast" id="liveForecast"></div>
+
+    <div class="field">
+      <div class="field-label">Main environment</div>
+      <div class="chips" id="envChips"></div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Meltdown / shutdown <span class="field-hint">optional</span></div>
+      <div class="chips" id="meltdownChips"></div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <div class="field">
+      <div class="field-label">Sleep <span class="field-hint">optional</span></div>
+      <div class="sleep-hours-row">
+        <input type="number" id="sleepHoursInput" min="0" max="14" step="0.5" placeholder="0" />
+        <span>hours last night</span>
+      </div>
+      <div class="scale" id="sleepScale"></div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Social battery <span class="field-hint">separate from overall energy</span></div>
+      <div class="scale" id="socialScale"></div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Recovery needed <span class="field-hint">how much rest your system asked for</span></div>
+      <div class="scale" id="recoveryScale"></div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">What actually helped <span class="field-hint">optional but powerful</span></div>
+      <div class="chips" id="helpChips"></div>
+      <div class="tag-add">
+        <input type="text" id="customHelp" placeholder="Something that helped…" enterkeyhint="done" />
+        <button class="btn" id="addHelpBtn" type="button">Add</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Note <span class="field-hint">optional</span></div>
+      <textarea id="noteInput" rows="2" placeholder="Anything worth remembering"></textarea>
+    </div>
+
+    <div class="error" id="errorMsg" style="display:none;"></div>
+    <button class="btn-primary" id="saveBtn" type="button">Save this day</button>
+    <div class="saved-msg" id="savedMsg"></div>
+  </div>
+
+  <h2>Patterns</h2>
+
+  <div class="window-row" id="windowRow"></div>
+  <div class="metric-row" id="metricRow"></div>
+  <div id="chartArea"></div>
+
+  <div id="weekdayArea"></div>
+  <div id="trendArea"></div>
+  <div id="insightArea"></div>
+  <div id="logArea"></div>
+
+  <div class="ai-card">
+    <div class="ai-title">AI Insights</div>
+    <p class="ai-desc">Off by default. When turned on, a <em>summary</em> of your patterns — not your written notes, unless you choose to include them below — is sent to Claude to generate reflections. This needs an internet connection and only works while this page is open inside Claude.ai; it won't work in the version saved to your home screen.</p>
+    <button class="btn" id="aiToggleBtn" type="button">Turn on AI Insights</button>
+    <div id="aiOptions" style="display:none;">
+      <div class="checkbox-row">
+        <input type="checkbox" id="includeNotesCheck" />
+        <label for="includeNotesCheck">Include my written notes text in AI requests</label>
+      </div>
+      <button class="btn on" id="generateInsightBtn" type="button">Generate reflections</button>
+      <div class="ai-ask-row">
+        <input type="text" id="aiQuestionInput" placeholder="Ask something about your patterns…" enterkeyhint="send" />
+        <button class="btn" id="aiAskBtn" type="button">Ask</button>
+      </div>
+      <div id="aiResponseArea"></div>
+    </div>
+  </div>
+
+  <div class="backup-card">
+    <div class="backup-title">Your data stays on this device</div>
+    <p class="backup-desc">Nothing is uploaded unless you use AI Insights above. Export a backup so you don't lose history if you switch phones or clear browser data.</p>
+    <div class="backup-row">
+      <button class="btn" id="exportBtn" type="button">Export JSON</button>
+      <button class="btn" id="exportCsvBtn" type="button">Export CSV</button>
+      <button class="btn" id="importBtn" type="button">Import</button>
+      <input type="file" id="importFile" accept=".json,application/json,.csv,text/csv" style="display:none;" />
+    </div>
+    <div class="backup-row" style="margin-top:8px;">
+      <button class="btn danger" id="clearAllBtn" type="button">Clear all data</button>
+    </div>
+    <div class="backup-status" id="backupStatus"></div>
+  </div>
+
+  <p class="footnote">
+    This is a personal tracking tool, not a diagnostic or medical device. Skip any day that feels like too much — there is no streak to protect. Pattern insights, trends and forecasts below are simple statistics computed only from your own entries; they're rough estimates from a small personal sample, not certainties or clinical conclusions.
+  </p>
+</div>
+
+<script>
+(function () {
+  const PRESET_DRAINS = [
+    "Noise", "Bright / fluorescent light", "Crowds", "Unexpected change",
+    "Small talk / social", "Textures / clothing", "Screens", "New place",
+    "Strong smells", "Interruptions", "Waiting", "Decision load",
+    "Emotional labour", "Time pressure"
+  ];
+
+  const PRESET_BODY = [
+    "Tight chest / shoulders", "Headache / pressure", "Restless / jittery",
+    "Heavy / slow", "Shutdown-y", "Irritable", "Foggy thinking", "Nauseous"
+  ];
+
+  const PRESET_MOOD = [
+    "Calm", "Content", "Anxious", "Irritable", "Overstimulated",
+    "Understimulated", "Low / flat", "Hyperfocused", "Excited", "Numb"
+  ];
+
+  const PRESET_HELP = [
+    "Quiet alone time", "Nature / outside", "Weighted blanket / pressure",
+    "Familiar show / music", "Movement / walk", "Hot shower / bath",
+    "Low lighting", "No talking", "Stimming freely", "Early bedtime",
+    "Good food / water", "Cancelled plans"
+  ];
+
+  const MASKING = [
+    { label: "None", value: 0 },
+    { label: "1–2 h", value: 1 },
+    { label: "3–5 h", value: 2 },
+    { label: "6 h+", value: 3 }
+  ];
+
+  const MELTDOWN = [
+    { label: "None", value: 0 },
+    { label: "Close call", value: 1 },
+    { label: "Occurred", value: 2 }
+  ];
+
+  const ENVS = ["Home", "Work / school", "Out in public", "Mixed / travel"];
+
+  const METRICS = {
+    energy:        { label: "Energy",             color: "var(--teal)",   soft: "var(--teal-soft)" },
+    overwhelm:     { label: "Sensory saturation",  color: "var(--rust)",   soft: "var(--rust-soft)" },
+    recovery:      { label: "Recovery needed",     color: "var(--clay)",   soft: "var(--clay-soft)" },
+    sleepQuality:  { label: "Sleep quality",       color: "var(--sleep)",  soft: "var(--sleep-soft)" },
+    socialBattery: { label: "Social battery",      color: "var(--social)", soft: "var(--social-soft)" }
+  };
+  const METRIC_KEYS = Object.keys(METRICS);
+  const WINDOWS = [14, 30, 90, "all"];
+
+  const STORAGE_KEY = "sensoryLog_v3"; // kept stable so existing entries keep loading
+  const SETTINGS_KEY = "sensoryLogSettings_v1";
+  const WEEKDAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  function todayStr() { return new Date().toISOString().slice(0, 10); }
+  function formatDay(d) { return new Date(d + "T12:00:00").toLocaleDateString(undefined, { month: "short", day: "numeric" }); }
+  function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+  function load() {
+    try {
+      let raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) return JSON.parse(raw) || [];
+      const old = localStorage.getItem("sensoryLogEntries_v2") || localStorage.getItem("sensoryLogEntries");
+      if (old) {
+        const parsed = JSON.parse(old) || [];
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+        return parsed;
+      }
+      return [];
+    } catch (e) { return []; }
+  }
+
+  function save(entries) {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+    } catch (e) {
+      alert("Could not save. Browser may be blocking storage for this page.");
+    }
+  }
+
+  function loadSettings() {
+    try {
+      const raw = localStorage.getItem(SETTINGS_KEY);
+      const s = raw ? JSON.parse(raw) : {};
+      return {
+        aiEnabled: !!s.aiEnabled,
+        includeNotes: !!s.includeNotes,
+        chartWindow: s.chartWindow || 14,
+        chartMetrics: Array.isArray(s.chartMetrics) && s.chartMetrics.length ? s.chartMetrics : ["energy", "overwhelm"]
+      };
+    } catch (e) {
+      return { aiEnabled: false, includeNotes: false, chartWindow: 14, chartMetrics: ["energy", "overwhelm"] };
+    }
+  }
+
+  function saveSettings(s) {
+    try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(s)); } catch (e) {}
+  }
+
+  let entries = load();
+  let settings = loadSettings();
+  let currentDate = todayStr();
+  let state = blankState();
+
+  function blankState() {
+    return {
+      energy: 0, overwhelm: 0, masking: null, body: [], mood: [],
+      drains: [], env: null, meltdown: null,
+      sleepHours: "", sleepQuality: 0, socialBattery: 0,
+      recovery: 0, helped: [], note: ""
+    };
+  }
+
+  function loadDate(dateStr) {
+    currentDate = dateStr;
+    document.getElementById("dateInput").value = dateStr;
+    const found = entries.find(e => e.date === dateStr);
+    if (found) {
+      state = {
+        energy: found.energy || 0,
+        overwhelm: found.overwhelm || 0,
+        masking: found.masking != null ? found.masking : null,
+        body: found.body || [],
+        mood: found.mood || [],
+        drains: found.drains || found.tags || [],
+        env: found.env || null,
+        meltdown: found.meltdown != null ? found.meltdown : null,
+        sleepHours: found.sleepHours != null ? found.sleepHours : "",
+        sleepQuality: found.sleepQuality || 0,
+        socialBattery: found.socialBattery || 0,
+        recovery: found.recovery || 0,
+        helped: found.helped || [],
+        note: found.note || ""
+      };
+    } else {
+      state = blankState();
+    }
+    renderAll();
+  }
+
+  // ---------- theme ----------
+  const themeBtn = document.getElementById("themeBtn");
+  function applyTheme(t) {
+    document.documentElement.setAttribute("data-theme", t);
+    localStorage.setItem("sensoryTheme", t);
+    themeBtn.textContent = t === "dark" ? "◑" : "◐";
+  }
+  applyTheme(localStorage.getItem("sensoryTheme") || "light");
+  themeBtn.onclick = () => {
+    const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    applyTheme(next);
+  };
+
+  document.getElementById("dateInput").value = currentDate;
+  document.getElementById("dateInput").onchange = (e) => loadDate(e.target.value);
+  document.getElementById("todayBtn").onclick = () => loadDate(todayStr());
+
+  if (window.navigator.standalone || matchMedia("(display-mode: standalone)").matches) {
+    document.getElementById("phoneTip").style.display = "none";
+  }
+
+  // ---------- form rendering ----------
+  function renderScale(id, value, cls) {
+    const el = document.getElementById(id);
+    el.innerHTML = "";
+    for (let i = 1; i <= 5; i++) {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.textContent = i;
+      b.className = i <= value ? cls : "";
+      b.onclick = () => {
+        if (id === "energyScale") state.energy = i;
+        if (id === "overwhelmScale") state.overwhelm = i;
+        if (id === "recoveryScale") state.recovery = i;
+        if (id === "sleepScale") state.sleepQuality = i;
+        if (id === "socialScale") state.socialBattery = i;
+        renderAll();
+      };
+      el.appendChild(b);
+    }
+  }
+
+  function renderChips(containerId, options, selected, key, activeClass) {
+    const el = document.getElementById(containerId);
+    el.innerHTML = "";
+    const all = [...options];
+    selected.forEach(t => { if (!all.includes(t)) all.push(t); });
+
+    all.forEach(t => {
+      const chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "chip" + (selected.includes(t) ? " " + (activeClass || "active") : "");
+      chip.textContent = t;
+      chip.onclick = () => {
+        if (selected.includes(t)) {
+          state[key] = selected.filter(x => x !== t);
+        } else {
+          state[key] = [...selected, t];
+        }
+        renderAll();
+      };
+      el.appendChild(chip);
+    });
+  }
+
+  function renderSingleChips(containerId, options, selectedValue, key, activeClass) {
+    const el = document.getElementById(containerId);
+    el.innerHTML = "";
+    options.forEach(opt => {
+      const val = typeof opt === "object" ? opt.value : opt;
+      const label = typeof opt === "object" ? opt.label : opt;
+      const chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "chip" + (selectedValue === val ? " " + (activeClass || "active") : "");
+      chip.textContent = label;
+      chip.onclick = () => {
+        state[key] = val;
+        renderAll();
+      };
+      el.appendChild(chip);
+    });
+  }
+
+  document.getElementById("addDrainBtn").onclick = () => {
+    const v = document.getElementById("customDrain").value.trim();
+    if (v && !state.drains.includes(v)) state.drains = [...state.drains, v];
+    document.getElementById("customDrain").value = "";
+    renderAll();
+  };
+  document.getElementById("customDrain").addEventListener("keydown", e => {
+    if (e.key === "Enter") { e.preventDefault(); document.getElementById("addDrainBtn").click(); }
+  });
+
+  document.getElementById("addHelpBtn").onclick = () => {
+    const v = document.getElementById("customHelp").value.trim();
+    if (v && !state.helped.includes(v)) state.helped = [...state.helped, v];
+    document.getElementById("customHelp").value = "";
+    renderAll();
+  };
+  document.getElementById("customHelp").addEventListener("keydown", e => {
+    if (e.key === "Enter") { e.preventDefault(); document.getElementById("addHelpBtn").click(); }
+  });
+
+  document.getElementById("noteInput").oninput = e => { state.note = e.target.value; };
+  document.getElementById("sleepHoursInput").oninput = e => {
+    state.sleepHours = e.target.value === "" ? "" : parseFloat(e.target.value);
+  };
+
+  document.getElementById("saveBtn").onclick = () => {
+    const err = document.getElementById("errorMsg");
+    if (state.energy === 0 || state.masking === null || state.recovery === 0) {
+      err.textContent = "Energy, masking and recovery are required.";
+      err.style.display = "block";
+      return;
+    }
+    err.style.display = "none";
+
+    const entry = {
+      date: currentDate,
+      energy: state.energy,
+      overwhelm: state.overwhelm,
+      masking: state.masking,
+      body: state.body,
+      mood: state.mood,
+      drains: state.drains,
+      env: state.env,
+      meltdown: state.meltdown,
+      sleepHours: state.sleepHours === "" ? null : state.sleepHours,
+      sleepQuality: state.sleepQuality,
+      socialBattery: state.socialBattery,
+      recovery: state.recovery,
+      helped: state.helped,
+      note: state.note
+    };
+
+    entries = entries.filter(e => e.date !== currentDate);
+    entries.push(entry);
+    entries.sort((a, b) => a.date.localeCompare(b.date));
+    save(entries);
+
+    const msg = document.getElementById("savedMsg");
+    msg.textContent = "Saved";
+    setTimeout(() => msg.textContent = "", 2000);
+    renderAll();
+  };
+
+  // ---------- stats helpers ----------
+  function chronological() { return [...entries].sort((a, b) => a.date.localeCompare(b.date)); }
+
+  function consecutivePairs(sorted) {
+    const pairs = [];
+    for (let i = 0; i < sorted.length - 1; i++) {
+      const d1 = new Date(sorted[i].date + "T12:00:00");
+      const d2 = new Date(sorted[i + 1].date + "T12:00:00");
+      if (Math.round((d2 - d1) / 86400000) === 1) pairs.push({ prev: sorted[i], next: sorted[i + 1] });
+    }
+    return pairs;
+  }
+
+  function average(arr) { return arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null; }
+
+  function linreg(ys) {
+    const n = ys.length;
+    if (n < 3) return null;
+    let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
+    for (let i = 0; i < n; i++) { sumX += i; sumY += ys[i]; sumXY += i * ys[i]; sumXX += i * i; }
+    const denom = n * sumXX - sumX * sumX;
+    if (denom === 0) return null;
+    const slope = (n * sumXY - sumX * sumY) / denom;
+    const intercept = (sumY - slope * sumX) / n;
+    const meanY = sumY / n;
+    let ssTot = 0, ssRes = 0;
+    for (let i = 0; i < n; i++) { const pred = intercept + slope * i; ssRes += (ys[i] - pred) ** 2; ssTot += (ys[i] - meanY) ** 2; }
+    const r2 = ssTot === 0 ? 0 : 1 - ssRes / ssTot;
+    return { slope, intercept, r2, n };
+  }
+
+  function weekdayAverages(sorted, key) {
+    const buckets = Array.from({ length: 7 }, () => []);
+    sorted.forEach(e => {
+      if (e[key] == null || e[key] === 0) return;
+      const d = new Date(e.date + "T12:00:00").getDay();
+      buckets[d].push(e[key]);
+    });
+    return buckets.map(arr => (arr.length >= 2 ? average(arr) : null));
+  }
+
+  function zscoreOutliers(sorted, key, threshold) {
+    const vals = sorted.map(e => e[key]).filter(v => v != null && v !== 0);
+    if (vals.length < 6) return new Set();
+    const mean = average(vals);
+    const variance = average(vals.map(v => (v - mean) ** 2));
+    const sd = Math.sqrt(variance) || 0.0001;
+    const set = new Set();
+    sorted.forEach(e => {
+      if (e[key] != null && e[key] !== 0) {
+        const z = (e[key] - mean) / sd;
+        if (Math.abs(z) >= threshold) set.add(e.date);
+      }
+    });
+    return set;
+  }
+
+  function drainImpact(sorted, drainsSelected) {
+    const pairs = consecutivePairs(sorted);
+    if (pairs.length < 8 || !drainsSelected.length) return null;
+    let withVals = [], withoutVals = [];
+    pairs.forEach(p => {
+      const has = drainsSelected.some(d => (p.prev.drains || []).includes(d));
+      (has ? withVals : withoutVals).push(p.next.energy);
+    });
+    if (withVals.length < 3 || withoutVals.length < 3) return null;
+    return { withAvg: average(withVals), withoutAvg: average(withoutVals), n: withVals.length };
+  }
+
+  // ---------- live forecast in the form ----------
+  function renderLiveForecast() {
+    const el = document.getElementById("liveForecast");
+    const sorted = chronological();
+    const result = drainImpact(sorted, state.drains);
+    if (!result) { el.textContent = ""; return; }
+    const diff = result.withAvg - result.withoutAvg;
+    if (Math.abs(diff) < 0.25) { el.textContent = ""; return; }
+    const dir = diff < 0 ? "lower" : "higher";
+    el.innerHTML = `Based on ${result.n} similar past days, next-day energy after these drains tends to run <strong>${dir}</strong> (avg ${result.withAvg.toFixed(1)}/5 vs ${result.withoutAvg.toFixed(1)}/5).`;
+  }
+
+  // ---------- chart ----------
+  function renderWindowRow() {
+    const el = document.getElementById("windowRow");
+    el.innerHTML = "";
+    WINDOWS.forEach(w => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "btn small" + (settings.chartWindow === w ? " on" : "");
+      b.textContent = w === "all" ? "All time" : w + "d";
+      b.onclick = () => { settings.chartWindow = w; saveSettings(settings); renderAll(); };
+      el.appendChild(b);
+    });
+  }
+
+  function renderMetricRow() {
+    const el = document.getElementById("metricRow");
+    el.innerHTML = "";
+    METRIC_KEYS.forEach(k => {
+      const on = settings.chartMetrics.includes(k);
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "chip small" + (on ? " active" : "");
+      b.textContent = METRICS[k].label;
+      b.onclick = () => {
+        if (on) settings.chartMetrics = settings.chartMetrics.filter(x => x !== k);
+        else settings.chartMetrics = [...settings.chartMetrics, k];
+        if (!settings.chartMetrics.length) settings.chartMetrics = ["energy"];
+        saveSettings(settings);
+        renderAll();
+      };
+      el.appendChild(b);
+    });
+  }
+
+  function buildSegments(data, key, yFor, xStep, padL) {
+    const segments = [];
+    let current = [];
+    data.forEach((e, i) => {
+      const v = e[key];
+      if (v == null || v === 0) {
+        if (current.length > 1) segments.push(current);
+        current = [];
+        return;
+      }
+      current.push(`${(padL + i * xStep).toFixed(1)},${yFor(v).toFixed(1)}`);
+    });
+    if (current.length > 1) segments.push(current);
+    return segments;
+  }
+
+  function renderChart() {
+    const area = document.getElementById("chartArea");
+    const sorted = chronological();
+    const days = settings.chartWindow === "all" ? sorted.length : settings.chartWindow;
+    const data = sorted.slice(-days);
+    if (!data.length) {
+      area.innerHTML = '<p class="empty-note">Patterns appear after a few days of logging.</p>';
+      return;
+    }
+
+    const W = 300, H = 150, padL = 18, padR = 6, padT = 8, padB = 16;
+    const n = data.length;
+    const xStep = n > 1 ? (W - padL - padR) / (n - 1) : 0;
+    const yFor = v => padT + (H - padT - padB) * (1 - (v - 1) / 4);
+
+    let svg = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;display:block;" xmlns="http://www.w3.org/2000/svg">`;
+
+    [1, 3, 5].forEach(v => {
+      const y = yFor(v);
+      svg += `<line x1="${padL}" y1="${y.toFixed(1)}" x2="${W - padR}" y2="${y.toFixed(1)}" stroke="var(--border)" stroke-width="1"/>`;
+      svg += `<text x="2" y="${(y + 3).toFixed(1)}" font-size="7" fill="var(--muted)">${v}</text>`;
+    });
+
+    settings.chartMetrics.forEach(key => {
+      const segs = buildSegments(data, key, yFor, xStep, padL);
+      segs.forEach(seg => {
+        svg += `<polyline points="${seg.join(" ")}" fill="none" stroke="${METRICS[key].color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
+      });
+      if (key === "energy") {
+        data.forEach((e, i) => {
+          if (e.energy == null || e.energy === 0) return;
+          const cx = padL + i * xStep, cy = yFor(e.energy);
+          const dotColor = e.masking >= 2 ? "var(--clay)" : "var(--teal)";
+          svg += `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="2.6" fill="${dotColor}"/>`;
+        });
+      }
+    });
+
+    const labelEvery = Math.max(1, Math.ceil(n / 6));
+    data.forEach((e, i) => {
+      if (i % labelEvery !== 0 && i !== n - 1) return;
+      const x = padL + i * xStep;
+      svg += `<text x="${x.toFixed(1)}" y="${H - 2}" font-size="7" fill="var(--muted)" text-anchor="middle">${formatDay(e.date)}</text>`;
+    });
+
+    svg += "</svg>";
+
+    const legend = settings.chartMetrics.map(k =>
+      `<span><span class="legend-dot" style="background:${METRICS[k].color}"></span>${METRICS[k].label}</span>`
+    ).join("");
+    const maskingNote = settings.chartMetrics.includes("energy")
+      ? '<span><span class="legend-dot" style="background:var(--clay)"></span>3+ hrs masking that day</span>' : "";
+
+    area.innerHTML = `<div class="chart-card">${svg}<div class="legend">${legend}${maskingNote}</div></div>`;
+  }
+
+  function renderWeekday() {
+    const area = document.getElementById("weekdayArea");
+    const sorted = chronological();
+    if (sorted.length < 10) { area.innerHTML = ""; return; }
+    const avgs = weekdayAverages(sorted, "energy");
+    if (avgs.every(a => a == null)) { area.innerHTML = ""; return; }
+    const bars = avgs.map((a, i) => {
+      const h = a == null ? 3 : Math.max(4, (a / 5) * 100);
+      const opacity = a == null ? 0.15 : 1;
+      return `<div class="weekday-col">
+        <div class="weekday-bar" style="height:${h}%;opacity:${opacity}"></div>
+        <div class="weekday-label">${WEEKDAY_NAMES[i]}</div>
+      </div>`;
+    }).join("");
+    area.innerHTML = `<div class="chart-card"><h3>Average energy by day of week</h3><div class="weekday-grid">${bars}</div></div>`;
+  }
+
+  function renderTrends() {
+    const area = document.getElementById("trendArea");
+    const sorted = chronological();
+    const days = settings.chartWindow === "all" ? sorted.length : settings.chartWindow;
+    const data = sorted.slice(-days).filter(e => e.energy);
+    if (data.length < 5) { area.innerHTML = ""; return; }
+
+    const energyReg = linreg(data.map(e => e.energy));
+    if (!energyReg) { area.innerHTML = ""; return; }
+
+    const forecast = clamp(energyReg.intercept + energyReg.slope * energyReg.n, 1, 5);
+    let direction = "holding roughly steady";
+    if (energyReg.slope > 0.03) direction = "trending upward";
+    else if (energyReg.slope < -0.03) direction = "trending downward";
+
+    let html = `<div class="chart-card"><h3>Trend & rough forecast</h3>
+      <p style="font-size:0.88rem;margin:0 0 6px;">Energy over this window is <strong>${direction}</strong> (~${(energyReg.slope).toFixed(2)}/day). Projected next value: <strong>${forecast.toFixed(1)}/5</strong>.</p>`;
+
+    const overwhelmData = data.filter(e => e.overwhelm);
+    if (overwhelmData.length >= 5) {
+      const owReg = linreg(overwhelmData.map(e => e.overwhelm));
+      if (owReg) {
+        let owDir = "steady";
+        if (owReg.slope > 0.03) owDir = "rising";
+        else if (owReg.slope < -0.03) owDir = "easing";
+        html += `<p style="font-size:0.88rem;margin:0;">Sensory saturation looks <strong>${owDir}</strong> over the same window.</p>`;
+      }
+    }
+    html += `</div>`;
+    area.innerHTML = html;
+  }
+
+  function renderInsights() {
+    const area = document.getElementById("insightArea");
+    area.innerHTML = "";
+    const sorted = chronological();
+    if (sorted.length < 7) return;
+
+    const pairs = consecutivePairs(sorted);
+    if (pairs.length < 5) return;
+
+    const highMask = pairs.filter(p => p.prev.masking >= 2);
+    const lowMask = pairs.filter(p => p.prev.masking < 2);
+    if (highMask.length >= 3 && lowMask.length >= 3) {
+      const hi = average(highMask.map(p => p.next.energy)), lo = average(lowMask.map(p => p.next.energy));
+      if (lo - hi >= 0.4) {
+        area.innerHTML += `<div class="insight">After 3+ hours of masking, next-day energy averages <strong>${hi.toFixed(1)}/5</strong> vs <strong>${lo.toFixed(1)}/5</strong> after lighter days.</div>`;
+      }
+    }
+
+    const lowEnergyDays = sorted.filter(e => e.energy && e.energy <= 2);
+    if (lowEnergyDays.length >= 4) {
+      const count = {};
+      lowEnergyDays.forEach(e => (e.drains || []).forEach(d => { count[d] = (count[d] || 0) + 1; }));
+      const top = Object.entries(count).sort((a, b) => b[1] - a[1]).slice(0, 3);
+      if (top.length && top[0][1] >= 2) {
+        area.innerHTML += `<div class="insight">On your lowest energy days the most frequent drains were: <strong>${top.map(t => t[0]).join(", ")}</strong>.</div>`;
+      }
+    }
+
+    const goodNext = pairs.filter(p => p.next.energy >= 4);
+    if (goodNext.length >= 3) {
+      const count = {};
+      goodNext.forEach(p => (p.prev.helped || []).forEach(h => { count[h] = (count[h] || 0) + 1; }));
+      const top = Object.entries(count).sort((a, b) => b[1] - a[1]).slice(0, 3);
+      if (top.length && top[0][1] >= 2) {
+        area.innerHTML += `<div class="insight good">Strategies that most often preceded higher-energy days: <strong>${top.map(t => t[0]).join(", ")}</strong>.</div>`;
+      }
+    }
+
+    const meltdownDays = sorted.filter(e => e.meltdown === 2);
+    if (meltdownDays.length >= 3) {
+      const heavyMaskCount = meltdownDays.filter(e => e.masking >= 2).length;
+      const heavyMaskShare = heavyMaskCount / meltdownDays.length;
+      const baseHeavy = sorted.filter(e => e.masking >= 2).length / sorted.length;
+      if (heavyMaskShare - baseHeavy >= 0.25) {
+        area.innerHTML += `<div class="insight">Meltdowns/shutdowns occurred on <strong>${Math.round(heavyMaskShare * 100)}%</strong> of 3+ hour masking days, vs <strong>${Math.round(baseHeavy * 100)}%</strong> overall.</div>`;
+      }
+    }
+
+    const sleepPairs = pairs.filter(p => p.prev.sleepQuality);
+    if (sleepPairs.length >= 6) {
+      const goodSleep = sleepPairs.filter(p => p.prev.sleepQuality >= 4);
+      const poorSleep = sleepPairs.filter(p => p.prev.sleepQuality <= 2);
+      if (goodSleep.length >= 3 && poorSleep.length >= 3) {
+        const gAvg = average(goodSleep.map(p => p.next.energy)), pAvg = average(poorSleep.map(p => p.next.energy));
+        if (gAvg - pAvg >= 0.4) {
+          area.innerHTML += `<div class="insight neutral">Good sleep nights are followed by higher energy (<strong>${gAvg.toFixed(1)}/5</strong>) than poor sleep nights (<strong>${pAvg.toFixed(1)}/5</strong>).</div>`;
+        }
+      }
+    }
+
+    const outliers = zscoreOutliers(sorted, "overwhelm", 1.6);
+    if (outliers.size) {
+      const list = [...outliers].slice(-3).map(formatDay).join(", ");
+      area.innerHTML += `<div class="insight">Sensory saturation spiked well above your usual range on: <strong>${list}</strong>.</div>`;
+    }
+  }
+
+  function renderLog() {
+    const area = document.getElementById("logArea");
+    if (entries.length === 0) { area.innerHTML = ""; return; }
+    const sorted = chronological();
+    const outliers = zscoreOutliers(sorted, "overwhelm", 1.6);
+
+    const rows = [...entries].reverse().map(e => {
+      const mask = (MASKING[e.masking] && MASKING[e.masking].label) || "?";
+      const extra = [];
+      if (e.overwhelm) extra.push(`sat ${e.overwhelm}`);
+      if (e.sleepQuality) extra.push(`sleep ${e.sleepQuality}`);
+      if (e.socialBattery) extra.push(`social ${e.socialBattery}`);
+      if (e.meltdown === 2) extra.push("meltdown");
+      else if (e.meltdown === 1) extra.push("close call");
+      if (e.drains && e.drains.length) extra.push(e.drains.slice(0, 3).join(", "));
+      const flag = outliers.has(e.date) ? ' <span class="outlier-tag">⚠ outlier</span>' : "";
+      return `<div class="log-row">${e.date} · energy ${e.energy}/5 · masking ${mask} · recovery ${e.recovery}/5${extra.length ? " · " + extra.join(" · ") : ""}${flag}</div>`;
+    }).join("");
+
+    area.innerHTML = `<details><summary>All entries (${entries.length})</summary>${rows}</details>`;
+  }
+
+  // ---------- backup ----------
+  function status(msg, isErr) {
+    const el = document.getElementById("backupStatus");
+    el.textContent = msg;
+    el.className = "backup-status" + (isErr ? " err" : "");
+    if (msg) setTimeout(() => el.textContent = "", 4000);
+  }
+
+  document.getElementById("exportBtn").onclick = () => {
+    if (!entries.length) return status("Nothing to export yet.", true);
+    const blob = new Blob([JSON.stringify({ app: "sensory-log", version: 4, exportedAt: new Date().toISOString(), entries }, null, 2)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "sensory-log-" + todayStr() + ".json";
+    a.click();
+    status("JSON backup downloaded.");
+  };
+
+  document.getElementById("exportCsvBtn").onclick = () => {
+    if (!entries.length) return status("Nothing to export yet.", true);
+    const headers = ["date", "energy", "overwhelm", "masking", "recovery", "env", "meltdown", "sleepHours", "sleepQuality", "socialBattery", "body", "mood", "drains", "helped", "note"];
+    const lines = [headers.join(",")];
+    entries.forEach(e => {
+      const row = [
+        e.date, e.energy, e.overwhelm || "", e.masking, e.recovery, e.env || "",
+        e.meltdown != null ? e.meltdown : "", e.sleepHours != null ? e.sleepHours : "",
+        e.sleepQuality || "", e.socialBattery || "",
+        (e.body || []).join("; "), (e.mood || []).join("; "),
+        (e.drains || []).join("; "), (e.helped || []).join("; "),
+        (e.note || "").replace(/"/g, '""')
+      ].map(c => `"${c}"`);
+      lines.push(row.join(","));
+    });
+    const blob = new Blob([lines.join("\n")], { type: "text/csv" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "sensory-log-" + todayStr() + ".csv";
+    a.click();
+    status("CSV downloaded.");
+  };
+
+  document.getElementById("importBtn").onclick = () => document.getElementById("importFile").click();
+
+  document.getElementById("importFile").onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = evt => {
+      try {
+        let incoming = [];
+        if (file.name.endsWith(".csv")) {
+          const lines = evt.target.result.trim().split("\n").slice(1);
+          incoming = lines.map(line => {
+            const cols = line.match(/(".*?"|[^,]+)(?=\s*,|\s*$)/g).map(c => c.replace(/^"|"$/g, "").replace(/""/g, '"'));
+            return {
+              date: cols[0], energy: +cols[1] || 0, overwhelm: +cols[2] || 0, masking: +cols[3],
+              recovery: +cols[4] || 0, env: cols[5] || null,
+              meltdown: cols[6] === "" ? null : +cols[6],
+              sleepHours: cols[7] === "" ? null : +cols[7],
+              sleepQuality: +cols[8] || 0, socialBattery: +cols[9] || 0,
+              body: cols[10] ? cols[10].split("; ").filter(Boolean) : [],
+              mood: cols[11] ? cols[11].split("; ").filter(Boolean) : [],
+              drains: cols[12] ? cols[12].split("; ").filter(Boolean) : [],
+              helped: cols[13] ? cols[13].split("; ").filter(Boolean) : [],
+              note: cols[14] || ""
+            };
+          });
+        } else {
+          const data = JSON.parse(evt.target.result);
+          incoming = Array.isArray(data) ? data : (data.entries || []);
+        }
+        if (!incoming.length) throw new Error("empty");
+
+        const map = {};
+        entries.forEach(e => map[e.date] = e);
+        incoming.forEach(e => { if (e.date) map[e.date] = e; });
+        entries = Object.values(map).sort((a, b) => a.date.localeCompare(b.date));
+        save(entries);
+        loadDate(currentDate);
+        status("Imported " + incoming.length + " entries.");
+      } catch (err) {
+        status("Could not read that file.", true);
+      }
+      e.target.value = "";
+    };
+    reader.readAsText(file);
+  };
+
+  document.getElementById("clearAllBtn").onclick = () => {
+    if (!entries.length) return status("Nothing to clear.", true);
+    const ok = confirm("Delete all logged entries on this device? This can't be undone — export a backup first if you want to keep them.");
+    if (!ok) return;
+    entries = [];
+    save(entries);
+    loadDate(currentDate);
+    status("All entries cleared.");
+  };
+
+  // ---------- AI insights ----------
+  const AI_SYSTEM_PROMPT = "You are a calm, supportive assistant helping someone reflect on their own self-tracked sensory, energy and masking log. You only see a statistical summary they chose to share, never a live feed. Do not diagnose, moralize, or assume a specific condition. Keep the tone warm, plain, and practical. Prefer 3-5 short bullet points over long paragraphs. If asked something the summary can't answer, say so plainly and suggest what data would help. Gently note that for anything that feels overwhelming or unsafe, a doctor or therapist is a better resource than an app.";
+
+  function buildStatSummary() {
+    const sorted = chronological();
+    const n = sorted.length;
+    const lines = [];
+    lines.push(`Entries: ${n} (from ${sorted[0].date} to ${sorted[n - 1].date})`);
+    const avgOf = k => { const v = average(sorted.map(e => e[k]).filter(x => x)); return v == null ? "n/a" : v.toFixed(1); };
+    lines.push(`Averages — energy: ${avgOf("energy")}/5, sensory saturation: ${avgOf("overwhelm")}/5, recovery needed: ${avgOf("recovery")}/5, sleep quality: ${avgOf("sleepQuality")}/5, social battery: ${avgOf("socialBattery")}/5`);
+
+    const maskCounts = [0, 0, 0, 0];
+    sorted.forEach(e => { if (e.masking != null) maskCounts[e.masking]++; });
+    lines.push(`Masking hours distribution: ${MASKING.map((m, i) => `${m.label} ${maskCounts[i]}`).join(", ")}`);
+
+    const meltdownCounts = { 0: 0, 1: 0, 2: 0 };
+    sorted.forEach(e => { if (e.meltdown != null) meltdownCounts[e.meltdown]++; });
+    lines.push(`Meltdown/shutdown days: none ${meltdownCounts[0]}, close call ${meltdownCounts[1]}, occurred ${meltdownCounts[2]}`);
+
+    function topCounts(field, limit) {
+      const c = {};
+      sorted.forEach(e => (e[field] || []).forEach(t => c[t] = (c[t] || 0) + 1));
+      return Object.entries(c).sort((a, b) => b[1] - a[1]).slice(0, limit).map(([t, n]) => `${t} (${n})`).join(", ") || "none logged";
+    }
+    lines.push(`Most frequent drains: ${topCounts("drains", 5)}`);
+    lines.push(`Most frequent helps: ${topCounts("helped", 5)}`);
+    lines.push(`Most frequent moods: ${topCounts("mood", 5)}`);
+    lines.push(`Most frequent body signals: ${topCounts("body", 5)}`);
+
+    const wk = weekdayAverages(sorted, "energy");
+    lines.push(`Average energy by weekday: ${WEEKDAY_NAMES.map((d, i) => `${d} ${wk[i] != null ? wk[i].toFixed(1) : "n/a"}`).join(", ")}`);
+
+    const energyReg = linreg(sorted.slice(-30).map(e => e.energy).filter(x => x));
+    if (energyReg) lines.push(`Energy trend over last ~30 entries: slope ${energyReg.slope.toFixed(2)}/day`);
+
+    const pairs = consecutivePairs(sorted);
+    const highMask = pairs.filter(p => p.prev.masking >= 2), lowMask = pairs.filter(p => p.prev.masking < 2);
+    if (highMask.length >= 3 && lowMask.length >= 3) {
+      lines.push(`Next-day energy after 3+ hr masking: ${average(highMask.map(p => p.next.energy)).toFixed(1)} vs ${average(lowMask.map(p => p.next.energy)).toFixed(1)} after lighter masking`);
+    }
+
+    if (settings.includeNotes) {
+      const notes = sorted.filter(e => e.note && e.note.trim()).slice(-20).map(e => `${e.date}: ${e.note.trim()}`);
+      if (notes.length) lines.push(`Recent written notes:\n${notes.join("\n")}`);
+    }
+    return lines.join("\n");
+  }
+
+  async function callClaude(userText) {
+    const resp = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1000,
+        system: AI_SYSTEM_PROMPT,
+        messages: [{ role: "user", content: userText }]
+      })
+    });
+    if (!resp.ok) throw new Error("Request failed (" + resp.status + ")");
+    const data = await resp.json();
+    return (data.content || []).map(b => b.text || "").filter(Boolean).join("\n").trim();
+  }
+
+  const aiToggleBtn = document.getElementById("aiToggleBtn");
+  const aiOptions = document.getElementById("aiOptions");
+  const includeNotesCheck = document.getElementById("includeNotesCheck");
+  const aiResponseArea = document.getElementById("aiResponseArea");
+
+  function renderAiToggle() {
+    aiToggleBtn.textContent = settings.aiEnabled ? "Turn off AI Insights" : "Turn on AI Insights";
+    aiToggleBtn.className = "btn" + (settings.aiEnabled ? " on" : "");
+    aiOptions.style.display = settings.aiEnabled ? "block" : "none";
+    includeNotesCheck.checked = settings.includeNotes;
+  }
+
+  aiToggleBtn.onclick = () => {
+    settings.aiEnabled = !settings.aiEnabled;
+    saveSettings(settings);
+    renderAiToggle();
+  };
+
+  includeNotesCheck.onchange = e => {
+    settings.includeNotes = e.target.checked;
+    saveSettings(settings);
+  };
+
+  async function runAiRequest(question) {
+    if (entries.length < 5) {
+      aiResponseArea.innerHTML = '<div class="ai-response">Log at least a handful of days first — there\'s not quite enough here yet to reflect on.</div>';
+      return;
+    }
+    aiResponseArea.innerHTML = '<div class="ai-response"><span class="spinner"></span>Thinking it over…</div>';
+    try {
+      const summary = buildStatSummary();
+      const prompt = question
+        ? `Here is a summary of my sensory/energy log:\n\n${summary}\n\nMy question: ${question}`
+        : `Here is a summary of my sensory/energy log:\n\n${summary}\n\nShare a few short, specific, non-clinical reflections or gentle suggestions based on this.`;
+      const text = await callClaude(prompt);
+      aiResponseArea.innerHTML = `<div class="ai-response">${text.replace(/</g, "&lt;")}</div>`;
+    } catch (err) {
+      aiResponseArea.innerHTML = '<div class="ai-response">AI Insights aren\'t reachable right now. This feature only works while this page is open inside Claude.ai with an internet connection — it won\'t work in the version saved to your home screen.</div>';
+    }
+  }
+
+  document.getElementById("generateInsightBtn").onclick = () => runAiRequest(null);
+  document.getElementById("aiAskBtn").onclick = () => {
+    const q = document.getElementById("aiQuestionInput").value.trim();
+    if (!q) return;
+    runAiRequest(q);
+  };
+  document.getElementById("aiQuestionInput").addEventListener("keydown", e => {
+    if (e.key === "Enter") { e.preventDefault(); document.getElementById("aiAskBtn").click(); }
+  });
+
+  // ---------- render all ----------
+  function renderAll() {
+    renderScale("energyScale", state.energy, "on-energy");
+    renderScale("overwhelmScale", state.overwhelm, "on-overwhelm");
+    renderScale("recoveryScale", state.recovery, "on-recovery");
+    renderScale("sleepScale", state.sleepQuality, "on-sleep");
+    renderScale("socialScale", state.socialBattery, "on-social");
+    renderSingleChips("maskingChips", MASKING, state.masking, "masking");
+    renderChips("bodyChips", PRESET_BODY, state.body, "body");
+    renderChips("moodChips", PRESET_MOOD, state.mood, "mood");
+    renderChips("drainChips", PRESET_DRAINS, state.drains, "drains");
+    renderSingleChips("envChips", ENVS, state.env, "env");
+    renderSingleChips("meltdownChips", MELTDOWN, state.meltdown, "meltdown", "active-warn");
+    renderChips("helpChips", PRESET_HELP, state.helped, "helped", "active-good");
+    document.getElementById("noteInput").value = state.note || "";
+    document.getElementById("sleepHoursInput").value = state.sleepHours === "" ? "" : state.sleepHours;
+    renderLiveForecast();
+    renderWindowRow();
+    renderMetricRow();
+    renderChart();
+    renderWeekday();
+    renderTrends();
+    renderInsights();
+    renderLog();
+    renderAiToggle();
+  }
+
+  loadDate(todayStr());
+})();
+</script>
+</body>
+</html>
