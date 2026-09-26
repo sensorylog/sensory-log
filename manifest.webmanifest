@@ -1,0 +1,11 @@
+{
+  "name": "Sensory Log",
+  "short_name": "Sensory Log",
+  "description": "A private, local-first personal sensory and capacity log.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0b0d0d",
+  "theme_color": "#0b0d0d",
+  "orientation": "portrait",
+  "icons": []
+}
