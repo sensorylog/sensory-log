@@ -14,21 +14,21 @@ if(root&&legacy){
   date.onchange=()=>{if(q("#dateInput")){q("#dateInput").value=date.value;q("#dateInput").dispatchEvent(new Event("change"))}};
   const energy=q("#newEnergy");
   for(let i=1;i<=5;i++){const b=document.createElement("button");b.type="button";b.textContent=i;b.setAttribute("aria-label","Energy "+i+" of 5");b.onclick=()=>{click("energyScale","on-energy");const target=q("#energyScale button:nth-child("+i+")");if(target)target.click();render()};energy.appendChild(b)}
-  const context=[
-    ["overwhelmScale","on-overwhelm","Sensory load","How full your system feels"],
-    ["maskingChips","active","Masking","How much you have been adapting"],
-    ["bodyChips","active","Body signals","Physical signals"],
-    ["drainChips","active","Drained by","What has taken capacity"]
-  ];
-  const support=[
-    ["recoveryScale","on-recovery","Recovery needed","How much space you need"],
-    ["helpChips","active-good","What helped","Strategies that felt supportive"],
-    ["socialScale","on-social","Social battery","Separate from overall energy"],
-    ["sleepScale","on-sleep","Sleep quality","Optional context"]
-  ];
+  const context=[["overwhelmScale","Sensory load","How full your system feels"],["maskingChips","Masking","How much you have been adapting"]];
+  const support=[["recoveryScale","Recovery needed","How much space your system needs"],["socialScale","Social battery","Separate from overall energy"],["sleepScale","Sleep quality","Optional context"]];
   function build(list,id){
     const box=q("#"+id);box.innerHTML="";
-    list.forEach(([cid,cls,title,sub])=>{const b=document.createElement("button");b.type="button";b.innerHTML=title+"<small>"+sub+"</small>";b.onclick=()=>{const target=q("#"+cid+" button."+cls);if(target)target.click();setTimeout(render,0)};box.appendChild(b)});
+    list.forEach(([cid,title,sub])=>{
+      const wrap=document.createElement("div");wrap.style.gridColumn="1/-1";
+      const p=document.createElement("p");p.className="sl-prompt";p.style.marginTop="7px";p.textContent=title;wrap.appendChild(p);
+      const group=document.createElement("div");group.className="sl-checkin-choice";
+      if(cid==="maskingChips"){
+        ["None","1–2 h","3–5 h","6 h+"].forEach((label,i)=>{const b=document.createElement("button");b.type="button";b.textContent=label;b.onclick=()=>{const t=q("#maskingChips button:nth-child("+(i+1)+")");if(t)t.click();render()};group.appendChild(b)});
+      }else{
+        for(let i=1;i<=5;i++){const b=document.createElement("button");b.type="button";b.textContent=i;b.onclick=()=>{const t=q("#"+cid+" button:nth-child("+i+")");if(t)t.click();render()};group.appendChild(b)}
+      }
+      wrap.appendChild(group);box.appendChild(wrap);
+    });
   }
   build(context,"newContext");build(support,"newSupport");
   function render(){
