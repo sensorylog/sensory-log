@@ -563,6 +563,7 @@
   function todayStr() { const d = new Date(); const y=d.getFullYear(); const m=String(d.getMonth()+1).padStart(2,"0"); const day=String(d.getDate()).padStart(2,"0"); return `${y}-${m}-${day}`; }
   function formatDay(d) { return new Date(d + "T12:00:00").toLocaleDateString(undefined, { month: "short", day: "numeric" }); }
   function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+  function escapeHtml(v) { return String(v ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 
   function load() {
     try {
@@ -1049,7 +1050,7 @@
       lowEnergyDays.forEach(e => (e.drains || []).forEach(d => { count[d] = (count[d] || 0) + 1; }));
       const top = Object.entries(count).sort((a, b) => b[1] - a[1]).slice(0, 3);
       if (top.length && top[0][1] >= 2) {
-        area.innerHTML += `<div class="insight">On your lowest energy days the most frequent drains were: <strong>${top.map(t => t[0]).join(", ")}</strong>.</div>`;
+        area.innerHTML += `<div class="insight">On your lowest energy days the most frequent drains were: <strong>${top.map(t => escapeHtml(t[0])).join(", ")}</strong>.</div>`;
       }
     }
 
@@ -1106,7 +1107,7 @@
       if (e.socialBattery) extra.push(`social ${e.socialBattery}`);
       if (e.meltdown === 2) extra.push("meltdown");
       else if (e.meltdown === 1) extra.push("close call");
-      if (e.drains && e.drains.length) extra.push(e.drains.slice(0, 3).join(", "));
+      if (e.drains && e.drains.length) extra.push(e.drains.slice(0, 3).map(escapeHtml).join(", "));
       const flag = outliers.has(e.date) ? ' <span class="outlier-tag">⚠ outlier</span>' : "";
       return `<div class="log-row">${e.date} · energy ${e.energy}/5 · masking ${mask} · recovery ${e.recovery}/5${extra.length ? " · " + extra.join(" · ") : ""}${flag}</div>`;
     }).join("");
