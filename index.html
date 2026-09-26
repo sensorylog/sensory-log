@@ -12,6 +12,8 @@
 <link rel="stylesheet" href="./styles/liquid-glass.css" />
 <link rel="stylesheet" href="./styles/accessibility.css" />
 <link rel="stylesheet" href="./styles/home.css" />
+<link rel="stylesheet" href="./styles/checkin.css" />
+<script type="module" src="./js/checkin.js"></script>
 <script type="module" src="./js/home.js"></script>
 <style>
   :root {
@@ -566,7 +568,7 @@
   const SETTINGS_KEY = "sensoryLogSettings_v1";
   const WEEKDAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-  function todayStr() { return new Date().toISOString().slice(0, 10); }
+  function todayStr() { const d = new Date(); const y=d.getFullYear(); const m=String(d.getMonth()+1).padStart(2,"0"); const day=String(d.getDate()).padStart(2,"0"); return `${y}-${m}-${day}`; }
   function formatDay(d) { return new Date(d + "T12:00:00").toLocaleDateString(undefined, { month: "short", day: "numeric" }); }
   function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 
@@ -761,8 +763,8 @@
 
   document.getElementById("saveBtn").onclick = () => {
     const err = document.getElementById("errorMsg");
-    if (state.energy === 0 || state.masking === null || state.recovery === 0) {
-      err.textContent = "Energy, masking and recovery are required.";
+    if (state.energy === 0) {
+      err.textContent = "Choose your energy level, or leave the check-in for later.";
       err.style.display = "block";
       return;
     }
