@@ -1,4 +1,4 @@
-import { getEntries, putEntries } from "./core/storage.js";
+import { getEntries } from "./core/storage.js";
 
 const MODES=[
  {id:"sensory",label:"Too much sensory input",sub:"Lower what is reaching you.",steps:["Move somewhere quieter or visually simpler.","Lower the light or cover your eyes if that feels better.","Reduce conversation, notifications, and other incoming demands.","Give yourself a few minutes before deciding what comes next."]},
