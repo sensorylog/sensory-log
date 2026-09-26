@@ -3,6 +3,7 @@ import { parseLocalDate, localDateString } from "./core/date.js";
 
 let entries=[];
 let cursor=new Date();
+let selectedDate=localDateString();
 let root=null;
 
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -46,7 +47,7 @@ function render(){
   </button>`);
  }
  const s=monthStats();
- const selected=entryFor(localDateString());
+ const selected=entryFor(selectedDate);
  root.innerHTML=`<section class="sl-history-head">
    <div><div class="sl-history-kicker">Calendar & history</div><h2>Your history</h2><p>See your logged days without turning your life into a spreadsheet.</p></div>
    <button type="button" class="sl-history-today" data-history-action="today">Today</button>
@@ -88,12 +89,13 @@ function bind(){
   const a=b.dataset.historyAction;
   if(a==="prev")cursor=new Date(cursor.getFullYear(),cursor.getMonth()-1,1);
   if(a==="next")cursor=new Date(cursor.getFullYear(),cursor.getMonth()+1,1);
-  if(a==="today")cursor=new Date();
+  if(a==="today"){cursor=new Date();selectedDate=localDateString();}
   render();
  });
  root.querySelectorAll("[data-history-date]").forEach(b=>b.onclick=()=>{
   const date=b.dataset.historyDate;
   const d=parseLocalDate(date);
+  selectedDate=date;
   if(b.classList.contains("sl-history-edit")) goToDate(date);
   else if(d){cursor=new Date(d.getFullYear(),d.getMonth(),1);render();}
  });
