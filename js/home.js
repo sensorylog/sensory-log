@@ -53,7 +53,7 @@ function metric(label,v){return '<div class="sl-metric"><div class="sl-metric-la
 
 function render(entries){
   let home=document.getElementById("slHome");
-  if(!home){home=document.createElement("section");home.id="slHome";home.className="sl-home";const tip=document.getElementById("phoneTip");root.insertBefore(home,tip||root.firstChild)}
+  if(!home){home=document.createElement("section");home.id="slHome";home.className="sl-home";const tip=document.getElementById("phoneTip");if(tip)tip.hidden=true;root.insertBefore(home,tip||root.firstChild);if(!document.getElementById("slCheckinHeading")){const h=document.createElement("div");h.id="slCheckinHeading";h.className="sl-checkin-heading";h.innerHTML='<h2>Check in</h2><span>Only what feels useful today</span>';const card=document.querySelector(".card");if(card)card.parentNode.insertBefore(h,card)}}
   const s=effective(entries),m=message(s),n=need(s);
   const hist=entries.filter(e=>e.energy>0).sort((a,b)=>a.date.localeCompare(b.date));
   const prior=hist.filter(e=>e.date!==today).slice(-7).map(e=>e.energy),base=avg(prior);
