@@ -1,0 +1,11 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Phase A: no cloud user data is enabled yet.
+    // Later phases will add narrowly scoped authenticated collections.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
