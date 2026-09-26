@@ -11,6 +11,8 @@
 <link rel="stylesheet" href="./styles/design-tokens.css" />
 <link rel="stylesheet" href="./styles/liquid-glass.css" />
 <link rel="stylesheet" href="./styles/accessibility.css" />
+<link rel="stylesheet" href="./styles/home.css" />
+<script type="module" src="./js/home.js"></script>
 <style>
   :root {
     --bg: #F3F4F0;
@@ -197,8 +199,7 @@
   .chip.small { padding: 6px 11px; font-size: 0.8rem; }
 
   .tag-add {
-    display: flex;
-    gap: 8px;
+    display: flex;    gap: 8px;
     margin-top: 10px;
   }
 
@@ -397,8 +398,7 @@
       <div class="chips" id="bodyChips"></div>
     </div>
 
-    <div class="field">
-      <div class="field-label">Mood <span class="field-hint">optional</span></div>
+    <div class="field">      <div class="field-label">Mood <span class="field-hint">optional</span></div>
       <div class="chips" id="moodChips"></div>
     </div>
 
@@ -597,8 +597,7 @@
       const raw = localStorage.getItem(SETTINGS_KEY);
       const s = raw ? JSON.parse(raw) : {};
       return {
-        aiEnabled: !!s.aiEnabled,
-        includeNotes: !!s.includeNotes,
+        aiEnabled: !!s.aiEnabled,        includeNotes: !!s.includeNotes,
         chartWindow: s.chartWindow || 14,
         chartMetrics: Array.isArray(s.chartMetrics) && s.chartMetrics.length ? s.chartMetrics : ["energy", "overwhelm"]
       };
@@ -797,7 +796,6 @@
     setTimeout(() => msg.textContent = "", 2000);
     renderAll();
   };
-
   // ---------- stats helpers ----------
   function chronological() { return [...entries].sort((a, b) => a.date.localeCompare(b.date)); }
 
@@ -997,8 +995,7 @@
       return `<div class="weekday-col">
         <div class="weekday-bar" style="height:${h}%;opacity:${opacity}"></div>
         <div class="weekday-label">${WEEKDAY_NAMES[i]}</div>
-      </div>`;
-    }).join("");
+      </div>`;    }).join("");
     area.innerHTML = `<div class="chart-card"><h3>Average energy by day of week</h3><div class="weekday-grid">${bars}</div></div>`;
   }
 
@@ -1197,8 +1194,7 @@
         if (!incoming.length) throw new Error("empty");
 
         const map = {};
-        entries.forEach(e => map[e.date] = e);
-        incoming.forEach(e => { if (e.date) map[e.date] = e; });
+        entries.forEach(e => map[e.date] = e);        incoming.forEach(e => { if (e.date) map[e.date] = e; });
         entries = Object.values(map).sort((a, b) => a.date.localeCompare(b.date));
         save(entries);
         loadDate(currentDate);
