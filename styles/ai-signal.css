@@ -8,3 +8,7 @@
 @media(prefers-reduced-motion:reduce){.sl-signal{position:relative}.sl-signal-text{white-space:normal}}
 @media(max-width:460px){.sl-ai-row{flex-direction:column}}
 @media print{.sl-ai,.sl-signal{display:none!important}}
+.sl-ai-selection-label{font-size:.75rem;color:var(--muted);margin:2px 0 2px}
+.sl-ai-entry{display:flex;align-items:center;gap:9px;min-height:44px;padding:8px 10px;border:1px solid var(--border);border-radius:11px;background:var(--bg);font-size:.78rem;color:var(--ink)}
+.sl-ai-entry input{width:18px;height:18px;flex:none}
+.sl-ai-empty{font-size:.78rem;color:var(--muted);padding:8px 0}
