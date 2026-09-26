@@ -41,3 +41,5 @@
 .sl-day-note{font-size:.68rem;color:var(--sl-muted);margin-top:2px}
 @media(min-width:700px){.sl-home{grid-template-columns:1.25fr .75fr;align-items:start}.sl-home-hero{grid-row:span 2}}
 @media(max-width:420px){.sl-home-hero{padding:23px 18px 19px}.sl-metrics{gap:7px}.sl-metric{padding:12px}.sl-home-actions{gap:7px}}
+
+.sl-checkin-heading{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:28px 2px 12px}.sl-checkin-heading h2{margin:0;font-size:1.2rem;letter-spacing:-.03em}.sl-checkin-heading span{font-size:.76rem;color:var(--sl-faint)}
