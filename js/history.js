@@ -103,3 +103,5 @@ export async function mountHistory(){
  try{entries=await getEntries();root=document.getElementById("slHistory");if(!root){root=document.createElement("section");root.id="slHistory";root.className="sl-history";const reg=document.getElementById("slRegulation");reg?.insertAdjacentElement("afterend",root)}render();}
  catch(e){console.error("Sensory Log Calendar",e)}
 }
+
+mountHistory();
