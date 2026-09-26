@@ -1,0 +1,27 @@
+:root{
+  /* Typography */
+  --sl-font-body:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",system-ui,sans-serif;
+  --sl-font-display:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",system-ui,sans-serif;
+  --sl-text-xs:.72rem;
+  --sl-text-sm:.84rem;
+  --sl-text-md:1rem;
+  --sl-text-lg:1.2rem;
+  --sl-text-xl:clamp(1.55rem,5vw,2.1rem);
+
+  /* Layout */
+  --sl-content-max:820px;
+  --sl-space-1:4px;
+  --sl-space-2:8px;
+  --sl-space-3:12px;
+  --sl-space-4:16px;
+  --sl-space-5:20px;
+  --sl-space-6:24px;
+  --sl-space-7:32px;
+  --sl-space-8:40px;
+  --sl-control-min:44px;
+
+  /* Depth */
+  --sl-shadow-soft:0 10px 40px rgba(0,0,0,.14);
+  --sl-shadow-deep:0 30px 100px rgba(0,0,0,.3);
+  --sl-border-subtle:rgba(255,255,255,.09);
+}

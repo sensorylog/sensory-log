@@ -1,0 +1,45 @@
+/* Sensory Log — Phase B accessibility contract. */
+html[data-motion="reduced"] *,
+html[data-motion="reduced"] *::before,
+html[data-motion="reduced"] *::after{
+  animation-duration:.001ms!important;
+  animation-iteration-count:1!important;
+  transition-duration:.001ms!important;
+  scroll-behavior:auto!important;
+}
+
+html[data-transparency="reduced"]{
+  --sl-blur:0px;
+}
+html[data-transparency="reduced"] .card,
+html[data-transparency="reduced"] .chart-card,
+html[data-transparency="reduced"] .backup-card,
+html[data-transparency="reduced"] .ai-card,
+html[data-transparency="reduced"] .sl-glass{
+  background:var(--sl-surface-strong);
+}
+
+html[data-contrast="high"]{
+  --sl-border:rgba(255,255,255,.4);
+  --sl-border-hi:rgba(255,255,255,.7);
+}
+html[data-theme="light"][data-contrast="high"]{
+  --sl-border:rgba(20,26,23,.38);
+  --sl-border-hi:rgba(20,26,23,.65);
+}
+
+@media (forced-colors:active){
+  *{forced-color-adjust:auto;}
+  .card,.chart-card,.backup-card,.ai-card,.btn,.theme-btn,.chip,.scale button{
+    border:1px solid CanvasText;
+    background:Canvas;
+    color:CanvasText;
+  }
+  button:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible{
+    outline:2px solid Highlight;
+  }
+}
+
+@media (min-width:601px){
+  button,.btn,.theme-btn,.chip{min-width:44px;}
+}
