@@ -41,6 +41,8 @@ function render(items){
 }
 function escapeHtml(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 export async function init(){
+  let root=document.getElementById("slSignal");
+  if(!root){ root=document.createElement("aside"); root.id="slSignal"; root.className="sl-signal"; const anchor=document.querySelector(".wrap"); if(anchor) anchor.appendChild(root); }
   const p=prefs();
   if(p.paused){render(DEFAULT_ITEMS);return}
   const remote=await remoteSignals();
