@@ -2,6 +2,7 @@ import { getEntries } from "./core/storage.js";
 
 const CONSENT_KEY="sensoryLogAiConsent_v1";
 const PROVIDER_KEY="sensoryLogAiProvider_v1";
+const NOTES_KEY="sensoryLogAiIncludeNotes_v1";
 
 export const AI_SHARE_OPTIONS=[
   {id:"none",label:"Nothing",description:"AI stays off."},
@@ -13,8 +14,9 @@ export const AI_SHARE_OPTIONS=[
 export function getAiSettings(){
   try{return {
     consent:localStorage.getItem(CONSENT_KEY)||"none",
-    provider:localStorage.getItem(PROVIDER_KEY)||"gemini"
-  }}catch{return {consent:"none",provider:"gemini"}}
+    provider:localStorage.getItem(PROVIDER_KEY)||"gemini",
+    includeNotes:localStorage.getItem(NOTES_KEY)==="true"
+  }}catch{return {consent:"none",provider:"gemini",includeNotes:false}}
 }
 export function setAiConsent(value){
   if(!AI_SHARE_OPTIONS.some(x=>x.id===value)) throw new Error("Invalid AI sharing level");
@@ -24,6 +26,7 @@ export function setAiProvider(value){
   if(!["gemini","puter","local"].includes(value)) throw new Error("Invalid AI provider");
   localStorage.setItem(PROVIDER_KEY,value);
 }
+export function setAiIncludeNotes(value){localStorage.setItem(NOTES_KEY,String(!!value))}
 
 function localReflection(entries,question=""){
   if(!entries.length) return "There is not enough logged data yet. A few check-ins can give Sensory Log something real to reflect on.";
@@ -52,10 +55,10 @@ function compactEntry(e,includeNotes){
   return x;
 }
 
-async function buildPayload(mode,question,selected=[]){
+async function buildPayload(mode,question,selected=[],includeNotes=false){
   const entries=await getEntries();
   if(mode==="none") return null;
-  if(mode==="selected") return selected.map(e=>compactEntry(e,false));
+  if(mode==="selected") return selected.map(e=>compactEntry(e,includeNotes));
   if(mode==="patterns"){
     const rows=entries.slice(-30);
     return {sampleSize:rows.length,observations:{
@@ -63,12 +66,12 @@ async function buildPayload(mode,question,selected=[]){
       averageSensoryLoad:rows.length?rows.reduce((a,e)=>a+(Number(e.overwhelm)||0),0)/rows.length:null
     }};
   }
-  return entries.map(e=>compactEntry(e,false));
+  return entries.map(e=>compactEntry(e,includeNotes));
 }
 
 export async function askAi({question="",selected=[]}={}){
   const settings=getAiSettings();
-  const payload=await buildPayload(settings.consent,question,selected);
+  const payload=await buildPayload(settings.consent,question,selected,settings.includeNotes);
   if(!payload) return localReflection(await getEntries(),question);
   const prompt=`You are Sensory Log's private reflection assistant for a neurodivergent user.
 Use only the supplied observations. Do not diagnose, predict medical outcomes, or claim causation.

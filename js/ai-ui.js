@@ -1,4 +1,4 @@
-import {AI_SHARE_OPTIONS,getAiSettings,setAiConsent,setAiProvider,askAi,getAiStatus} from "./ai.js";
+import {AI_SHARE_OPTIONS,getAiSettings,setAiConsent,setAiProvider,setAiIncludeNotes,askAi,getAiStatus} from "./ai.js";
 
 function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 async function mount(){

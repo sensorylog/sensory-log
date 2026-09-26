@@ -8,3 +8,5 @@
 @media(prefers-reduced-motion:reduce){.sl-signal{position:relative}.sl-signal-text{white-space:normal}}
 @media(max-width:460px){.sl-ai-row{flex-direction:column}}
 @media print{.sl-ai,.sl-signal{display:none!important}}
+.sl-ai-notes{display:flex;align-items:center;gap:8px;min-height:40px;font-size:.76rem;color:var(--muted)}
+.sl-ai-notes input{width:18px;height:18px;flex:none}

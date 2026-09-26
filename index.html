@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 <meta name="theme-color" content="#F3F4F0" />
-<meta name="description" content="A calm, private sensory and energy log with pattern insights, trend forecasting and optional AI reflections" />
+<meta name="description" content="A calm, private sensory and energy log with pattern insights, personal history and optional AI reflection" />
 <title>Sensory Log</title>
 <link rel="stylesheet" href="./styles/design-tokens.css" />
 <link rel="stylesheet" href="./styles/liquid-glass.css" />
@@ -485,24 +485,6 @@
   <div id="insightArea"></div>
   <div id="logArea"></div>
 
-  <div class="ai-card">
-    <div class="ai-title">AI Insights</div>
-    <p class="ai-desc">Off by default. When turned on, a <em>summary</em> of your patterns — not your written notes, unless you choose to include them below — is sent to Claude to generate reflections. This needs an internet connection and only works while this page is open inside Claude.ai; it won't work in the version saved to your home screen.</p>
-    <button class="btn" id="aiToggleBtn" type="button">Turn on AI Insights</button>
-    <div id="aiOptions" style="display:none;">
-      <div class="checkbox-row">
-        <input type="checkbox" id="includeNotesCheck" />
-        <label for="includeNotesCheck">Include my written notes text in AI requests</label>
-      </div>
-      <button class="btn on" id="generateInsightBtn" type="button">Generate reflections</button>
-      <div class="ai-ask-row">
-        <input type="text" id="aiQuestionInput" placeholder="Ask something about your patterns…" enterkeyhint="send" />
-        <button class="btn" id="aiAskBtn" type="button">Ask</button>
-      </div>
-      <div id="aiResponseArea"></div>
-    </div>
-  </div>
-
   <div class="backup-card">
     <div class="backup-title">Your data stays on this device</div>
     <p class="backup-desc">Nothing is uploaded unless you use AI Insights above. Export a backup so you don't lose history if you switch phones or clear browser data.</p>
@@ -581,6 +563,7 @@
   function todayStr() { const d = new Date(); const y=d.getFullYear(); const m=String(d.getMonth()+1).padStart(2,"0"); const day=String(d.getDate()).padStart(2,"0"); return `${y}-${m}-${day}`; }
   function formatDay(d) { return new Date(d + "T12:00:00").toLocaleDateString(undefined, { month: "short", day: "numeric" }); }
   function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+  function escapeHtml(v) { return String(v ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 
   function load() {
     try {
@@ -1067,7 +1050,7 @@
       lowEnergyDays.forEach(e => (e.drains || []).forEach(d => { count[d] = (count[d] || 0) + 1; }));
       const top = Object.entries(count).sort((a, b) => b[1] - a[1]).slice(0, 3);
       if (top.length && top[0][1] >= 2) {
-        area.innerHTML += `<div class="insight">On your lowest energy days the most frequent drains were: <strong>${top.map(t => t[0]).join(", ")}</strong>.</div>`;
+        area.innerHTML += `<div class="insight">On your lowest energy days the most frequent drains were: <strong>${top.map(t => escapeHtml(t[0])).join(", ")}</strong>.</div>`;
       }
     }
 
@@ -1124,7 +1107,7 @@
       if (e.socialBattery) extra.push(`social ${e.socialBattery}`);
       if (e.meltdown === 2) extra.push("meltdown");
       else if (e.meltdown === 1) extra.push("close call");
-      if (e.drains && e.drains.length) extra.push(e.drains.slice(0, 3).join(", "));
+      if (e.drains && e.drains.length) extra.push(e.drains.slice(0, 3).map(escapeHtml).join(", "));
       const flag = outliers.has(e.date) ? ' <span class="outlier-tag">⚠ outlier</span>' : "";
       return `<div class="log-row">${e.date} · energy ${e.energy}/5 · masking ${mask} · recovery ${e.recovery}/5${extra.length ? " · " + extra.join(" · ") : ""}${flag}</div>`;
     }).join("");
@@ -1142,7 +1125,7 @@
 
   document.getElementById("exportBtn").onclick = () => {
     if (!entries.length) return status("Nothing to export yet.", true);
-    const blob = new Blob([JSON.stringify({ app: "sensory-log", version: 4, exportedAt: new Date().toISOString(), entries }, null, 2)], { type: "application/json" });
+    const blob = new Blob([JSON.stringify({ app: "sensory-log", version: 5, exportedAt: new Date().toISOString(), entries }, null, 2)], { type: "application/json" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = "sensory-log-" + todayStr() + ".json";
@@ -1175,6 +1158,57 @@
 
   document.getElementById("importBtn").onclick = () => document.getElementById("importFile").click();
 
+  function parseCsv(text) {
+    const rows = [];
+    let row = [], cell = "", quoted = false;
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
+      if (quoted) {
+        if (ch === '"') {
+          if (text[i + 1] === '"') { cell += '"'; i++; }
+          else quoted = false;
+        } else cell += ch;
+      } else if (ch === '"') quoted = true;
+      else if (ch === ",") { row.push(cell); cell = ""; }
+      else if (ch === "\n" || ch === "\r") {
+        if (ch === "\r" && text[i + 1] === "\n") i++;
+        row.push(cell); cell = "";
+        if (row.some(v => v !== "")) rows.push(row);
+        row = [];
+      } else cell += ch;
+    }
+    if (cell !== "" || row.length) { row.push(cell); rows.push(row); }
+    if (!rows.length) return [];
+    const headers = rows[0].map(v => String(v).trim());
+    return rows.slice(1).map(values => Object.fromEntries(headers.map((h,i)=>[h,values[i] ?? ""])));
+  }
+
+  function sanitizeImportedEntry(e) {
+    const date = typeof e.date === "string" && /^\\d{4}-\\d{2}-\\d{2}$/.test(e.date) ? e.date : "";
+    const num = (v,max=5) => {
+      const n = Number(v);
+      return Number.isFinite(n) ? clamp(n,0,max) : 0;
+    };
+    const arr = v => Array.isArray(v) ? v.map(x => String(x).trim()).filter(Boolean).slice(0,50) : [];
+    return {
+      date,
+      energy:num(e.energy),
+      overwhelm:num(e.overwhelm),
+      masking:e.masking === "" || e.masking == null ? null : clamp(Number(e.masking)||0,0,3),
+      recovery:num(e.recovery),
+      env:e.env ? String(e.env).trim().slice(0,100) : null,
+      meltdown:e.meltdown === "" || e.meltdown == null ? null : clamp(Number(e.meltdown)||0,0,2),
+      sleepHours:e.sleepHours === "" || e.sleepHours == null ? null : clamp(Number(e.sleepHours)||0,0,24),
+      sleepQuality:num(e.sleepQuality),
+      socialBattery:num(e.socialBattery),
+      body:arr(e.body),
+      mood:arr(e.mood),
+      drains:arr(e.drains),
+      helped:arr(e.helped),
+      note:String(e.note ?? "").slice(0,5000)
+    };
+  }
+
   document.getElementById("importFile").onchange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -1182,32 +1216,18 @@
     reader.onload = evt => {
       try {
         let incoming = [];
-        if (file.name.endsWith(".csv")) {
-          const lines = evt.target.result.trim().split("\n").slice(1);
-          incoming = lines.map(line => {
-            const cols = line.match(/(".*?"|[^,]+)(?=\s*,|\s*$)/g).map(c => c.replace(/^"|"$/g, "").replace(/""/g, '"'));
-            return {
-              date: cols[0], energy: +cols[1] || 0, overwhelm: +cols[2] || 0, masking: +cols[3],
-              recovery: +cols[4] || 0, env: cols[5] || null,
-              meltdown: cols[6] === "" ? null : +cols[6],
-              sleepHours: cols[7] === "" ? null : +cols[7],
-              sleepQuality: +cols[8] || 0, socialBattery: +cols[9] || 0,
-              body: cols[10] ? cols[10].split("; ").filter(Boolean) : [],
-              mood: cols[11] ? cols[11].split("; ").filter(Boolean) : [],
-              drains: cols[12] ? cols[12].split("; ").filter(Boolean) : [],
-              helped: cols[13] ? cols[13].split("; ").filter(Boolean) : [],
-              note: cols[14] || ""
-            };
-          });
+        if (file.name.toLowerCase().endsWith(".csv")) {
+          incoming = parseCsv(evt.target.result).map(sanitizeImportedEntry).filter(e => e.date);
         } else {
           const data = JSON.parse(evt.target.result);
-          incoming = Array.isArray(data) ? data : (data.entries || []);
+          const rawEntries = Array.isArray(data) ? data : (Array.isArray(data?.entries) ? data.entries : []);
+          incoming = rawEntries.map(sanitizeImportedEntry).filter(e => e.date);
         }
         if (!incoming.length) throw new Error("empty");
-
         const map = {};
-        entries.forEach(e => map[e.date] = e);        incoming.forEach(e => { if (e.date) map[e.date] = e; });
-        entries = Object.values(map).sort((a, b) => a.date.localeCompare(b.date));
+        entries.forEach(e => { if (e.date) map[e.date] = e; });
+        incoming.forEach(e => { map[e.date] = e; });
+        entries = Object.values(map).sort((a,b) => a.date.localeCompare(b.date));
         save(entries);
         loadDate(currentDate);
         status("Imported " + incoming.length + " entries.");
@@ -1228,121 +1248,6 @@
     loadDate(currentDate);
     status("All entries cleared.");
   };
-
-  // ---------- AI insights ----------
-  const AI_SYSTEM_PROMPT = "You are a calm, supportive assistant helping someone reflect on their own self-tracked sensory, energy and masking log. You only see a statistical summary they chose to share, never a live feed. Do not diagnose, moralize, or assume a specific condition. Keep the tone warm, plain, and practical. Prefer 3-5 short bullet points over long paragraphs. If asked something the summary can't answer, say so plainly and suggest what data would help. Gently note that for anything that feels overwhelming or unsafe, a doctor or therapist is a better resource than an app.";
-
-  function buildStatSummary() {
-    const sorted = chronological();
-    const n = sorted.length;
-    const lines = [];
-    lines.push(`Entries: ${n} (from ${sorted[0].date} to ${sorted[n - 1].date})`);
-    const avgOf = k => { const v = average(sorted.map(e => e[k]).filter(x => x)); return v == null ? "n/a" : v.toFixed(1); };
-    lines.push(`Averages — energy: ${avgOf("energy")}/5, sensory saturation: ${avgOf("overwhelm")}/5, recovery needed: ${avgOf("recovery")}/5, sleep quality: ${avgOf("sleepQuality")}/5, social battery: ${avgOf("socialBattery")}/5`);
-
-    const maskCounts = [0, 0, 0, 0];
-    sorted.forEach(e => { if (e.masking != null) maskCounts[e.masking]++; });
-    lines.push(`Masking hours distribution: ${MASKING.map((m, i) => `${m.label} ${maskCounts[i]}`).join(", ")}`);
-
-    const meltdownCounts = { 0: 0, 1: 0, 2: 0 };
-    sorted.forEach(e => { if (e.meltdown != null) meltdownCounts[e.meltdown]++; });
-    lines.push(`Meltdown/shutdown days: none ${meltdownCounts[0]}, close call ${meltdownCounts[1]}, occurred ${meltdownCounts[2]}`);
-
-    function topCounts(field, limit) {
-      const c = {};
-      sorted.forEach(e => (e[field] || []).forEach(t => c[t] = (c[t] || 0) + 1));
-      return Object.entries(c).sort((a, b) => b[1] - a[1]).slice(0, limit).map(([t, n]) => `${t} (${n})`).join(", ") || "none logged";
-    }
-    lines.push(`Most frequent drains: ${topCounts("drains", 5)}`);
-    lines.push(`Most frequent helps: ${topCounts("helped", 5)}`);
-    lines.push(`Most frequent moods: ${topCounts("mood", 5)}`);
-    lines.push(`Most frequent body signals: ${topCounts("body", 5)}`);
-
-    const wk = weekdayAverages(sorted, "energy");
-    lines.push(`Average energy by weekday: ${WEEKDAY_NAMES.map((d, i) => `${d} ${wk[i] != null ? wk[i].toFixed(1) : "n/a"}`).join(", ")}`);
-
-    const energyReg = linreg(sorted.slice(-30).map(e => e.energy).filter(x => x));
-    if (energyReg) lines.push(`Energy trend over last ~30 entries: slope ${energyReg.slope.toFixed(2)}/day`);
-
-    const pairs = consecutivePairs(sorted);
-    const highMask = pairs.filter(p => p.prev.masking >= 2), lowMask = pairs.filter(p => p.prev.masking < 2);
-    if (highMask.length >= 3 && lowMask.length >= 3) {
-      lines.push(`Next-day energy after 3+ hr masking: ${average(highMask.map(p => p.next.energy)).toFixed(1)} vs ${average(lowMask.map(p => p.next.energy)).toFixed(1)} after lighter masking`);
-    }
-
-    if (settings.includeNotes) {
-      const notes = sorted.filter(e => e.note && e.note.trim()).slice(-20).map(e => `${e.date}: ${e.note.trim()}`);
-      if (notes.length) lines.push(`Recent written notes:\n${notes.join("\n")}`);
-    }
-    return lines.join("\n");
-  }
-
-  async function callClaude(userText) {
-    const resp = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-6",
-        max_tokens: 1000,
-        system: AI_SYSTEM_PROMPT,
-        messages: [{ role: "user", content: userText }]
-      })
-    });
-    if (!resp.ok) throw new Error("Request failed (" + resp.status + ")");
-    const data = await resp.json();
-    return (data.content || []).map(b => b.text || "").filter(Boolean).join("\n").trim();
-  }
-
-  const aiToggleBtn = document.getElementById("aiToggleBtn");
-  const aiOptions = document.getElementById("aiOptions");
-  const includeNotesCheck = document.getElementById("includeNotesCheck");
-  const aiResponseArea = document.getElementById("aiResponseArea");
-
-  function renderAiToggle() {
-    aiToggleBtn.textContent = settings.aiEnabled ? "Turn off AI Insights" : "Turn on AI Insights";
-    aiToggleBtn.className = "btn" + (settings.aiEnabled ? " on" : "");
-    aiOptions.style.display = settings.aiEnabled ? "block" : "none";
-    includeNotesCheck.checked = settings.includeNotes;
-  }
-
-  aiToggleBtn.onclick = () => {
-    settings.aiEnabled = !settings.aiEnabled;
-    saveSettings(settings);
-    renderAiToggle();
-  };
-
-  includeNotesCheck.onchange = e => {
-    settings.includeNotes = e.target.checked;
-    saveSettings(settings);
-  };
-
-  async function runAiRequest(question) {
-    if (entries.length < 5) {
-      aiResponseArea.innerHTML = '<div class="ai-response">Log at least a handful of days first — there\'s not quite enough here yet to reflect on.</div>';
-      return;
-    }
-    aiResponseArea.innerHTML = '<div class="ai-response"><span class="spinner"></span>Thinking it over…</div>';
-    try {
-      const summary = buildStatSummary();
-      const prompt = question
-        ? `Here is a summary of my sensory/energy log:\n\n${summary}\n\nMy question: ${question}`
-        : `Here is a summary of my sensory/energy log:\n\n${summary}\n\nShare a few short, specific, non-clinical reflections or gentle suggestions based on this.`;
-      const text = await callClaude(prompt);
-      aiResponseArea.innerHTML = `<div class="ai-response">${text.replace(/</g, "&lt;")}</div>`;
-    } catch (err) {
-      aiResponseArea.innerHTML = '<div class="ai-response">AI Insights aren\'t reachable right now. This feature only works while this page is open inside Claude.ai with an internet connection — it won\'t work in the version saved to your home screen.</div>';
-    }
-  }
-
-  document.getElementById("generateInsightBtn").onclick = () => runAiRequest(null);
-  document.getElementById("aiAskBtn").onclick = () => {
-    const q = document.getElementById("aiQuestionInput").value.trim();
-    if (!q) return;
-    runAiRequest(q);
-  };
-  document.getElementById("aiQuestionInput").addEventListener("keydown", e => {
-    if (e.key === "Enter") { e.preventDefault(); document.getElementById("aiAskBtn").click(); }
-  });
 
   // ---------- render all ----------
   function renderAll() {
