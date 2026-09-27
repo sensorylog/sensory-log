@@ -39,7 +39,7 @@ function hideLegacy(){
   });
 }
 
-function card({eyebrow,title,body,evidence,detail,kind=""}){
+function card({eyebrow,title,body,evidence,detail,kind="",action=null}){
   return `<article class="sl-pattern-card ${kind}" tabindex="0">
     <div class="sl-pattern-eyebrow">${esc(eyebrow)}</div>
     <h3 class="sl-pattern-title">${esc(title)}</h3>
@@ -49,6 +49,7 @@ function card({eyebrow,title,body,evidence,detail,kind=""}){
       <div class="sl-pattern-detail">${detail}</div>
     </details>
     <p class="sl-pattern-meta">${esc(evidence)}</p>
+    ${action ? `<button class="sl-pattern-action" type="button" data-pattern-route="${esc(action.route)}">${esc(action.label)}</button>` : ""}
   </article>`;
 }
 
@@ -122,7 +123,8 @@ function buildCards(entries){
         body:`The next day averaged <strong>${fmt(result.a)}/5</strong> after days where this strategy was logged, versus <strong>${fmt(result.b)}/5</strong> when it was not logged.`,
         evidence:`Evidence: ${result.nA} days with this strategy vs ${result.nB} without it`,
         detail:evidenceText("the most recent 30 consecutive day-pairs",result.nA+result.nB)+`<br><br>Observed difference: ${fmt(result.diff)} points. A logged strategy may also reflect the kind of day you were already having.`,
-        kind:"supportive"
+        kind:"supportive",
+        action:{route:"regulate",label:"Open regulation"}
       }));
       break;
     }
@@ -141,7 +143,8 @@ function buildCards(entries){
         title:"What showed up most often on lower-energy days",
         body:`Among your ${low.length} days logged at 1–2/5 energy, the most frequent drains were ${list}.`,
         evidence:`Evidence: ${low.length} lower-energy days in ${windowLabel}`,
-        detail:evidenceText(windowLabel,low.length)+`<br><br>This is a frequency pattern only. A frequent drain is not necessarily the reason energy was low.`
+        detail:evidenceText(windowLabel,low.length)+`<br><br>This is a frequency pattern only. A frequent drain is not necessarily the reason energy was low.`,
+        action:{route:"history",label:"Review those days"}
       }));
     }
   }
@@ -175,7 +178,8 @@ function buildCards(entries){
         title:"A few days sat well above your usual sensory-load range",
         body:`Your recent range has ${spikes.length} notable high-load day${spikes.length===1?"":"s"}: <strong>${spikes.map(e=>esc(dateLabel(e.date))).join(", ")}</strong>.`,
         evidence:`Evidence: ${vals.length} sensory-load observations`,
-        detail:evidenceText(windowLabel,vals.length)+`<br><br>“Unusual” here means substantially above your own recent average, not abnormal or clinically meaningful.`
+        detail:evidenceText(windowLabel,vals.length)+`<br><br>“Unusual” here means substantially above your own recent average, not abnormal or clinically meaningful.`,
+        action:{route:"history",label:"Review those days"}
       }));
     }
   }
@@ -205,9 +209,9 @@ function render(entries){
     </div>
     <div class="sl-pattern-count" aria-label="${sorted.length} logged days">${sorted.length} day${sorted.length===1?"":"s"} logged</div>
   </div>
-  ${!enough ? `<div class="sl-pattern-empty"><strong>A few more days will make this useful.</strong><span>Keep logging only what feels manageable. Pattern cards appear once there is enough repeated information to compare.</span></div>` :
+  ${!enough ? `<div class="sl-pattern-empty"><strong>A few more days will make this useful.</strong><span>Keep logging only what feels manageable. Pattern cards appear once there is enough repeated information to compare.</span><button class="sl-pattern-action" type="button" data-pattern-route="checkin">Add a check-in</button></div>` :
     cards.length ? `<div class="sl-pattern-grid">${cards.join("")}</div>` :
-    `<div class="sl-pattern-empty"><strong>No repeated pattern to call out yet.</strong><span>That is useful too. More observations can make the comparisons clearer without forcing a conclusion.</span></div>`}
+    `<div class="sl-pattern-empty"><strong>Nothing is repeating clearly yet.</strong><span>There is no need to force a conclusion. Keep logging what matters and let the picture change with more observations.</span><button class="sl-pattern-action" type="button" data-pattern-route="checkin">Add a check-in</button></div>`}
   ${enough ? `<div class="sl-pattern-foot">The comparisons update from your saved history. Adding or removing entries can change them.</div>` : ""}`;
 }
 
