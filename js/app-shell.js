@@ -124,8 +124,13 @@ function wireTheme(){
     try{localStorage.setItem("sensoryTheme",value)}catch{}
     button.textContent=value==="dark"?"◑":"◐";
   };
-  let saved="light";
-  try{saved=localStorage.getItem("sensoryTheme")||"light"}catch{}
+  // Dark is the intentional first-run appearance. Once the user chooses a theme,
+  // remember that choice locally and never override it.
+  let saved="dark";
+  try{
+    const stored=localStorage.getItem("sensoryTheme");
+    if(stored==="dark" || stored==="light") saved=stored;
+  }catch{}
   apply(saved);
   if(button.dataset.themeWired==="true") return;
   button.dataset.themeWired="true";
