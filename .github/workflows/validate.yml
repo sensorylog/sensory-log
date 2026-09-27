@@ -1,0 +1,32 @@
+name: Validate Sensory Log
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-sensory-log-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Static integrity
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          package-manager-cache: false
+
+      - name: Validate application integrity
+        run: node scripts/validate-app.mjs
