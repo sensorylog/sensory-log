@@ -19,11 +19,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          package-manager-cache: false
+
+      - name: Write Firebase service-account credentials
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_SENSORYLOG_3D630 }}
+        run: |
+          set -euo pipefail
+          credentials="${RUNNER_TEMP}/firebase-service-account.json"
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$credentials"
+          test -s "$credentials"
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$credentials" >> "$GITHUB_ENV"
 
       - name: Deploy to Firebase Hosting
-        uses: FirebaseExtended/action-hosting-deploy@v0.11.0
-        with:
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_SENSORYLOG_3D630 }}
-          projectId: sensorylog-3d630
-          channelId: live
+        run: |
+          set -euo pipefail
+          npm install --global firebase-tools@15.31.0
+          firebase deploy --only hosting --project sensorylog-3d630 --non-interactive
