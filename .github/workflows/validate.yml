@@ -46,6 +46,9 @@ jobs:
       - name: Validate Phase F regulation engine
         run: node scripts/test-regulation-engine.mjs
 
+      - name: Validate Phase G personal manual engine
+        run: node scripts/test-manual-engine.mjs
+
       - name: Validate JavaScript module syntax
         shell: bash
         run: |
