@@ -31,8 +31,11 @@ jobs:
       - name: Validate application integrity
         run: node scripts/validate-app.mjs
 
-      - name: Validate JavaScript syntax
+      - name: Validate JavaScript module syntax
         shell: bash
         run: |
           set -euo pipefail
-          find js -type f -name '*.js' -print0 | xargs -0 -n1 node --check
+          while IFS= read -r -d '' file; do
+            echo "Checking $file"
+            node --input-type=module --check < "$file"
+          done < <(find js -type f -name '*.js' -print0)
