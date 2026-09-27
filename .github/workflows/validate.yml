@@ -55,6 +55,9 @@ jobs:
       - name: Validate Phase I Ask Your Data engine
         run: node scripts/test-query-engine.mjs
 
+      - name: Validate Phase J PWA assets
+        run: node -e "const fs=require('fs'); const m=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8')); if(m.display!=='standalone'||!m.scope||!fs.existsSync('sw.js')) process.exit(1); console.log('Phase J PWA assets valid.');"
+
       - name: Validate JavaScript module syntax
         shell: bash
         run: |
