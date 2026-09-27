@@ -1,34 +1,15 @@
 import { getEntries } from "./core/storage.js";
-import { parseLocalDate } from "./core/date.js";
+import { buildPatternIntelligence } from "./core/pattern-engine.js";
 
-const MIN_GROUP = 3;
 const esc = v => String(v == null ? "" : v).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const avg = a => a.length ? a.reduce((x,y)=>x+y,0)/a.length : null;
-const fmt = n => n == null ? "—" : n.toFixed(1);
-const pct = n => Math.round(n * 100);
-const dateLabel = v => {
-  const d = parseLocalDate(v);
-  return d ? new Intl.DateTimeFormat(undefined,{month:"short",day:"numeric"}).format(d) : v;
-};
-const consecutivePairs = sorted => {
-  const out=[];
-  for(let i=0;i<sorted.length-1;i++){
-    const a=parseLocalDate(sorted[i].date), b=parseLocalDate(sorted[i+1].date);
-    if(a && b && Math.round((b-a)/86400000)===1) out.push({prev:sorted[i],next:sorted[i+1]});
-  }
-  return out;
-};
-const values = (rows,key) => rows.map(e=>Number(e[key])).filter(Number.isFinite);
-const meanDiff = (a,b) => {
-  if(a.length<MIN_GROUP || b.length<MIN_GROUP) return null;
-  return {a:avg(a),b:avg(b),diff:avg(a)-avg(b),nA:a.length,nB:b.length};
-};
-const evidenceText = (windowLabel, groups) => `Based on ${groups} observations in ${windowLabel}. This is a description of your logged history, not proof that one signal caused another.`;
+const fmt = n => n == null ? "—" : Number(n).toFixed(1);
 
 function ensureStyles(){
   if(document.querySelector('link[data-pattern-styles]')) return;
   const link=document.createElement("link");
-  link.rel="stylesheet"; link.href="./styles/patterns.css"; link.dataset.patternStyles="";
+  link.rel="stylesheet";
+  link.href="./styles/patterns.css";
+  link.dataset.patternStyles="";
   document.head.appendChild(link);
 }
 
@@ -39,152 +20,82 @@ function hideLegacy(){
   });
 }
 
-function card({eyebrow,title,body,evidence,detail,kind="",action=null}){
-  return `<article class="sl-pattern-card ${kind}" tabindex="0">
+function evidence(detail){
+  return `<details class="sl-pattern-evidence"><summary>What this is based on</summary><div class="sl-pattern-detail">${detail}</div></details>`;
+}
+
+function card({eyebrow,title,body,detail,meta,action}){
+  return `<article class="sl-pattern-card">
     <div class="sl-pattern-eyebrow">${esc(eyebrow)}</div>
     <h3 class="sl-pattern-title">${esc(title)}</h3>
     <p class="sl-pattern-body">${body}</p>
-    <details class="sl-pattern-evidence">
-      <summary>What this is based on</summary>
-      <div class="sl-pattern-detail">${detail}</div>
-    </details>
-    <p class="sl-pattern-meta">${esc(evidence)}</p>
+    ${evidence(detail)}
+    <p class="sl-pattern-meta">${esc(meta)}</p>
     ${action ? `<button class="sl-pattern-action" type="button" data-pattern-route="${esc(action.route)}">${esc(action.label)}</button>` : ""}
   </article>`;
 }
 
-function buildCards(entries){
-  const sorted=[...entries].filter(e=>e && e.date).sort((a,b)=>a.date.localeCompare(b.date));
-  const cards=[];
-  if(sorted.length<5) return {cards,sorted};
+function relationshipCards(intelligence){
+  return intelligence.relationships
+    .filter(r=>Math.abs(r.difference ?? 0)>=0.35)
+    .slice(0,3)
+    .map(r=>{
+      const direction=r.difference>0?"higher":"lower";
+      return card({
+        eyebrow:"Signal relationship",
+        title:`${r.label} shows a ${direction} next-day energy average`,
+        body:`The first group averaged <strong>${fmt(r.a)}/5</strong> and the comparison group averaged <strong>${fmt(r.b)}/5</strong>.`,
+        detail:`This is a descriptive comparison from your logged history. It does not establish causation. The groups contain ${r.nA} and ${r.nB} observations.`,
+        meta:`Evidence: ${r.nA + r.nB} observations · ${r.measure === "nextDayEnergy" ? "consecutive day pairs" : "same-day entries"}`
+      });
+    });
+}
 
-  const windowDays=30;
-  const windowRows=sorted.slice(-windowDays);
-  const windowLabel=windowRows.length<windowDays ? `your ${windowRows.length} logged days` : "your most recent 30 logged days";
+function signatureCards(intelligence){
+  return intelligence.signatures.slice(0,3).map(s=>{
+    const noun=s.label.includes("strategy")?"strategy":"drain";
+    return card({
+      eyebrow:"Recurring signature",
+      title:`${s.value} keeps showing up on lower-energy days`,
+      body:`“${esc(s.value)}” appeared on <strong>${s.count}</strong> of ${s.sampleSize} lower-energy days in this window.`,
+      detail:`This is a frequency pattern, not an explanation. It means the item was logged repeatedly when energy was 1–2/5.`,
+      meta:`Evidence: ${s.count}/${s.sampleSize} lower-energy days · ${noun}`,
+      action:{route:"history",label:"Review those days"}
+    });
+  });
+}
 
-  const pairs=consecutivePairs(sorted);
-  const pairWindow=pairs.slice(-30);
+function recoveryCard(intelligence){
+  const groups=intelligence.recovery.groups;
+  const available=[["higher recovery need",groups.high],["moderate recovery need",groups.moderate],["lower recovery need",groups.low]]
+    .filter(([,g])=>g.sampleSize>=3);
+  if(available.length<2) return null;
+  const text=available.map(([label,g])=>`${label}: <strong>${fmt(g.value)}/5</strong> next-day energy (${g.sampleSize} observations)`).join(" · ");
+  return card({
+    eyebrow:"Recovery curve",
+    title:"What tends to follow different recovery-need days",
+    body:text,
+    detail:"The groups describe what your next-day energy looked like after different recovery-need levels. This is not a prediction and does not prove that recovery need caused the following energy level.",
+    meta:`Evidence: ${intelligence.recovery.sampleSize} consecutive day-pairs`,
+    action:{route:"regulate",label:"Open regulation"}
+  });
+}
 
-  // Masking → next-day energy
-  const heavy=pairWindow.filter(p=>p.prev.masking!=null && p.prev.masking>=2);
-  const light=pairWindow.filter(p=>p.prev.masking!=null && p.prev.masking<2);
-  const mask=meanDiff(heavy.map(p=>p.next.energy).filter(Boolean),light.map(p=>p.next.energy).filter(Boolean));
-  if(mask && Math.abs(mask.diff)>=0.35){
-    const lower=mask.a<mask.b;
-    cards.push(card({
-      eyebrow:"Masking → next day",
-      title:`${lower?"Lower":"Higher"} next-day energy after heavier masking`,
-      body:`After 3+ hours of masking, next-day energy averaged <strong>${fmt(mask.a)}/5</strong>; after lighter masking it averaged <strong>${fmt(mask.b)}/5</strong>.`,
-      evidence:`Evidence: ${mask.nA} heavier-masking days vs ${mask.nB} lighter-masking days`,
-      detail:evidenceText("the most recent 30 consecutive day-pairs",mask.nA+mask.nB)+`<br><br>Observed difference: ${fmt(Math.abs(mask.diff))} points on the 1–5 energy scale.`
-    }));
-  }
-
-  // Sleep quality → next-day energy
-  const goodSleep=pairWindow.filter(p=>p.prev.sleepQuality>=4 && p.next.energy>0);
-  const poorSleep=pairWindow.filter(p=>p.prev.sleepQuality>0 && p.prev.sleepQuality<=2 && p.next.energy>0);
-  const sleep=meanDiff(goodSleep.map(p=>p.next.energy),poorSleep.map(p=>p.next.energy));
-  if(sleep && Math.abs(sleep.diff)>=0.35){
-    cards.push(card({
-      eyebrow:"Sleep → next day",
-      title:`${sleep.diff>0?"Higher":"Lower"} next-day energy after higher-quality sleep`,
-      body:`After sleep quality of 4–5/5, next-day energy averaged <strong>${fmt(sleep.a)}/5</strong>; after 1–2/5, it averaged <strong>${fmt(sleep.b)}/5</strong>.`,
-      evidence:`Evidence: ${sleep.nA} higher-quality nights vs ${sleep.nB} lower-quality nights`,
-      detail:evidenceText("the most recent 30 consecutive day-pairs",sleep.nA+sleep.nB)+`<br><br>Observed difference: ${fmt(Math.abs(sleep.diff))} points.`
-    }));
-  }
-
-  // Sensory load vs same-day energy: descriptive, not predictive.
-  const highLoad=windowRows.filter(e=>e.overwhelm>=4 && e.energy>0);
-  const lowerLoad=windowRows.filter(e=>e.overwhelm>0 && e.overwhelm<=2 && e.energy>0);
-  const sensory=meanDiff(highLoad.map(e=>e.energy),lowerLoad.map(e=>e.energy));
-  if(sensory && Math.abs(sensory.diff)>=0.4){
-    cards.push(card({
-      eyebrow:"Sensory load",
-      title:`${sensory.diff<0?"Lower":"Higher"} energy was logged on higher-load days`,
-      body:`Days with sensory saturation at 4–5/5 had an average energy of <strong>${fmt(sensory.a)}/5</strong>, compared with <strong>${fmt(sensory.b)}/5</strong> on 1–2/5 days.`,
-      evidence:`Evidence: ${sensory.nA} higher-load days vs ${sensory.nB} lower-load days`,
-      detail:evidenceText(windowLabel,sensory.nA+sensory.nB)+`<br><br>This compares signals recorded on the same day; it does not establish direction or cause.`
-    }));
-  }
-
-  // Helpful strategies associated with next-day energy.
-  const helpCounts={};
-  sorted.forEach(e=>(e.helped||[]).forEach(h=>helpCounts[h]=(helpCounts[h]||0)+1));
-  const helpCandidates=Object.entries(helpCounts).filter(([,n])=>n>=MIN_GROUP).sort((a,b)=>b[1]-a[1]);
-  for(const [help] of helpCandidates){
-    const withHelp=pairWindow.filter(p=>(p.prev.helped||[]).includes(help) && p.next.energy>0);
-    const withoutHelp=pairWindow.filter(p=>!(p.prev.helped||[]).includes(help) && p.next.energy>0);
-    const result=meanDiff(withHelp.map(p=>p.next.energy),withoutHelp.map(p=>p.next.energy));
-    if(result && result.diff>=0.4){
-      cards.push(card({
-        eyebrow:"Recovery strategy",
-        title:`Higher next-day energy on days logged with “${help}”`,
-        body:`The next day averaged <strong>${fmt(result.a)}/5</strong> after days where this strategy was logged, versus <strong>${fmt(result.b)}/5</strong> when it was not logged.`,
-        evidence:`Evidence: ${result.nA} days with this strategy vs ${result.nB} without it`,
-        detail:evidenceText("the most recent 30 consecutive day-pairs",result.nA+result.nB)+`<br><br>Observed difference: ${fmt(result.diff)} points. A logged strategy may also reflect the kind of day you were already having.`,
-        kind:"supportive",
-        action:{route:"regulate",label:"Open regulation"}
-      }));
-      break;
-    }
-  }
-
-  // Drains on low-energy days: frequency only.
-  const low=windowRows.filter(e=>e.energy>0 && e.energy<=2);
-  if(low.length>=4){
-    const counts={};
-    low.forEach(e=>(e.drains||[]).forEach(d=>counts[d]=(counts[d]||0)+1));
-    const top=Object.entries(counts).filter(([,n])=>n>=2).sort((a,b)=>b[1]-a[1]).slice(0,3);
-    if(top.length){
-      const list=top.map(([d,n])=>`<strong>${esc(d)}</strong> (${n}/${low.length})`).join(", ");
-      cards.push(card({
-        eyebrow:"Low-energy context",
-        title:"What showed up most often on lower-energy days",
-        body:`Among your ${low.length} days logged at 1–2/5 energy, the most frequent drains were ${list}.`,
-        evidence:`Evidence: ${low.length} lower-energy days in ${windowLabel}`,
-        detail:evidenceText(windowLabel,low.length)+`<br><br>This is a frequency pattern only. A frequent drain is not necessarily the reason energy was low.`,
-        action:{route:"history",label:"Review those days"}
-      }));
-    }
-  }
-
-  // Weekday pattern with minimum two observations each and meaningful spread.
-  const buckets=Array.from({length:7},()=>[]);
-  windowRows.forEach(e=>{if(e.energy>0){const d=parseLocalDate(e.date);if(d)buckets[d.getDay()].push(e.energy)}});
-  const wk=buckets.map(a=>a.length>=2?avg(a):null);
-  const valid=wk.filter(v=>v!=null);
-  if(valid.length>=3 && Math.max(...valid)-Math.min(...valid)>=0.7){
-    const max=Math.max(...valid), min=Math.min(...valid);
-    const names=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-    const high=names[wk.indexOf(max)], lowDay=names[wk.indexOf(min)];
-    cards.push(card({
-      eyebrow:"Weekly rhythm",
-      title:`Your logged energy varies across the week`,
-      body:`In this window, average energy was <strong>${fmt(max)}/5</strong> on ${high} and <strong>${fmt(min)}/5</strong> on ${lowDay}. Other days may have too little data to compare.`,
-      evidence:`Evidence: ${valid.length} weekdays with at least 2 observations`,
-      detail:evidenceText(windowLabel,valid.length)+`<br><br>Weekday averages are descriptive and can change as more days are logged.`
-    }));
-  }
-
-  // Outlier card.
-  const vals=values(windowRows,"overwhelm");
-  if(vals.length>=6){
-    const m=avg(vals), sd=Math.sqrt(avg(vals.map(v=>(v-m)**2)))||0;
-    const spikes=windowRows.filter(e=>e.overwhelm>0 && sd>0 && (e.overwhelm-m)/sd>=1.6).slice(-3);
-    if(spikes.length){
-      cards.push(card({
-        eyebrow:"Unusual sensory days",
-        title:"A few days sat well above your usual sensory-load range",
-        body:`Your recent range has ${spikes.length} notable high-load day${spikes.length===1?"":"s"}: <strong>${spikes.map(e=>esc(dateLabel(e.date))).join(", ")}</strong>.`,
-        evidence:`Evidence: ${vals.length} sensory-load observations`,
-        detail:evidenceText(windowLabel,vals.length)+`<br><br>“Unusual” here means substantially above your own recent average, not abnormal or clinically meaningful.`,
-        action:{route:"history",label:"Review those days"}
-      }));
-    }
-  }
-
-  return {cards:cards.slice(0,7),sorted};
+function trendCard(intelligence){
+  const candidates=Object.entries(intelligence.trends.trends)
+    .filter(([,t])=>t.difference!==null && Math.abs(t.difference)>=0.4)
+    .sort((a,b)=>Math.abs(b[1].difference)-Math.abs(a[1].difference));
+  if(!candidates.length) return null;
+  const [field,t]=candidates[0];
+  const labels={energy:"energy",overwhelm:"sensory load",sleepQuality:"sleep quality",socialBattery:"social battery",recovery:"recovery need"};
+  const direction=t.difference>0?"higher":"lower";
+  return card({
+    eyebrow:"Long-term trend",
+    title:`${labels[field]} is ${direction} in the newer part of this window`,
+    body:`The earlier portion averaged <strong>${fmt(t.first)}/5</strong>; the newer portion averaged <strong>${fmt(t.second)}/5</strong>.`,
+    detail:"The window is split into an earlier and newer portion. Trends describe change across your logs; they are not forecasts.",
+    meta:`Evidence: ${t.sampleFirst} earlier observations · ${t.sampleSecond} newer observations`
+  });
 }
 
 function render(entries){
@@ -199,24 +110,35 @@ function render(entries){
     if(heading && heading.textContent.trim()==="Patterns") heading.replaceWith(root);
     else document.getElementById("view-patterns")?.appendChild(root);
   }
-  const {cards,sorted}=buildCards(entries);
-  const enough=sorted.length>=5;
+
+  const intelligence=buildPatternIntelligence(entries,{window:30});
+  const enough=intelligence.sampleDays>=5;
+  const cards=[];
+  if(enough){
+    cards.push(...relationshipCards(intelligence),...signatureCards(intelligence));
+    const recovery=recoveryCard(intelligence);
+    if(recovery) cards.push(recovery);
+    const trend=trendCard(intelligence);
+    if(trend) cards.push(trend);
+  }
+
   root.innerHTML=`<div class="sl-pattern-head">
     <div>
       <div class="sl-pattern-kicker">Pattern intelligence</div>
       <h2>What your history is showing</h2>
       <p>Patterns are observations from your own entries. They are not diagnoses, predictions, or proof of cause.</p>
     </div>
-    <div class="sl-pattern-count" aria-label="${sorted.length} logged days">${sorted.length} day${sorted.length===1?"":"s"} logged</div>
+    <div class="sl-pattern-count" aria-label="${intelligence.sampleDays} logged days">${intelligence.sampleDays} day${intelligence.sampleDays===1?"":"s"} logged</div>
   </div>
-  ${!enough ? `<div class="sl-pattern-empty"><strong>A few more days will make this useful.</strong><span>Keep logging only what feels manageable. Pattern cards appear once there is enough repeated information to compare.</span><button class="sl-pattern-action" type="button" data-pattern-route="checkin">Add a check-in</button></div>` :
-    cards.length ? `<div class="sl-pattern-grid">${cards.join("")}</div>` :
+  ${!enough ? `<div class="sl-pattern-empty"><strong>A few more days will make this useful.</strong><span>Keep logging only what feels manageable. Pattern intelligence waits for repeated evidence instead of forcing a conclusion.</span><button class="sl-pattern-action" type="button" data-pattern-route="checkin">Add a check-in</button></div>` :
+    cards.length ? `<div class="sl-pattern-grid">${cards.slice(0,7).join("")}</div>` :
     `<div class="sl-pattern-empty"><strong>Nothing is repeating clearly yet.</strong><span>There is no need to force a conclusion. Keep logging what matters and let the picture change with more observations.</span><button class="sl-pattern-action" type="button" data-pattern-route="checkin">Add a check-in</button></div>`}
-  ${enough ? `<div class="sl-pattern-foot">The comparisons update from your saved history. Adding or removing entries can change them.</div>` : ""}`;
+  ${enough ? `<div class="sl-pattern-foot">The engine uses descriptive comparisons, minimum samples, and your saved history only. Adding or removing entries can change the picture.</div>` : ""}`;
 }
 
 export async function mountPatternIntelligence(){
-  try{render(await getEntries())}catch(error){console.error("Sensory Log Pattern Intelligence",error);render([])}
+  try{render(await getEntries())}
+  catch(error){console.error("Sensory Log Pattern Intelligence",error);render([])}
 }
 
 let refreshQueued=false;
