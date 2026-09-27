@@ -219,5 +219,19 @@ export async function mountPatternIntelligence(){
   try{render(await getEntries())}catch(error){console.error("Sensory Log Pattern Intelligence",error);render([])}
 }
 
+let refreshQueued=false;
+window.addEventListener("sensory-log:entries-changed",()=>{
+  if(refreshQueued)return;
+  refreshQueued=true;
+  requestAnimationFrame(async()=>{refreshQueued=false;await mountPatternIntelligence()});
+});
+
+document.addEventListener("click",event=>{
+  const button=event.target.closest("[data-pattern-route]");
+  if(!button)return;
+  const route=button.dataset.patternRoute;
+  if(!route)return;
+  document.querySelector(`[data-route="${CSS.escape(route)}"]`)?.click();
+});
 
 mountPatternIntelligence();
