@@ -27,11 +27,12 @@
 <link rel="stylesheet" href="./styles/onboarding.css" />
 <link rel="stylesheet" href="./styles/preferences.css" />
 <link rel="stylesheet" href="./styles/privacy.css" />
-<link rel="stylesheet" href="./styles/info-pages.css" />
-
 <!-- Phase B canonical visual engine: intentionally last among feature CSS. -->
 <link rel="stylesheet" href="./styles/visual-system.css" />
 <link rel="stylesheet" href="./styles/accessibility.css" />
+
+<!-- Dedicated information pages intentionally load last so their full-page layout wins the cascade. -->
+<link rel="stylesheet" href="./styles/info-pages.css" />
 <link rel="manifest" href="./manifest.webmanifest" />
 <script type="module" src="./js/app-shell.js"></script>
 <script type="module" src="./js/checkin.js"></script>
