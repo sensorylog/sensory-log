@@ -1,20 +1,26 @@
 /**
- * Phase A bootstrap diagnostics. Safe to import from the new app shell.
+ * Sensory Log — Phase A bootstrap diagnostics.
+ * Safe to import from the app shell. This module has no UI/network dependency.
  */
 import { localDateString } from "./date.js";
-import { migrateLegacyEntries } from "./storage.js";
+import { getStorageInfo, migrateLegacyEntries } from "./storage.js";
+import { DATA_VERSION } from "./schema.js";
 
 export async function initializeFoundation() {
-  const result = await migrateLegacyEntries();
+  const migration = await migrateLegacyEntries();
+  const storage = await getStorageInfo();
+
   return {
-    ok: true,
+    ok: storage.offlineCapable,
     date: localDateString(),
-    storage: result,
+    dataVersion: DATA_VERSION,
+    storage,
+    migration,
     capabilities: {
-      indexedDB: "indexedDB" in window,
-      serviceWorker: "serviceWorker" in navigator,
+      indexedDB: typeof window !== "undefined" && "indexedDB" in window,
+      serviceWorker: typeof navigator !== "undefined" && "serviceWorker" in navigator,
       crypto: !!globalThis.crypto?.subtle,
-      online: navigator.onLine
+      online: typeof navigator !== "undefined" ? navigator.onLine : false
     }
   };
 }
@@ -22,6 +28,8 @@ export async function initializeFoundation() {
 export function reportFoundationError(error) {
   console.error("[Sensory Log]", error);
   window.dispatchEvent(new CustomEvent("sensory-log:error", {
-    detail: { message: error instanceof Error ? error.message : String(error) }
+    detail: {
+      message: error instanceof Error ? error.message : String(error)
+    }
   }));
 }
