@@ -1,4 +1,5 @@
 import { SIGNAL_ITEMS } from "./signal-data.js";
+import { normalizeSignalFeed, personalizeSignal } from "./core/signal-engine.js";
 
 const SIGNAL_KEY="sensoryLogSignalPrefs_v1";
 const CATEGORIES=["All","People","Apps","Research","Community"];
@@ -39,7 +40,7 @@ async function loadFeed(){
     const response=await fetch(FEED_URL,{cache:"no-store",headers:{Accept:"application/json"}});
     if(!response.ok)throw new Error("Signal feed unavailable");
     const payload=await response.json();
-    return Array.isArray(payload?.items)?payload.items.filter(validItem).slice(0,24):[];
+    return Array.isArray(payload?.items)?normalizeSignalFeed(payload.items.filter(validItem),24):[];
   }catch(error){
     console.warn("[Sensory Log] Signal feed unavailable; using bundled items",error);
     return [];
@@ -129,7 +130,7 @@ export function init(){
     if(anchor)anchor.appendChild(root);
   }
   loadFeed().then(remote=>{
-    const items=remote.length?remote:SIGNAL_ITEMS;
+    const items=remote.length?remote:normalizeSignalFeed(SIGNAL_ITEMS);
     renderPage(items);
     render(items);
   });
