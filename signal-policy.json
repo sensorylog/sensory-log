@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "maxAgeDays": 45,
+  "maxItemsPerSource": 8,
+  "maxItems": 24,
+  "allowedTypes": ["People", "Apps", "Research", "Community"],
+  "allowedUrlSchemes": ["https"],
+  "blockedPatterns": [
+    "\\bcure\\s+(autism|adhd|neurodivergence|neurodivergent)\\b",
+    "\\b(heal|reverse)\\s+(autism|adhd|neurodivergence|neurodivergent)\\b",
+    "\\b(stop|replace|skip)\\s+(your\\s+)?(medication|meds|prescription)\\b",
+    "\\b(take|use)\\s+\\d+(?:\\.\\d+)?\\s*(mg|mcg|g)\\b",
+    "\\b(self[- ]harm|suicide)\\s+(method|instructions?|guide|how[- ]to)\\b"
+  ]
+}
