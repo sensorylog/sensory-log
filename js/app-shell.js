@@ -12,10 +12,58 @@ const ROUTES = Object.freeze({
   manual: "view-manual",
   reports: "view-reports",
   signal: "view-signal",
-  backup: "view-backup"
+  backup: "view-backup",
+  about: "view-about",
+  contact: "view-contact",
+  terms: "view-terms"
 });
 
 const PRIMARY = ["home","checkin","patterns","regulate","more"];
+
+const INFO_COPY = Object.freeze({
+  about: {
+    kicker:"About Sensory Log",
+    title:"A calmer way to notice your patterns.",
+    body:[
+      "Sensory Log is a private, local-first tool for noticing energy, sensory load, recovery and the patterns that emerge over time.",
+      "It is designed to help you understand your own experience without turning it into a diagnosis, a score, or a streak."
+    ]
+  },
+  contact: {
+    kicker:"Contact us",
+    title:"Questions, feedback or support?",
+    body:[
+      "We want to hear when something is unclear, broken, or could be more useful.",
+      "For support, product feedback, privacy questions, or other messages, use the contact method provided with your Sensory Log purchase or product receipt."
+    ]
+  },
+  terms: {
+    kicker:"Terms of Service",
+    title:"Using Sensory Log",
+    body:[
+      "Sensory Log is provided as a personal reflection and journaling tool. It is not medical care, diagnosis, treatment, or a substitute for professional advice.",
+      "You are responsible for the information you choose to enter and for deciding how you use observations from the app. Features may change as the product evolves.",
+      "By using Sensory Log, you agree to use the app lawfully and not to misuse, disrupt, reverse-engineer, or attempt to gain unauthorized access to the service or its infrastructure.",
+      "Because Sensory Log is local-first, you should keep your own backups of information you want to preserve. The app provides export tools for this purpose.",
+      "These terms are intended as a clear product-use summary and do not replace any legally required rights or notices that apply in your jurisdiction."
+    ]
+  }
+});
+
+function renderInfoView(route){
+  const copy=INFO_COPY[route];
+  if(!copy) return;
+  const root=document.getElementById(ROUTES[route]);
+  if(!root || root.dataset.infoRendered==="true") return;
+  root.dataset.infoRendered="true";
+  root.innerHTML=`<article class="app-info-page">
+    <button type="button" class="app-info-back" data-route="more" aria-label="Back to More">← More</button>
+    <div class="app-kicker">${copy.kicker}</div>
+    <h2>${copy.title}</h2>
+    ${copy.body.map(p=>`<p>${p}</p>`).join("")}
+  </article>`;
+  root.querySelector("[data-route]").addEventListener("click",()=>setActive("more"));
+}
 let aiUiPromise = null;
 
 async function loadOptionalReportsTools(){
@@ -48,6 +96,7 @@ function setActive(route, pushHash=true){
   document.title = target==="home" ? "Sensory Log" : target[0].toUpperCase()+target.slice(1)+" · Sensory Log";
   if(pushHash && location.hash!==("#"+target)) history.pushState(null,"","#"+target);
   window.scrollTo({top:0,behavior:document.documentElement.dataset.motion==="reduced"?"auto":"smooth"});
+  renderInfoView(target);
   const activeView=document.getElementById(ROUTES[target]);
   if(activeView){
     activeView.setAttribute("tabindex","-1");
