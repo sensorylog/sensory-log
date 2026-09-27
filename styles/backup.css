@@ -1,0 +1,18 @@
+.sl-backup{display:grid;gap:14px}
+.sl-backup-hero,.sl-backup-card,.sl-backup-details{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 16px}
+.sl-backup-kicker{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.sl-backup-hero h2{margin:0 0 6px;font-size:1.18rem}
+.sl-backup-hero p,.sl-backup-note span,.sl-backup-details p{margin:0;color:var(--muted);font-size:.88rem;line-height:1.5}
+.sl-backup-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.sl-backup-actions button,.sl-backup-import{min-height:44px;border:1px solid var(--border);border-radius:12px;background:var(--bg);color:var(--ink);font:inherit;font-weight:600;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:10px 12px}
+.sl-backup-actions .sl-backup-primary{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.sl-backup-import{grid-column:1/-1}
+.sl-backup-import input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.sl-backup-status{min-height:1.3em;margin:12px 0 0;color:var(--teal);font-size:.84rem}
+.sl-backup-status.is-error{color:var(--rust)}
+.sl-backup-note{margin-top:14px;padding-top:14px;border-top:1px solid var(--border);display:grid;gap:3px}
+.sl-backup-note strong{font-size:.84rem}
+.sl-backup-details details+details{border-top:1px solid var(--border);margin-top:10px;padding-top:10px}
+.sl-backup-details summary{font-weight:600;color:var(--ink)}
+.sl-backup-details p{padding-top:8px}
+@media (min-width:700px){.sl-backup-actions{grid-template-columns:1fr 1fr 1fr}.sl-backup-import{grid-column:auto}}
