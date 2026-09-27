@@ -1,4 +1,4 @@
-import "./core/foundation.js";
+import { initializeFoundation } from "./core/foundation.js";
 
 const ROUTES = Object.freeze({
   home: "view-home",
