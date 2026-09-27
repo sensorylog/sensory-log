@@ -2,6 +2,7 @@ import { SIGNAL_ITEMS } from "./signal-data.js";
 
 const SIGNAL_KEY="sensoryLogSignalPrefs_v1";
 const CATEGORIES=["All","People","Apps","Research","Community"];
+const FEED_URL="./signal-feed.json";
 
 function prefs(){
   try{
@@ -23,16 +24,38 @@ function sourceLink(item){
   if(!item.sourceUrl)return escapeHtml(item.source||"Source");
   return `<a href="${escapeHtml(item.sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.source||"Source")} ↗</a>`;
 }
-function filteredItems(category){
-  return category==="All"?SIGNAL_ITEMS:SIGNAL_ITEMS.filter(item=>item.type===category);
+function validItem(item){
+  return item && typeof item==="object"
+    && typeof item.id==="string"
+    && ["People","Apps","Research","Community"].includes(item.type)
+    && /^\d{4}-\d{2}-\d{2}$/.test(item.date)
+    && typeof item.title==="string" && item.title.length>0 && item.title.length<=180
+    && typeof item.text==="string" && item.text.length>0 && item.text.length<=500
+    && typeof item.source==="string" && item.source.length>0
+    && /^https?:\/\//.test(item.sourceUrl||"");
 }
-function render(){
+async function loadFeed(){
+  try{
+    const response=await fetch(FEED_URL,{cache:"no-store",headers:{Accept:"application/json"}});
+    if(!response.ok)throw new Error("Signal feed unavailable");
+    const payload=await response.json();
+    return Array.isArray(payload?.items)?payload.items.filter(validItem).slice(0,24):[];
+  }catch(error){
+    console.warn("[Sensory Log] Signal feed unavailable; using bundled items",error);
+    return [];
+  }
+}
+function filteredItems(items,category){
+  return category==="All"?items:items.filter(item=>item.type===category);
+}
+function render(items=SIGNAL_ITEMS){
   const root=document.getElementById("slSignal");
   if(!root)return;
   const p=prefs();
   if(!p.enabled||p.hidden){root.hidden=true;return;}
-  const items=filteredItems(p.category);
-  const current=items[0]||SIGNAL_ITEMS[0];
+  const visible=filteredItems(items,p.category);
+  const current=visible[0]||items[0]||SIGNAL_ITEMS[0];
+
   root.hidden=false;
   root.innerHTML=`<div class="sl-signal-inner" role="region" aria-label="Signal">
     <div class="sl-signal-content">
@@ -43,19 +66,19 @@ function render(){
         <p>${escapeHtml(current.text)}</p>
         <div class="sl-signal-meta">${sourceLink(current)}</div>
       </article>
-      <div class="sl-signal-items">${items.slice(1,4).map(item=>`<article class="sl-signal-item"><div class="sl-signal-item-top"><span class="sl-signal-type">${escapeHtml(item.type)}</span><time datetime="${escapeHtml(item.date)}">${formatDate(item.date)}</time></div><strong>${escapeHtml(item.title)}</strong><p>${escapeHtml(item.text)}</p><div class="sl-signal-meta">${sourceLink(item)}</div></article>`).join("")}</div>
+      <div class="sl-signal-items">${visible.slice(1,4).map(item=>`<article class="sl-signal-item"><div class="sl-signal-item-top"><span class="sl-signal-type">${escapeHtml(item.type)}</span><time datetime="${escapeHtml(item.date)}">${formatDate(item.date)}</time></div><strong>${escapeHtml(item.title)}</strong><p>${escapeHtml(item.text)}</p><div class="sl-signal-meta">${sourceLink(item)}</div></article>`).join("")}</div>
     </div>
     <div class="sl-signal-actions"><button type="button" data-signal-pause>${p.paused?"Resume":"Pause"}</button><button type="button" data-signal-hide>Hide</button></div>
   </div>`;
-  root.querySelector("[data-signal-pause]").onclick=()=>{const next=prefs();next.paused=!next.paused;save(next);render()};
-  root.querySelector("[data-signal-hide]").onclick=()=>{const next=prefs();next.hidden=true;save(next);render()};
+  root.querySelector("[data-signal-pause]").onclick=()=>{const next=prefs();next.paused=!next.paused;save(next);render(items)};
+  root.querySelector("[data-signal-hide]").onclick=()=>{const next=prefs();next.hidden=true;save(next);render(items)};
 }
-function renderPage(){
+function renderPage(items){
   const root=document.getElementById("view-signal");
   if(!root)return;
   const p=prefs();
   const active=CATEGORIES.includes(p.category)?p.category:"All";
-  const items=filteredItems(active);
+  const visible=filteredItems(items,active);
   root.innerHTML=`<section class="sl-signal-page" aria-labelledby="signalTitle">
     <div class="sl-signal-page-head">
       <div class="app-kicker">Signal</div>
@@ -66,7 +89,7 @@ function renderPage(){
       ${CATEGORIES.map(category=>`<button type="button" class="${category===active?"is-active":""}" data-signal-category="${category}">${category}</button>`).join("")}
     </div>
     <div class="sl-signal-list">
-      ${items.map(item=>`<article class="sl-signal-card">
+      ${visible.map(item=>`<article class="sl-signal-card">
         <div class="sl-signal-card-top"><span class="sl-signal-type">${escapeHtml(item.type)}</span><time datetime="${escapeHtml(item.date)}">${formatDate(item.date)}</time></div>
         <h3>${escapeHtml(item.title)}</h3>
         <p>${escapeHtml(item.text)}</p>
@@ -79,7 +102,7 @@ function renderPage(){
     </div>
   </section>`;
   root.querySelectorAll("[data-signal-category]").forEach(button=>button.onclick=()=>{
-    const next=prefs();next.category=button.dataset.signalCategory;save(next);renderPage();render();
+    const next=prefs();next.category=button.dataset.signalCategory;save(next);renderPage(items);render(items);
   });
 }
 export function init(){
@@ -91,11 +114,15 @@ export function init(){
     const anchor=document.getElementById("view-signal");
     if(anchor)anchor.appendChild(root);
   }
-  renderPage();
-  render();
+  loadFeed().then(remote=>{
+    const items=remote.length?remote:SIGNAL_ITEMS;
+    renderPage(items);
+    render(items);
+  });
 }
 export function setSignalVisible(enabled){
-  const next=prefs();next.enabled=!!enabled;next.hidden=false;next.paused=false;save(next);render();
+  const next=prefs();next.enabled=!!enabled;next.hidden=false;next.paused=false;save(next);
+  loadFeed().then(remote=>render(remote.length?remote:SIGNAL_ITEMS));
 }
 export function restoreSignal(){setSignalVisible(true)}
 init();

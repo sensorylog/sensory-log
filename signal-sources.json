@@ -1,0 +1,32 @@
+[
+  {
+    "id": "nas",
+    "name": "National Autistic Society",
+    "type": "Community",
+    "feed": "https://autism.org.uk/advice-and-guidance/blog/rss"
+  },
+  {
+    "id": "autistic-hoya",
+    "name": "Autistic Hoya",
+    "type": "People",
+    "feed": "https://www.autistichoya.com/feeds/posts/default?alt=rss"
+  },
+  {
+    "id": "autism-spectrum-news",
+    "name": "Autism Spectrum News",
+    "type": "Research",
+    "feed": "https://autismspectrumnews.org/feed/"
+  },
+  {
+    "id": "autisable",
+    "name": "Autisable",
+    "type": "Community",
+    "feed": "https://autisable.com/feed/"
+  },
+  {
+    "id": "asan",
+    "name": "Autistic Self Advocacy Network",
+    "type": "Community",
+    "feed": "https://autisticadvocacy.org/feed/"
+  }
+]
