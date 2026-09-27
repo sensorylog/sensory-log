@@ -23,6 +23,7 @@ const LICENSE_WORKER_URL = "https://sensory-log-license.johnkyei221.workers.dev"
 
 const CACHE_KEY = "sensoryLog_entitlement_v2";
 const OFFLINE_GRACE_MS = 14 * 24 * 60 * 60 * 1000;
+const DEVICE_ID_KEY = "sensoryLog_device_id_v1";
 
 let currentUser = null;
 let currentEntitlement = null;
@@ -59,6 +60,20 @@ function readCachedEntitlement() {
 
 function clearCachedEntitlement() {
   try { localStorage.removeItem(CACHE_KEY); } catch (_) {}
+}
+
+function getDeviceId() {
+  try {
+    const existing = localStorage.getItem(DEVICE_ID_KEY);
+    if (existing) return existing;
+    const id = globalThis.crypto?.randomUUID
+      ? globalThis.crypto.randomUUID()
+      : "sl-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2);
+    localStorage.setItem(DEVICE_ID_KEY, id);
+    return id;
+  } catch (_) {
+    return "sl-session-" + Date.now().toString(36);
+  }
 }
 
 function isUsableOffline(entitlement) {
@@ -126,7 +141,7 @@ function createGate() {
 
       <p class="sl-license-status" data-status role="status" aria-live="polite"></p>
       <a class="sl-license-purchase" href="#" data-purchase rel="noopener">Get Sensory Log</a>
-      <p class="sl-license-foot">One purchase. Complete core experience. No subscription.</p>
+      <p class="sl-license-foot">One purchase. Complete core experience. No subscription. Use your account on up to 2 devices.</p>
     </div>`;
 
   document.body.appendChild(gate);
@@ -185,7 +200,7 @@ async function verifyLicenseWithWorker(licenseKey, mode = "activate") {
       "content-type": "application/json",
       "authorization": "Bearer " + idToken
     },
-    body: JSON.stringify({ licenseKey, mode })
+    body: JSON.stringify({ licenseKey, mode, deviceId: getDeviceId() })
   });
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
