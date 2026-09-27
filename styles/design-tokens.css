@@ -1,14 +1,13 @@
 :root{
-  /* Typography */
   --sl-font-body:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",system-ui,sans-serif;
   --sl-font-display:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",system-ui,sans-serif;
+
   --sl-text-xs:.72rem;
   --sl-text-sm:.84rem;
   --sl-text-md:1rem;
   --sl-text-lg:1.2rem;
   --sl-text-xl:clamp(1.55rem,5vw,2.1rem);
 
-  /* Layout */
   --sl-content-max:820px;
   --sl-space-1:4px;
   --sl-space-2:8px;
@@ -20,8 +19,35 @@
   --sl-space-8:40px;
   --sl-control-min:44px;
 
-  /* Depth */
   --sl-shadow-soft:0 10px 40px rgba(0,0,0,.14);
   --sl-shadow-deep:0 30px 100px rgba(0,0,0,.3);
   --sl-border-subtle:rgba(255,255,255,.09);
+
+  /* Product-wide aliases: every view speaks the same visual language. */
+  --bg:var(--sl-bg);
+  --bg-2:var(--sl-bg-2);
+  --surface:var(--sl-surface);
+  --surface-strong:var(--sl-surface-strong);
+  --glass:var(--sl-glass);
+  --ink:var(--sl-ink);
+  --muted:var(--sl-muted);
+  --faint:var(--sl-faint);
+  --border:var(--sl-border);
+  --border-hi:var(--sl-border-hi);
+  --accent:var(--sl-accent);
+  --accent-soft:var(--sl-accent-soft);
+  --danger:var(--sl-danger);
+  --radius:var(--sl-radius);
+  --radius-sm:var(--sl-radius-sm);
+  --shadow:var(--sl-shadow);
+  --blur:var(--sl-blur);
+  --safe-bottom:var(--sl-safe-bottom);
+  --ease:var(--sl-ease);
 }
+
+html{font-family:var(--sl-font-body);background:var(--sl-bg);color:var(--sl-ink)}
+body{font-family:var(--sl-font-body);font-size:var(--sl-text-md);line-height:1.45}
+button,input,textarea,select{font-family:inherit}
+h1,h2,h3,h4{font-family:var(--sl-font-display);text-wrap:balance}
+button,a,input,textarea,select{touch-action:manipulation}
+button{min-height:var(--sl-control-min)}
