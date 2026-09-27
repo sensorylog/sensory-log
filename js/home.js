@@ -66,7 +66,6 @@ function render(entries){
 }
 async function refresh(){try{render(await getEntries())}catch(e){console.error("Sensory Log Home",e);render([])}}
 refresh();
-mountPatternIntelligence();
 const card=document.querySelector(".card");
 if(card){const o=new MutationObserver(()=>{clearTimeout(o._t);o._t=setTimeout(refresh,100)});o.observe(card,{subtree:true,childList:true,attributes:true})}
 window.addEventListener("storage",refresh);
