@@ -12,3 +12,27 @@
 .sl-ai-notes input{width:18px;height:18px;flex:none}
 
 .sl-signal-content{min-width:0;flex:1}.sl-signal-items{display:none}.sl-signal-inner:focus-within .sl-signal-items{display:block}.sl-signal-items article{border-top:1px solid var(--border);padding:9px 0}.sl-signal-items small{display:block;color:var(--muted);font-size:.62rem;text-transform:uppercase;letter-spacing:.08em}.sl-signal-items strong{display:block;font-size:.76rem;margin-top:2px}.sl-signal-items p{margin:2px 0 0;color:var(--muted);font-size:.7rem;line-height:1.4}.app-more-card-secondary{min-height:110px}
+
+.sl-signal{position:sticky;bottom:0;z-index:10;margin:18px -16px -56px;padding:0;background:var(--surface);border-top:1px solid var(--border);box-shadow:0 -8px 24px rgba(0,0,0,.06)}
+.sl-signal-inner{max-width:460px;margin:auto;min-height:58px;display:flex;align-items:flex-start;gap:10px;padding:9px 10px}
+.sl-signal-content{min-width:0;flex:1}
+.sl-signal-heading{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.sl-signal-label{font-size:.63rem;font-weight:800;letter-spacing:.12em}
+.sl-signal-status{font-size:.61rem;color:var(--muted)}
+.sl-signal-feature{margin:0}
+.sl-signal-type{font-size:.61rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.sl-signal-feature strong{display:block;font-size:.82rem;margin-top:2px}
+.sl-signal-feature p{margin:3px 0 0;color:var(--muted);font-size:.72rem;line-height:1.4}
+.sl-signal-meta{display:flex;flex-wrap:wrap;gap:7px;margin-top:5px;font-size:.62rem;color:var(--muted);line-height:1.35}
+.sl-signal-meta a{color:var(--ink);text-decoration:underline;text-underline-offset:2px}
+.sl-signal-actions{display:flex;gap:3px;flex:none}
+.sl-signal-actions button{border:0;background:none;color:var(--muted);padding:7px 4px;font:inherit;font-size:.66rem;cursor:pointer}
+.sl-signal-items{display:grid;gap:0;margin-top:10px}
+.sl-signal-item{border-top:1px solid var(--border);padding:9px 0}
+.sl-signal-item-top{display:flex;justify-content:space-between;gap:8px}
+.sl-signal-item time{font-size:.6rem;color:var(--muted)}
+.sl-signal-item strong{display:block;font-size:.76rem;margin-top:2px}
+.sl-signal-item p{margin:3px 0 0;color:var(--muted);font-size:.69rem;line-height:1.4}
+@media(min-width:700px){.sl-signal-inner{max-width:760px}.sl-signal{margin-left:calc((460px - 100vw)/2);margin-right:calc((460px - 100vw)/2)}}
+@media(prefers-reduced-motion:reduce){.sl-signal{position:relative}}
+@media print{.sl-ai,.sl-signal{display:none!important}}
