@@ -93,6 +93,10 @@ for item in sorted(items,key=lambda x:(x["date"],x["id"]),reverse=True):
     if len(unique)>=24:
         break
 
+if not unique:
+    print("No valid Signal items collected; preserving existing feed.")
+    raise SystemExit(0)
+
 payload={"version":1,"generatedAt":NOW.replace(microsecond=0).isoformat().replace("+00:00","Z"),"items":unique}
 OUT.write_text(json.dumps(payload,ensure_ascii=False,indent=2)+"\n")
 print("Wrote",len(unique),"Signal items")
