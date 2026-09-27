@@ -95,7 +95,7 @@ function setActive(route, pushHash=true){
   });
   document.title = target==="home" ? "Sensory Log" : target[0].toUpperCase()+target.slice(1)+" · Sensory Log";
   if(pushHash && location.hash!==("#"+target)) history.pushState(null,"","#"+target);
-  window.scrollTo({top:0,behavior:document.documentElement.dataset.motion==="reduced"?"auto":"smooth"});
+  // Route changes should reposition decisively, not animate the entire document.\n  // This avoids scroll drift and motion that can be disorienting on mobile.\n  window.scrollTo({top:0,behavior:"auto"});
   renderInfoView(target);
   const activeView=document.getElementById(ROUTES[target]);
   if(activeView){
