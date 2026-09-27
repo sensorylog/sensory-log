@@ -9,6 +9,7 @@
 <meta name="description" content="A calm, private sensory and energy log with pattern insights, personal history and optional AI reflection" />
 <title>Sensory Log</title>
 <link rel="stylesheet" href="./styles/design-tokens.css" />
+<link rel="stylesheet" href="./styles/app-shell.css" />
 <link rel="stylesheet" href="./styles/liquid-glass.css" />
 <link rel="stylesheet" href="./styles/accessibility.css" />
 <link rel="stylesheet" href="./styles/home.css" />
@@ -17,6 +18,7 @@
 <link rel="stylesheet" href="./styles/manual.css" />
 <link rel="stylesheet" href="./styles/reports.css" />
 <link rel="stylesheet" href="./styles/ai-signal.css" />
+<script type="module" src="./js/app-shell.js"></script>
 <script type="module" src="./js/checkin.js"></script>
 <script type="module" src="./js/home.js"></script>
 <script type="module" src="./js/regulation.js"></script>
@@ -351,6 +353,8 @@
     line-height: 1.45;
   }
 
+  #legacyEngine { display: none; }
+
   .footnote { font-size: 0.78rem; color: var(--muted); margin-top: 32px; line-height: 1.5; }
 
   button:focus-visible, textarea:focus, input:focus { outline: 2px solid var(--teal); outline-offset: 2px; }
@@ -372,14 +376,58 @@
 </head>
 <body>
 <div class="wrap">
-  <header>
-    <h1>Sensory Log</h1>
+  <header class="app-header">
+    <div class="app-brand">
+      <div class="app-brand-mark" aria-hidden="true">SL</div>
+      <div class="app-brand-copy">
+        <div class="app-brand-name">Sensory Log</div>
+        <div class="app-brand-state">Notice · understand · regulate</div>
+      </div>
+    </div>
     <div class="header-btns">
       <button class="theme-btn" id="themeBtn" type="button" aria-label="Toggle dark mode">◐</button>
     </div>
   </header>
-  <p class="subtitle">Private tracking for energy, sensory load, body signals and what actually helps recovery.</p>
 
+  <main class="app-shell" id="appShell">
+    <section class="app-view" id="view-home"></section>
+    <section class="app-view" id="view-checkin"></section>
+    <section class="app-view" id="view-patterns"></section>
+    <section class="app-view" id="view-regulation"></section>
+    <section class="app-view app-more" id="view-more">
+      <section class="app-more-hero">
+        <div class="app-kicker">Your space</div>
+        <h2>Everything you have learned about yourself.</h2>
+        <p>History, your operating manual, reports and Signal live here. Nothing is a streak, and nothing needs to be opened every day.</p>
+      </section>
+      <div class="app-more-grid">
+        <button class="app-more-card" type="button" data-route="history"><strong>History</strong><span>See days, dates and what you logged over time.</span></button>
+        <button class="app-more-card" type="button" data-route="manual"><strong>My manual</strong><span>A living summary of what your own data suggests you need.</span></button>
+        <button class="app-more-card" type="button" data-route="reports"><strong>Reports</strong><span>Quiet, evidence-based summaries you can print or save.</span></button>
+        <button class="app-more-card" type="button" data-route="signal"><strong>Signal</strong><span>A small feed for useful context, with pause and hide controls.</span></button>
+      </div>
+      <section class="app-secondary">
+        <div class="app-secondary-row">
+          <div><strong>Take a break</strong><div class="app-brand-state">There is no streak to protect.</div></div>
+          <button class="app-secondary-btn" type="button" data-route="regulate">Regulate</button>
+        </div>
+      </section>
+    </section>
+    <section class="app-view" id="view-history"></section>
+    <section class="app-view" id="view-manual"></section>
+    <section class="app-view" id="view-reports"></section>
+    <section class="app-view" id="view-signal"></section>
+  </main>
+
+  <nav class="app-nav" aria-label="Primary">
+    <button type="button" data-route="home"><span aria-hidden="true">⌂</span>Home</button>
+    <button type="button" data-route="checkin"><span aria-hidden="true">＋</span>Check in</button>
+    <button type="button" data-route="patterns"><span aria-hidden="true">◌</span>Patterns</button>
+    <button type="button" data-route="regulate"><span aria-hidden="true">◒</span>Regulate</button>
+    <button type="button" data-route="more"><span aria-hidden="true">•••</span>More</button>
+  </nav>
+
+  <div id="legacyEngine">
   <div class="tip" id="phoneTip">
     <strong>Tip:</strong> Once open in Safari, tap Share → <strong>Add to Home Screen</strong>. Your entries save right on this device — no account, no upload, unless you choose to turn on AI Insights below.
   </div>
@@ -504,6 +552,8 @@
     This is a personal tracking tool, not a diagnostic or medical device. Skip any day that feels like too much — there is no streak to protect. Pattern insights, trends and forecasts below are simple statistics computed only from your own entries; they're rough estimates from a small personal sample, not certainties or clinical conclusions.
   </p>
 </div>
+
+  </div>
 
 <script>
 (function () {
