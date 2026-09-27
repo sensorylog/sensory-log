@@ -26,5 +26,5 @@ function openEditor(id){
   const area=el.querySelector("textarea");area.value=manual.notes[id]||"";requestAnimationFrame(()=>area.focus());
 }
 function bind(){root.querySelectorAll("[data-manual-note]").forEach(b=>b.onclick=()=>openEditor(b.dataset.manualNote))}
-export async function mountManual(){manual=load();entries=await getEntries();root=document.getElementById("slManual");if(!root){root=document.createElement("section");root.id="slManual";root.className="sl-manual";document.getElementById("slHistory")?.insertAdjacentElement("afterend",root)}render()}
+export async function mountManual(){manual=load();entries=await getEntries();root=document.getElementById("slManual");if(!root){root=document.createElement("section");root.id="slManual";root.className="sl-manual";document.getElementById("view-manual")?.appendChild(root)}render()}
 mountManual();
