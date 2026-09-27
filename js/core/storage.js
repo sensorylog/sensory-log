@@ -216,6 +216,24 @@ export async function saveEntries(entries) {
   }
 }
 
+export async function clearAllLocalData() {
+  try {
+    await idbDelete(ENTRY_KEY);
+    await idbDelete(META_KEY);
+  } catch {}
+  try {
+    if (hasLocalStorage()) {
+      const keys = [];
+      for (let index = 0; index < localStorage.length; index += 1) {
+        const key = localStorage.key(index);
+        if (key && (key.startsWith("sensoryLog") || key === "sensoryTheme")) keys.push(key);
+      }
+      keys.forEach(key => localStorage.removeItem(key));
+    }
+  } catch {}
+  return { ok: true };
+}
+
 export async function getStorageInfo() {
   let indexeddb = false;
   let localstorage = false;
