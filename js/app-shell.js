@@ -25,8 +25,11 @@ function setActive(route, pushHash=true){
     const view=document.getElementById(id);
     if(view) view.classList.toggle("is-active", name===target);
   });
+  wireTheme();
   document.querySelectorAll("[data-route]").forEach(btn=>{
-    btn.classList.toggle("active", btn.dataset.route===target || (target==="more" && ["history","manual","reports","signal"].includes(target) && btn.dataset.route==="more"));
+    const isPrimary = btn.dataset.route === target;
+    const isMoreChild = ["history","manual","reports","signal"].includes(target) && btn.dataset.route === "more";
+    btn.classList.toggle("active", isPrimary || isMoreChild);
     btn.setAttribute("aria-current",btn.classList.contains("active")?"page":"false");
   });
   document.title = target==="home" ? "Sensory Log" : target[0].toUpperCase()+target.slice(1)+" · Sensory Log";
@@ -35,6 +38,23 @@ function setActive(route, pushHash=true){
 }
 
 initializeFoundation().catch(error => console.error("[Sensory Log] Foundation", error));
+
+function wireTheme(){
+  const button=document.getElementById("themeBtn");
+  if(!button) return;
+  const apply=theme=>{
+    const value=theme==="dark"?"dark":"light";
+    document.documentElement.setAttribute("data-theme",value);
+    try{localStorage.setItem("sensoryTheme",value)}catch{}
+    button.textContent=value==="dark"?"◑":"◐";
+  };
+  let saved="light";
+  try{saved=localStorage.getItem("sensoryTheme")||"light"}catch{}
+  apply(saved);
+  button.addEventListener("click",()=>{
+    apply(document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark");
+  });
+}
 
 function wire(){
   document.querySelectorAll("[data-route]").forEach(btn=>{
