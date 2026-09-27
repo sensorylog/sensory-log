@@ -75,13 +75,14 @@ async function recordFeedback(feedback){
 }
 
 function bind(){
- mountRoot.querySelectorAll("[data-reg-mode]").forEach(b=>b.onclick=()=>{active=MODES.find(x=>x.id===b.dataset.regMode)||null;stopTimer();renderSession();mountRoot.querySelector(".sl-reg-session")?.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion:reduce)").matches?"auto":"smooth",block:"nearest"})});
+ mountRoot.querySelectorAll("[data-reg-mode]").forEach(b=>b.onclick=()=>{active=MODES.find(x=>x.id===b.dataset.regMode)||null;stopTimer();sessionStartedAt=null;mountRoot.querySelectorAll("[data-reg-mode]").forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false"));renderSession();mountRoot.querySelector(".sl-reg-session")?.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion:reduce)").matches?"auto":"smooth",block:"nearest"})});
  mountRoot.querySelectorAll("[data-reg-action]").forEach(b=>b.onclick=()=>{
    if(b.dataset.regAction==="start")startTimer();
    if(b.dataset.regAction==="stop"){stopTimer();updateTimer();}
    if(b.dataset.regAction==="close"){stopTimer();sessionStartedAt=null;active=null;renderSession();}
  });
  mountRoot.querySelectorAll("[data-reg-feedback]").forEach(b=>b.onclick=()=>{
+   mountRoot.querySelectorAll("[data-reg-feedback]").forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false"));
    const status=mountRoot.querySelector(".sl-reg-feedback-status");
    if(status) status.textContent="Noted. You don't need to rate yourself.";
    buzz(b.dataset.regFeedback==="easier"?[25]:[]);
@@ -97,7 +98,7 @@ export async function mountRegulation(){
   mountRoot=document.getElementById("slRegulation");
   if(!mountRoot){mountRoot=document.createElement("section");mountRoot.id="slRegulation";mountRoot.className="sl-regulation";document.getElementById("view-regulation")?.appendChild(mountRoot)}
   mountRoot.innerHTML=`<div class="sl-reg-head"><div><div class="sl-reg-kicker">Regulation</div><h2>I need help right now</h2><p>No diagnosis. No score. Pick the closest state and use only what feels useful.</p></div></div>
-  <div class="sl-reg-modes" aria-label="Regulation modes">${MODES.map(m=>`<button type="button" class="sl-reg-mode" data-reg-mode="${m.id}"><strong>${esc(m.label)}</strong><span>${esc(m.sub)}</span></button>`).join("")}</div>
+  <div class="sl-reg-modes" aria-label="Regulation modes">${MODES.map(m=>`<button type="button" class="sl-reg-mode" aria-pressed="false" data-reg-mode="${m.id}"><strong>${esc(m.label)}</strong><span>${esc(m.sub)}</span></button>`).join("")}</div>
   <div class="sl-reg-session" aria-live="polite"></div>
   <div class="sl-reg-toolkit"><div class="sl-reg-toolkit-head"><div><div class="sl-reg-kicker">Your toolkit</div><h3>Things you've said can help</h3></div><span class="sl-reg-note">Your history only</span></div>
   <div class="sl-reg-tools">${personalized.slice(0,6).map(x=>`<div class="sl-reg-tool"><strong>${esc(x.name)}</strong><span>${esc(x.desc)}</span>${x.count?`<small>Logged as helpful ${x.count} time${x.count===1?"":"s"}</small>`:"<small>Not logged yet</small>"}</div>`).join("")}</div></div>
