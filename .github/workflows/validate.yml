@@ -40,6 +40,9 @@ jobs:
       - name: Validate Phase D check-in contract
         run: node scripts/test-checkin.mjs
 
+      - name: Validate Phase E pattern intelligence
+        run: node scripts/test-pattern-engine.mjs
+
       - name: Validate JavaScript module syntax
         shell: bash
         run: |
