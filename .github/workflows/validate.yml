@@ -61,6 +61,9 @@ jobs:
       - name: Validate Phase K privacy contract\n        run: node scripts/test-privacy.mjs\n\n      - name: Validate Phase L Firebase licensing contract
         run: node scripts/test-license.mjs
 
+      - name: Validate license Worker syntax
+        run: node --check license-worker/src/index.js
+
       - name: Validate JavaScript module syntax
         shell: bash
         run: |
