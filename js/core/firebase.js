@@ -9,7 +9,6 @@ import {
   ReCaptchaEnterpriseProvider
 } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app-check.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
-import { getFunctions } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-functions.js";
 import {
   getAI,
   getGenerativeModel,
@@ -31,8 +30,6 @@ const RECAPTCHA_ENTERPRISE_SITE_KEY = "6LdhC9EtAAAAAOfRAyry_M4IGuP-dPx8uOUGsuel"
 export const firebaseApp = initializeApp(firebaseConfig);
 
 export const firebaseAuth = getAuth(firebaseApp);
-export const firebaseFunctions = getFunctions(firebaseApp, "us-central1");
-
 export const firebaseAppCheck = initializeAppCheck(firebaseApp, {
   provider: new ReCaptchaEnterpriseProvider(RECAPTCHA_ENTERPRISE_SITE_KEY),
   isTokenAutoRefreshEnabled: true
