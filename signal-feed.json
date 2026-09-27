@@ -1,5 +1,246 @@
 {
   "version": 1,
-  "generatedAt": "2026-09-27T00:00:00Z",
-  "items": []
+  "generatedAt": "2026-09-27T10:35:37Z",
+  "items": [
+    {
+      "id": "autisable-d9eb8f2379881391",
+      "type": "Community",
+      "date": "2026-09-26",
+      "title": "Why everyday life can be so much harder for #Autism families like mine",
+      "text": "I was feeling really good yesterday because I had finally been able to purchase the replacement parts for the car.",
+      "source": "Autisable",
+      "sourceUrl": "https://autisable.com/blog/why-everyday-life-can-be-so-much-harder-for-autism-families-like-mine",
+      "note": "Automatically collected from an approved HTTPS publisher feed; screened for freshness, duplicates, and clearly unsafe actionable claims."
+    },
+    {
+      "id": "autisable-92adc5f2d2320784",
+      "type": "Community",
+      "date": "2026-09-26",
+      "title": "Using Visual Supports for Emotional Regulation in Children",
+      "text": "Explore how visual tools help neurodivergent children identify, understand, and manage their emotions more effectively.",
+      "source": "Autisable",
+      "sourceUrl": "https://autisable.com/blog/using-visual-supports-for-emotional-regulation-in-children-mrfyg8es",
+      "note": "Automatically collected from an approved HTTPS publisher feed; screened for freshness, duplicates, and clearly unsafe actionable claims."
+    },
+    {
+      "id": "autism-spectrum-news-c625e3bcda607fb6",
+      "type": "Research",
+      "date": "2026-09-25",
+      "title": "The Unfinished Business of the ADA: Financial Security for People With Disabilities",
+      "text": "The disability community faces economic barriers from outdated SSI limits and Medicaid cuts, underscoring the need for policy reform. The post The Unfinished Business of the ADA: Financial Security for People With Disabilities appeared first on Autism Spectrum News .",
+      "source": "Autism Spectrum News",
+      "sourceUrl": "https://autismspectrumnews.org/the-unfinished-business-of-the-ada-financial-security-for-people-with-disabilities",
+      "note": "Automatically collected from an approved HTTPS publisher feed; screened for freshness, duplicates, and clearly unsafe actionable claims."
+    },
+    {
+      "id": "autism-spectrum-news-ac04d18a41a2e04a",
+      "type": "Research",
+      "date": "2026-09-25",
+      "title": "The Right to the Ordinary: Money, Choice, and Dignity for Autistic Adults",
+      "text": "Financial inclusion can empower people with disabilities to make choices, build confidence, and experience greater independence. The post The Right to the Ordinary: Money, Choice, and Dignity for Autistic Adults appeared first on Autism Spectrum News .",
+      "source": "Autism Spectrum News",
+      "sourceUrl": "https://autismspectrumnews.org/the-right-to-the-ordinary-money-choice-and-dignity-for-autistic-adults",
+      "note": "Automatically collected from an approved HTTPS publisher feed; screened for freshness, duplicates, and clearly unsafe actionable claims."
+    },
+    {
+      "id": "autism-spectrum-news-a29251a9bcd7f533",
+      "type": "Research",
+      "date": "2026-09-25",
+      "title": "The Path to Economic Security: How Job Coaching Builds Financial Independence for Autistic People",
+      "text": "Discover how career support can help autistic people achieve greater financial stability and independence. The post The Path to Economic Security: How Job Coaching Builds Financial Independence for Autistic People appeared first on Autism Spectrum News .",
+      "source": "Autism Spectrum News",
+      "sourceUrl": "https://autismspectrumnews.org/the-path-to-economic-security-how-job-coaching-builds-financial-independence-for-autistic-people",
+      "note": "Automatically collected from an approved HTTPS publisher feed; screened for freshness, duplicates, and clearly unsafe actionable claims."
+    },
+    {
+      "id": "autism-spectrum-news-8d37f693c5d801fb",
+      "type": "Research",
+      "date": "2026-09-25",
+      "title": "The Person Doesn’t Change. The System Around Them Does.",
+      "text": "Continuity of care can support autistic people as they transition from school services to adult and aging healthcare. The post The Person Doesn’t Change. The System Around Them Does. appeared first on Autism Spectrum News .",
+      "source": "Autism Spectrum News",
+      "sourceUrl": "https://autismspectrumnews.org/the-person-doesnt-change-the-system-around-them-does",
+      "note": "Automatically collected from an approved HTTPS publisher feed; screened for freshness, duplicates, and clearly unsafe actionable claims."
+    },
+    {
+      "id": "autism-spectrum-news-6e97ea6c0c31f1bd",
+      "type": "Research",
+      "date": "2026-09-25",
+      "title": "Tax and Financial Planning for Autistic Individuals and Their Families: Current Policy and Practical Considerations",
+      "text": "Explore tax planning strategies, ABLE accounts, and key tax changes for autistic individuals and their families. The post Tax and Financial Planning for Autistic Individuals and Their Families: Current Policy and Practical Considerations appeared first on Autism Spectrum News .",
+      "source": "Autism Spectrum News",
+      "sourceUrl": "https://autismspectrumnews.org/tax-and-financial-planning-for-autistic-individuals-and-their-families-current-policy-and-practical-considerations",
+      "note": "Automatically collected from an approved HTTPS publisher feed; screened for freshness, duplicates, and clearly unsafe actionable claims."
+    },
+    {
+      "id": "autism-spectrum-news-484526e082196cdd",
+      "type": "Research",
+      "date": "2026-09-25",
+      "title": "The Financial Side of an Autism Diagnosis: What Families Should Know",
+      "text": "An autism diagnosis brings financial questions families may not expect – learn about insurance, costs, and resources to help plan ahead. The post The Financial Side of an Autism Diagnosis: What Families Should Know appeared first on Autism Spectrum News .",
+      "source": "Autism Spectrum News",
+      "sourceUrl": "https://autismspectrumnews.org/the-financial-side-of-an-autism-diagnosis-what-families-should-know",
+      "note": "Automatically collected from an approved HTTPS publisher feed; screened for freshness, duplicates, and clearly unsafe actionable claims."
+    },
+    {
+      "id": "autism-spectrum-news-34ca62ac28a8e79f",
+      "type": "Research",
+      "date": "2026-09-25",
+      "title": "ASN Fall 2026 Issue",
+      "text": "\"Financial Planning and Economic Security for Autistic Individuals and Families\" The post ASN Fall 2026 Issue appeared first on Autism Spectrum News .",
+      "source": "Autism Spectrum News",
+      "sourceUrl": "https://autismspectrumnews.org/asn-fall-2026-issue",
+      "note": "Automatically collected from an approved HTTPS publisher feed; screened for freshness, duplicates, and clearly unsafe actionable claims."
+    },
+    {
+      "id": "autism-spectrum-news-16b7cfee6d8ccdec",
+      "type": "Research",
+      "date": "2026-09-25",
+      "title": "Tips for Planning Financial Security Beyond Childhood",
+      "text": "Families of autistic adults share one common regret: not planning sooner. Here's how to build financial security before adulthood arrives. The post Tips for Planning Financial Security Beyond Childhood appeared first on Autism Spectrum News .",
+      "source": "Autism Spectrum News",
+      "sourceUrl": "https://autismspectrumnews.org/tips-for-planning-financial-security-beyond-childhood",
+      "note": "Automatically collected from an approved HTTPS publisher feed; screened for freshness, duplicates, and clearly unsafe actionable claims."
+    },
+    {
+      "id": "autisable-81bc34dff591f35b",
+      "type": "Community",
+      "date": "2026-09-25",
+      "title": "Finding Underwear for Those with Sensory Aversions",
+      "text": "Just a heads up, this post will contain some affiliate links for underwear. However, as with all things,",
+      "source": "Autisable",
+      "sourceUrl": "https://autisable.com/blog/finding-underwear-for-those-with-sensory-aversions",
+      "note": "Automatically collected from an approved HTTPS publisher feed; screened for freshness, duplicates, and clearly unsafe actionable claims."
+    },
+    {
+      "id": "asan-b53f11b199eb0bd0",
+      "type": "Community",
+      "date": "2026-09-25",
+      "title": "Join us for the 2026 Annual Gala!",
+      "text": "Join us for this year’s virtual gala on Thursday, October 29th! This gala will mark 20 years of ASAN and our last gala for the next few years. We will be hosting an evening of panels, celebration, and community. This year’s theme is Together We Thrive! This theme is deeply important to us, knowing that...",
+      "source": "Autistic Self Advocacy Network",
+      "sourceUrl": "https://givebutter.com/asan-20th-anniversary-gala-together-we-thrive-osxhmb?utm_source=rss&utm_medium=rss&utm_campaign=join-us-for-the-2026-annual-gala",
+      "note": "Automatically collected from an approved HTTPS publisher feed; screened for freshness, duplicates, and clearly unsafe actionable claims."
+    },
+    {
+      "id": "autisable-1bbe8580d134cee9",
+      "type": "Community",
+      "date": "2026-09-24",
+      "title": "How To Reconnect With Your Faith When You Are Going Through Tough Times",
+      "text": "If you feel as though you are losing the connection you once had with your faith then you may feel",
+      "source": "Autisable",
+      "sourceUrl": "https://autisable.com/blog/how-to-reconnect-with-your-faith-when-you-are-going-through-tough-times",
+      "note": "Automatically collected from an approved HTTPS publisher feed; screened for freshness, duplicates, and clearly unsafe actionable claims."
+    },
+    {
+      "id": "asan-e2ea331d722544b1",
+      "type": "Community",
+      "date": "2026-09-24",
+      "title": "Texas v. Kennedy Abandons Federal Commitment to Community Integration",
+      "text": "This statement is available as a PDF here. September 24, 2026 — Yesterday, the federal judge in the case of Texas v. Kennedy entered an order throwing out the community integration provisions of the Section 504 rule issued in 2024 by the U.S. Department of Health and Human Services (HHS). The order applies across the..",
+      "source": "Autistic Self Advocacy Network",
+      "sourceUrl": "https://autisticadvocacy.org/2026/09/texas-v-kennedy-abandons-federal-commitment-to-community-integration/?utm_source=rss&utm_medium=rss&utm_campaign=texas-v-kennedy-abandons-federal-commitment-to-community-integration",
+      "note": "Automatically collected from an approved HTTPS publisher feed; screened for freshness, duplicates, and clearly unsafe actionable claims."
+    },
+    {
+      "id": "asan-c34809d2879ed8e3",
+      "type": "Community",
+      "date": "2026-09-24",
+      "title": "ASAN Opposes Decision in Texas v. Kennedy",
+      "text": "The Department of Justice is a part of the government that makes sure laws are followed. We call it DOJ for short. The DOJ and a few states made another bad decision. This update talks about what they did, what just happened, and what it means for you. On August 31st, the DOJ and a...",
+      "source": "Autistic Self Advocacy Network",
+      "sourceUrl": "https://autisticadvocacy.org/2026/09/asan-opposes-decision-in-texas-v-kennedy/?utm_source=rss&utm_medium=rss&utm_campaign=asan-opposes-decision-in-texas-v-kennedy",
+      "note": "Automatically collected from an approved HTTPS publisher feed; screened for freshness, duplicates, and clearly unsafe actionable claims."
+    },
+    {
+      "id": "autisable-7f3df4adc980a1b2",
+      "type": "Community",
+      "date": "2026-09-23",
+      "title": "Energy Psychology and Peak Performance with Aly Cohen of AT&T SportsNet about - Mandi Freger",
+      "text": "Disclaimer: Information contained on this website is not intended to be a substitute for therapy nor does it imply a",
+      "source": "Autisable",
+      "sourceUrl": "https://autisable.com/blog/energy-psychology-and-peak-performance-with-aly-cohen-of-att-sportsnet-about-mandi-freger",
+      "note": "Automatically collected from an approved HTTPS publisher feed; screened for freshness, duplicates, and clearly unsafe actionable claims."
+    },
+    {
+      "id": "autisable-ee3a537b38b0a55d",
+      "type": "Community",
+      "date": "2026-09-22",
+      "title": "Creating Effective Homework Routines for ADHD and Autism",
+      "text": "Practical strategies and visual supports to help neurodivergent children complete homework with less stress and greater independence.",
+      "source": "Autisable",
+      "sourceUrl": "https://autisable.com/blog/creating-effective-homework-routines-for-adhd-and-autism-mrfyg951",
+      "note": "Automatically collected from an approved HTTPS publisher feed; screened for freshness, duplicates, and clearly unsafe actionable claims."
+    },
+    {
+      "id": "autisable-372ae2150030b100",
+      "type": "Community",
+      "date": "2026-09-22",
+      "title": "Hope isn’t always easy to maintain but giving up isn’t an option",
+      "text": "Life can be frustrating when you’re an Autism parent because Autism has a way of impacting so many facets in",
+      "source": "Autisable",
+      "sourceUrl": "https://autisable.com/blog/hope-isnt-always-easy-to-maintain-but-giving-up-isnt-an-option",
+      "note": "Automatically collected from an approved HTTPS publisher feed; screened for freshness, duplicates, and clearly unsafe actionable claims."
+    },
+    {
+      "id": "autisable-958892b678b4ee74",
+      "type": "Community",
+      "date": "2026-09-21",
+      "title": "Navigating Family Gatherings: Practical Tips for Parents of Autistic Teens -Spectrum Transition Coaching, LLC",
+      "text": "With Passover and Easter just around the corner, the spring can be full of family gatherings. These are special times",
+      "source": "Autisable",
+      "sourceUrl": "https://autisable.com/blog/navigating-family-gatherings-for-autistic-teens",
+      "note": "Automatically collected from an approved HTTPS publisher feed; screened for freshness, duplicates, and clearly unsafe actionable claims."
+    },
+    {
+      "id": "asan-3a4d45dcaf1294ce",
+      "type": "Community",
+      "date": "2026-09-17",
+      "title": "New Resource: The “Profound Autism” Label Hurts Autistic People",
+      "text": "Functioning labels are a wrong idea about how autistic people work. They try and show different “types” of autism, like “high functioning” or “low functioning”. Functioning labels don’t help autistic people get what we need. They hurt us. Recently, some people have started using a new functioning label called profound",
+      "source": "Autistic Self Advocacy Network",
+      "sourceUrl": "https://autisticadvocacy.org/the-profound-autism-label-hurts-autistic-people/?utm_source=rss&utm_medium=rss&utm_campaign=new-resource-the-profound-autism-label-hurts-autistic-people",
+      "note": "Automatically collected from an approved HTTPS publisher feed; screened for freshness, duplicates, and clearly unsafe actionable claims."
+    },
+    {
+      "id": "asan-305ad4574920e0b9",
+      "type": "Community",
+      "date": "2026-09-16",
+      "title": "ASAN Letter to CMS Regarding ABA",
+      "text": "This letter is available as a PDF here. Dr. Mehmet OzAdministrator,Centers for Medicare & Medicaid Services200 Independence Avenue SWWashington, DC 20201 Dear Administrator Oz, The Autistic Self Advocacy Network writes to express our appreciation for the Centers for Medicare and Medicaid Services’ (CMS’) recent toolkit",
+      "source": "Autistic Self Advocacy Network",
+      "sourceUrl": "https://autisticadvocacy.org/2026/09/asan-letter-to-cms-regarding-aba/?utm_source=rss&utm_medium=rss&utm_campaign=asan-letter-to-cms-regarding-aba",
+      "note": "Automatically collected from an approved HTTPS publisher feed; screened for freshness, duplicates, and clearly unsafe actionable claims."
+    },
+    {
+      "id": "asan-828060fd7168e176",
+      "type": "Community",
+      "date": "2026-09-11",
+      "title": "Why Wouldn’t You Try It?",
+      "text": "Written by Gregory Tino for the Autistic Self Advocacy Network ⁂ Being silent for twenty four years was everything you would expect…monotonous, anxiety provoking, boring, lonely, frustrating, and at times, terrifying. As the years went on, I thought I wouldn’t survive. No child or teenager should feel like that. You se",
+      "source": "Autistic Self Advocacy Network",
+      "sourceUrl": "https://autisticadvocacy.org/2026/09/why-wouldnt-you-try-it/?utm_source=rss&utm_medium=rss&utm_campaign=why-wouldnt-you-try-it",
+      "note": "Automatically collected from an approved HTTPS publisher feed; screened for freshness, duplicates, and clearly unsafe actionable claims."
+    },
+    {
+      "id": "asan-b76552f6d4906897",
+      "type": "Community",
+      "date": "2026-09-09",
+      "title": "Texas v. Kennedy Update",
+      "text": "The Department of Justice is a part of the government that makes sure laws are followed. We call it DOJ for short. The DOJ and a few states made another bad decision. This update talks about what they did. And we will talk about what the bad decision means for you. On August 31st, the...",
+      "source": "Autistic Self Advocacy Network",
+      "sourceUrl": "https://autisticadvocacy.org/2026/09/texas-v-kennedy-update/?utm_source=rss&utm_medium=rss&utm_campaign=texas-v-kennedy-update",
+      "note": "Automatically collected from an approved HTTPS publisher feed; screened for freshness, duplicates, and clearly unsafe actionable claims."
+    },
+    {
+      "id": "asan-5ba92decb48e5f1c",
+      "type": "Community",
+      "date": "2026-09-08",
+      "title": "2026 Update: Your Vote Counts: A Self-Advocate’s Guide to Voting in the U.S.",
+      "text": "Understanding voting and how to know who to vote for is an important part of living in the community. People with disabilities deserve to understand how to vote. That’s why we updated our plain language toolkit all about voting, Your Vote Counts: A Self-Advocate’s Guide to Voting in the U.S. You can learn how voting...",
+      "source": "Autistic Self Advocacy Network",
+      "sourceUrl": "https://autisticadvocacy.org/policy/toolkits/voting/?utm_source=rss&utm_medium=rss&utm_campaign=2026-update-your-vote-counts-a-self-advocates-guide-to-voting-in-the-u-s",
+      "note": "Automatically collected from an approved HTTPS publisher feed; screened for freshness, duplicates, and clearly unsafe actionable claims."
+    }
+  ]
 }
