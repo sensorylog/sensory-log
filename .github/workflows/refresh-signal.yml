@@ -1,0 +1,26 @@
+name: Refresh Signal feed
+
+on:
+  schedule:
+    - cron: "17 5 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Refresh feed
+        run: python3 scripts/update-signal-feed.py
+      - name: Commit refreshed feed
+        run: |
+          git config user.name "sensory-log-signal"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add signal-feed.json
+          git diff --cached --quiet && exit 0
+          git commit -m "chore: refresh Signal feed"
+          git push
