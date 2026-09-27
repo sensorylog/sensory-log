@@ -39,7 +39,7 @@ function render(){
   const date=dateKey(y,m,d), e=entryFor(date), today=date===localDateString();
   const energy=e?.energy||0, sensory=e?.overwhelm||0;
   const label=e?`${dayName(parseLocalDate(date))}; energy ${energy} of 5; sensory load ${sensory} of 5`:`${dayName(parseLocalDate(date))}; no entry`;
-  cells.push(`<button type="button" class="sl-cal-cell ${e?"has-entry":""} ${today?"is-today":""}" data-history-date="${date}" aria-label="${esc(label)}">
+  cells.push(`<button type="button" class="sl-cal-cell ${e?"has-entry":""} ${today?"is-today":""} ${date===selectedDate?"is-selected":""}" data-history-date="${date}" aria-label="${esc(label)}">
     <span class="sl-cal-day">${d}</span>
     ${e?`<span class="sl-cal-mark" aria-hidden="true"><i style="--level:${energy}"></i></span><span class="sl-cal-energy">${energy}/5</span>`:"<span class=\"sl-cal-empty-label\">—</span>"}
   </button>`);
@@ -74,7 +74,7 @@ function render(){
 function detail(e){
  const chips=[...(e.drains||[]).slice(0,3),...(e.helped||[]).slice(0,3)];
  return `<section class="sl-history-detail"><div class="sl-history-detail-top"><div><div class="sl-history-kicker">Selected day</div><h3>${esc(dayName(parseLocalDate(e.date)))}</h3></div><button type="button" class="sl-history-edit" data-history-date="${e.date}">Open check-in</button></div>
- <div class="sl-history-metrics"><div><span>Energy</span><strong>${e.energy||"—"}/5</strong></div><div><span>Sensory</span><strong>${e.overwhelm||"—"}/5</strong></div><div><span>Recovery</span><strong>${e.recovery||"—"}/5</strong></div><div><span>Social</span><strong>${e.socialBattery||"—"}/5</strong></div></div>
+ <div class="sl-history-metrics"><div><span>Energy</span><strong>${e.energy == null || e.energy === 0 ? "—" : e.energy}/5</strong></div><div><span>Sensory</span><strong>${e.overwhelm == null || e.overwhelm === 0 ? "—" : e.overwhelm}/5</strong></div><div><span>Recovery</span><strong>${e.recovery == null || e.recovery === 0 ? "—" : e.recovery}/5</strong></div><div><span>Social</span><strong>${e.socialBattery == null || e.socialBattery === 0 ? "—" : e.socialBattery}/5</strong></div></div>
  ${chips.length?`<div class="sl-history-chips">${chips.map(x=>`<span>${esc(x)}</span>`).join("")}</div>`:""}
  ${e.note?`<p class="sl-history-note">“${esc(e.note)}”</p>`:""}
  </section>`;
@@ -98,6 +98,8 @@ function bind(){
   else if(d){cursor=new Date(d.getFullYear(),d.getMonth(),1);render();}
  });
 }
+window.addEventListener("sensory-log:entries-changed", async () => { entries=await getEntries(); render(); });
+
 export async function mountHistory(){
  ensureStyles();
  try{entries=await getEntries();root=document.getElementById("slHistory");if(!root){root=document.createElement("section");root.id="slHistory";root.className="sl-history";document.getElementById("view-history")?.appendChild(root)}render();}

@@ -225,7 +225,7 @@ shell.querySelector('[data-step="0"] .next').onclick = () => {
 
 window.addEventListener("sensory-log:open-date", async event => {
   const date = event.detail?.date;
-  if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(date || "")) return;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date || "")) return;
   state.date = date;
   const existing = (await getEntries()).find(entry => entry.date === date);
   if (existing) {
