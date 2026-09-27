@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 
-import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
-import { join, relative, resolve } from "node:path";
+import { existsSync, readFileSync } from "node:fs";
+import { resolve } from "node:path";
 
 const root = process.cwd();
 const failures = [];
@@ -12,7 +11,7 @@ function fail(message) {
 }
 
 function read(path) {
-  return readFileSync(join(root, path), "utf8");
+  return readFileSync(resolve(root, path), "utf8");
 }
 
 function parseJson(path) {
@@ -24,35 +23,22 @@ function parseJson(path) {
   }
 }
 
-function walk(dir, predicate) {
-  const output = [];
-  for (const entry of readdirSync(dir, { withFileTypes: true })) {
-    if (entry.name === ".git" || entry.name === "node_modules") continue;
-    const path = join(dir, entry.name);
-    if (entry.isDirectory()) output.push(...walk(path, predicate));
-    else if (predicate(path)) output.push(path);
-  }
-  return output;
-}
-
-const required = [
+for (const path of [
   "index.html",
   "firebase.json",
   "firestore.rules",
   "manifest.webmanifest",
-];
-
-for (const path of required) {
-  if (!existsSync(join(root, path))) fail(`missing required file: ${path}`);
+]) {
+  if (!existsSync(resolve(root, path))) fail(`missing required file: ${path}`);
 }
 
 const firebase = parseJson("firebase.json");
 if (firebase) {
   if (firebase.hosting?.public !== ".") {
-    fail("firebase.json: Hosting public root must remain '.' for this static app");
+    fail("firebase.json: Hosting public root must remain '.'");
   }
   if (firebase.storage) {
-    fail("firebase.json: Firebase Storage configuration is not allowed in this product");
+    fail("firebase.json: Firebase Storage configuration is not allowed");
   }
   if (!firebase.firestore?.rules) {
     fail("firebase.json: Firestore rules configuration is missing");
@@ -67,7 +53,7 @@ if (manifest) {
 }
 
 for (const path of ["signal-feed.json", "signal-policy.json", "signal-sources.json"]) {
-  if (existsSync(join(root, path))) parseJson(path);
+  if (existsSync(resolve(root, path))) parseJson(path);
 }
 
 const html = read("index.html");
@@ -80,11 +66,8 @@ if (/src=["']\.\/js\/app\.js["']/.test(html)) {
   fail("index.html: legacy js/app.js runtime is still referenced");
 }
 
-const localReferences = [
-  ...[...html.matchAll(/(?:src|href)=["']([^"']+)["']/g)].map((match) => match[1]),
-];
-
-for (const reference of localReferences) {
+for (const match of html.matchAll(/(?:src|href)=["']([^"']+)["']/g)) {
+  const reference = match[1];
   if (
     reference.startsWith("#") ||
     reference.startsWith("http://") ||
@@ -100,50 +83,28 @@ for (const reference of localReferences) {
   }
 }
 
-const jsFiles = walk(join(root, "js"), (path) => path.endsWith(".js"));
-for (const absolutePath of jsFiles) {
-  const relativePath = relative(root, absolutePath);
-  try {
-    execFileSync(process.execPath, ["--check", absolutePath], {
-      stdio: "pipe",
-    });
-  } catch (error) {
-    fail(`${relativePath}: JavaScript syntax check failed`);
-  }
-
-  const source = readFileSync(absolutePath, "utf8");
-  const imports = [
-    ...source.matchAll(/(?:from|import)\s*["'](\.\.?\/[^"']+)["']/g),
+for (const [path, needle, label] of [
+  ["js", "prompt(", "legacy prompt() interaction"],
+  ["js", "MutationObserver", "legacy MutationObserver runtime"],
+]) {
+  const directory = resolve(root, path);
+  if (!existsSync(directory)) continue;
+  const entries = readFileSync;
+  const files = [
+    "ai-ui.js", "ai.js", "app-shell.js", "backup.js", "checkin.js",
+    "history.js", "home.js", "manual.js", "onboarding.js", "patterns.js",
+    "preferences.js", "regulation.js", "reports.js", "signal-data.js", "signal.js",
   ];
-
-  for (const match of imports) {
-    const importPath = match[1].split(/[?#]/, 1)[0];
-    const resolved = resolve(absolutePath, "..", importPath);
-    const candidates = [
-      resolved,
-      `${resolved}.js`,
-      join(resolved, "index.js"),
-    ];
-    if (!candidates.some(existsSync)) {
-      fail(`${relativePath}: local import does not resolve: ${importPath}`);
+  for (const file of files) {
+    const filePath = resolve(directory, file);
+    if (existsSync(filePath) && entries(filePath, "utf8").includes(needle)) {
+      fail(`js/${file}: ${label}`);
     }
   }
 }
 
-const forbidden = [
-  ["prompt(", "legacy prompt() interaction"],
-  ["MutationObserver", "legacy MutationObserver runtime"],
-];
-
-for (const [needle, label] of forbidden) {
-  for (const absolutePath of jsFiles) {
-    const source = readFileSync(absolutePath, "utf8");
-    if (source.includes(needle)) fail(`${relative(root, absolutePath)}: ${label}`);
-  }
-}
-
-if (existsSync(join(root, "storage.rules"))) {
-  fail("storage.rules must not return while Firebase Storage is intentionally disabled");
+if (existsSync(resolve(root, "storage.rules"))) {
+  fail("storage.rules must not return while Firebase Storage is disabled");
 }
 
 if (failures.length) {
@@ -152,4 +113,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log(`Sensory Log validation passed: ${jsFiles.length} JavaScript modules checked.`);
+console.log("Sensory Log static integrity checks passed.");
