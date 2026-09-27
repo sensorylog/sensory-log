@@ -222,6 +222,28 @@ shell.querySelector('[data-step="0"] .next').onclick = () => {
   }
   state.step = 1;
   render();
+
+window.addEventListener("sensory-log:open-date", async event => {
+  const date = event.detail?.date;
+  if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(date || "")) return;
+  state.date = date;
+  const existing = (await getEntries()).find(entry => entry.date === date);
+  if (existing) {
+    state.energy = existing.energy || 0;
+    state.overwhelm = existing.overwhelm || 0;
+    state.masking = existing.masking ?? null;
+    state.recovery = existing.recovery || 0;
+    state.socialBattery = existing.socialBattery || 0;
+    state.sleepQuality = existing.sleepQuality || 0;
+  } else {
+    state.energy = 0; state.overwhelm = 0; state.masking = null;
+    state.recovery = 0; state.socialBattery = 0; state.sleepQuality = 0;
+  }
+  dateInput.value = state.date;
+  state.step = 0;
+  render();
+});
+
 };
 shell.querySelector('[data-step="1"] .back').onclick = () => { state.step = 0; render(); };
 shell.querySelector('[data-step="1"] .next').onclick = () => { state.step = 2; render(); };
