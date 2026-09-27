@@ -1,4 +1,5 @@
 import { initializeFoundation } from "./core/foundation.js";
+import { restoreSignal } from "./signal.js";
 
 const ROUTES = Object.freeze({
   home: "view-home",
@@ -51,6 +52,8 @@ function wireTheme(){
   let saved="light";
   try{saved=localStorage.getItem("sensoryTheme")||"light"}catch{}
   apply(saved);
+  if(button.dataset.themeWired==="true") return;
+  button.dataset.themeWired="true";
   button.addEventListener("click",()=>{
     apply(document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark");
   });
@@ -61,6 +64,7 @@ function wire(){
     btn.addEventListener("click",()=>setActive(btn.dataset.route));
   });
   window.addEventListener("hashchange",()=>setActive(routeFromHash(),false));
+  document.querySelectorAll("[data-signal-restore]").forEach(btn=>btn.addEventListener("click",()=>restoreSignal()));
   setActive(routeFromHash(),false);
 }
 
