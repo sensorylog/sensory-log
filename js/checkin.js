@@ -222,6 +222,11 @@ shell.querySelector('[data-step="0"] .next').onclick = () => {
   }
   state.step = 1;
   render();
+};
+shell.querySelector('[data-step="1"] .back').onclick = () => { state.step = 0; render(); };
+shell.querySelector('[data-step="1"] .next').onclick = () => { state.step = 2; render(); };
+shell.querySelector('[data-step="2"] .back').onclick = () => { state.step = 1; render(); };
+shell.querySelector(".save").onclick = save;
 
 window.addEventListener("sensory-log:open-date", async event => {
   const date = event.detail?.date;
@@ -236,18 +241,16 @@ window.addEventListener("sensory-log:open-date", async event => {
     state.socialBattery = existing.socialBattery || 0;
     state.sleepQuality = existing.sleepQuality || 0;
   } else {
-    state.energy = 0; state.overwhelm = 0; state.masking = null;
-    state.recovery = 0; state.socialBattery = 0; state.sleepQuality = 0;
+    state.energy = 0;
+    state.overwhelm = 0;
+    state.masking = null;
+    state.recovery = 0;
+    state.socialBattery = 0;
+    state.sleepQuality = 0;
   }
   dateInput.value = state.date;
   state.step = 0;
   render();
 });
-
-};
-shell.querySelector('[data-step="1"] .back').onclick = () => { state.step = 0; render(); };
-shell.querySelector('[data-step="1"] .next').onclick = () => { state.step = 2; render(); };
-shell.querySelector('[data-step="2"] .back').onclick = () => { state.step = 1; render(); };
-shell.querySelector(".save").onclick = save;
 
 render();

@@ -1,49 +1,24 @@
-/* Phase D — progressive Check-in */
-.sl-checkin{margin:0 0 26px}
-.sl-checkin-shell{padding:22px 18px 18px;border:1px solid var(--sl-border);border-radius:28px;background:var(--sl-glass);box-shadow:var(--sl-shadow);-webkit-backdrop-filter:blur(var(--sl-blur));backdrop-filter:blur(var(--sl-blur))}
-.sl-checkin-top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:20px}
-.sl-checkin-kicker{font-size:.7rem;letter-spacing:.13em;text-transform:uppercase;color:var(--sl-faint);margin-bottom:6px}
-.sl-checkin-title{margin:0;font-size:clamp(1.45rem,6vw,2rem);line-height:1.08;letter-spacing:-.045em}
-.sl-checkin-sub{margin:7px 0 0;color:var(--sl-muted);font-size:.82rem;line-height:1.45;max-width:34ch}
-.sl-checkin-progress{display:flex;gap:5px;padding-top:4px}
-.sl-checkin-progress i{width:24px;height:3px;border-radius:99px;background:var(--sl-border)}
-.sl-checkin-progress i.active{background:var(--sl-ink)}
-.sl-checkin-step{display:none}
-.sl-checkin-step.active{display:block}
-.sl-prompt{margin:0 0 13px;font-size:1rem;font-weight:650;letter-spacing:-.02em}
-.sl-helper{margin:-6px 0 14px;color:var(--sl-muted);font-size:.78rem;line-height:1.45}
-.sl-checkin-scale{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
-.sl-checkin-scale button{min-height:58px;border:1px solid var(--sl-border);border-radius:17px;background:rgba(255,255,255,.035);color:var(--sl-ink);font:inherit;font-size:1.05rem;font-weight:650;cursor:pointer}
-.sl-checkin-scale button.active{background:var(--sl-ink);color:var(--sl-bg);border-color:var(--sl-ink)}
-.sl-scale-caption{display:flex;justify-content:space-between;color:var(--sl-faint);font-size:.68rem;margin-top:7px}
-.sl-checkin-choice{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-.sl-checkin-choice button{min-height:48px;padding:10px 12px;text-align:left;border:1px solid var(--sl-border);border-radius:16px;background:rgba(255,255,255,.035);color:var(--sl-ink);font:inherit;cursor:pointer}
-.sl-checkin-choice button.active{border-color:var(--sl-ink);background:rgba(255,255,255,.09);font-weight:650}
-.sl-checkin-choice button small{display:block;margin-top:2px;color:var(--sl-muted);font-size:.7rem;font-weight:400}
-.sl-checkin-nav{display:flex;gap:8px;margin-top:20px}
-.sl-checkin-nav button{min-height:48px;border:1px solid var(--sl-border);border-radius:15px;background:rgba(255,255,255,.04);color:var(--sl-ink);font:inherit;font-weight:600;cursor:pointer}
-.sl-checkin-nav .next,.sl-checkin-nav .save{flex:1;background:var(--sl-ink);color:var(--sl-bg);border-color:var(--sl-ink)}
-.sl-checkin-nav .back{width:74px}
-.sl-checkin-skip{border:0;background:none;color:var(--sl-muted);font:inherit;font-size:.78rem;padding:9px 0;cursor:pointer}
-.sl-checkin-summary{padding:13px 14px;border-radius:17px;border:1px solid var(--sl-border);background:rgba(255,255,255,.03);margin-top:14px;color:var(--sl-muted);font-size:.8rem;line-height:1.5}
-.sl-checkin-summary strong{color:var(--sl-ink)}
-.sl-checkin-date{margin-top:16px;display:flex;align-items:center;gap:8px;color:var(--sl-muted);font-size:.76rem}
-.sl-checkin-date input{margin-left:auto;max-width:150px;padding:8px 10px;border-radius:11px}
-.sl-checkin-message{text-align:center;min-height:1.2em;color:var(--sl-muted);font-size:.78rem;margin-top:9px}
-@media(max-width:390px){.sl-checkin-shell{padding:20px 15px 16px}.sl-checkin-scale{gap:5px}.sl-checkin-choice{grid-template-columns:1fr}.sl-checkin-date input{max-width:135px}}
-@media(prefers-reduced-motion:reduce){.sl-checkin *{scroll-behavior:auto!important}}
-
-
-/* Phase N — standalone check-in controls */
-.sl-checkin-field{margin:28px 0 0}
-.sl-field-title{font-size:.92rem;font-weight:750;letter-spacing:.01em;margin-bottom:10px;color:var(--sl-ink,#202522)}
-.sl-field-title .optional{font-size:.75rem;font-weight:600;color:var(--sl-muted,#7d8580);margin-left:5px}
-.sl-choice{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
-.sl-choice-four{grid-template-columns:repeat(4,1fr)}
-.sl-choice button,.sl-checkin-scale button{appearance:none;border:1px solid rgba(32,37,34,.14);background:rgba(255,255,255,.54);color:var(--sl-ink,#202522);border-radius:16px;min-height:52px;font:inherit;font-weight:700;cursor:pointer;transition:transform .15s ease,border-color .15s ease,background .15s ease}
-.sl-choice button:hover,.sl-checkin-scale button:hover{transform:translateY(-1px)}
-.sl-choice button.active,.sl-checkin-scale button.active{background:#202522;color:#fff;border-color:#202522}
-.sl-checkin-message{min-height:24px;margin-top:12px;font-size:.9rem;color:var(--sl-muted,#69716c)}
-@media(max-width:600px){
-  .sl-choice button,.sl-checkin-scale button{min-height:48px;border-radius:14px}
-}
+/* Phase AI — Check-in UI rebuild */
+.sl-checkin{padding-bottom:10px}
+.sl-checkin-shell{max-width:720px;margin:0 auto;padding:clamp(20px,4vw,32px);border:1px solid var(--border);border-radius:28px;background:var(--glass);box-shadow:var(--shadow);-webkit-backdrop-filter:blur(var(--blur));backdrop-filter:blur(var(--blur))}
+.sl-checkin-top{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;margin-bottom:30px}
+.sl-checkin-kicker{font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);font-weight:760}
+.sl-checkin-title{margin:6px 0 0;font-family:var(--sl-font-display);font-size:clamp(1.8rem,7vw,2.65rem);line-height:1;letter-spacing:-.055em}
+.sl-checkin-sub{margin:8px 0 0;color:var(--muted);font-size:.84rem;line-height:1.5;max-width:34ch}
+.sl-checkin-progress{display:flex;gap:5px;padding-top:5px}.sl-checkin-progress i{width:24px;height:3px;border-radius:99px;background:var(--border)}.sl-checkin-progress i.active{background:var(--ink)}
+.sl-checkin-step{display:none}.sl-checkin-step.active{display:block}
+.sl-checkin-question{display:flex;gap:12px;align-items:flex-start;margin-bottom:18px}.sl-question-index{color:var(--faint);font-size:.66rem;font-weight:780;letter-spacing:.08em;padding-top:4px}.sl-prompt{margin:0;font-size:1.05rem;font-weight:720;letter-spacing:-.025em}.sl-helper{margin:5px 0 0;color:var(--muted);font-size:.78rem;line-height:1.45}
+.sl-checkin-scale,.sl-choice{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.sl-choice-four{grid-template-columns:repeat(4,1fr)}
+.sl-checkin-scale button,.sl-choice button{appearance:none;min-height:54px;border:1px solid var(--border);border-radius:16px;background:var(--surface);color:var(--ink);font:inherit;font-size:.96rem;font-weight:700;cursor:pointer;transition:transform .15s ease,border-color .15s ease,background .15s ease}
+.sl-checkin-scale button:hover,.sl-choice button:hover{transform:translateY(-1px)}
+.sl-checkin-scale button.active,.sl-choice button.active{background:var(--ink);color:var(--surface-strong);border-color:var(--ink)}
+.sl-scale-caption{display:flex;justify-content:space-between;color:var(--faint);font-size:.66rem;margin-top:7px}
+.sl-checkin-date{margin-top:18px;display:flex;align-items:center;justify-content:space-between;gap:12px;color:var(--muted);font-size:.74rem}.sl-checkin-date input{max-width:155px;padding:8px 10px;border:1px solid var(--border);border-radius:11px;background:var(--surface);color:var(--ink);font:inherit}
+.sl-checkin-field{margin:26px 0 0}.sl-field-title{font-size:.86rem;font-weight:740;margin-bottom:9px}.sl-field-title .optional{font-size:.7rem;font-weight:600;color:var(--muted);margin-left:5px}
+.sl-checkin-summary{margin-top:14px;padding:12px 14px;border:1px solid var(--border);border-radius:16px;background:var(--surface);color:var(--muted);font-size:.77rem;line-height:1.5}.sl-checkin-summary strong{color:var(--ink)}
+.sl-checkin-nav{display:flex;gap:8px;margin-top:24px}.sl-checkin-nav button{min-height:48px;border:1px solid var(--border);border-radius:15px;background:var(--surface);color:var(--ink);font:inherit;font-weight:700;cursor:pointer}.sl-checkin-nav .next,.sl-checkin-nav .save{flex:1;background:var(--ink);border-color:var(--ink);color:var(--surface-strong)}.sl-checkin-nav .back{width:78px}.sl-checkin-nav button:disabled{opacity:.55;cursor:default}
+.sl-checkin-message{min-height:1.2em;text-align:center;color:var(--muted);font-size:.76rem;margin-top:10px}
+.sl-checkin button:focus-visible,.sl-checkin input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media(max-width:600px){.sl-checkin-shell{border-radius:24px}.sl-checkin-scale,.sl-choice{gap:6px}.sl-checkin-scale button,.sl-choice button{min-height:50px;border-radius:14px}}
+@media(max-width:430px){.sl-checkin-shell{padding:19px 16px 17px}.sl-checkin-top{margin-bottom:25px}.sl-checkin-title{font-size:1.9rem}.sl-checkin-progress i{width:18px}.sl-checkin-date input{max-width:135px}.sl-choice-four{grid-template-columns:1fr 1fr}}
+@media(prefers-reduced-motion:reduce){.sl-checkin-scale button,.sl-choice button{transition:none}.sl-checkin *{scroll-behavior:auto!important}}
