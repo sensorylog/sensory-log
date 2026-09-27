@@ -1,5 +1,7 @@
 const PRODUCT = "sensory-log";
 const MAX_KEY_LENGTH = 256;
+const MAX_DEVICE_ID_LENGTH = 128;
+const MAX_DEVICES = 2;
 let cachedGoogleToken = null;
 
 function json(data, status = 200, origin = "*") {
@@ -139,7 +141,7 @@ function stringValue(value) { return { stringValue: String(value ?? "") }; }
 function integerValue(value) { return { integerValue: String(Number(value || 0)) }; }
 function timestampValue(value = new Date().toISOString()) { return { timestampValue: value }; }
 
-async function saveEntitlement(uid, licenseHash, gumroad, env) {
+async function saveEntitlement(uid, licenseHash, gumroad, deviceHash, env) {
   const purchase = gumroad.purchase || {};
   const licensePath = "licenses/" + licenseHash;
   const existingResponse = await firestoreRequest(licensePath, { method: "GET" }, env);
@@ -149,7 +151,21 @@ async function saveEntitlement(uid, licenseHash, gumroad, env) {
   const existingUid = existing?.fields?.uid?.stringValue;
   if (existingUid && existingUid !== uid) throw new Error("This license is already attached to another account.");
 
+  const existingDevices = existing?.fields?.devices?.mapValue?.fields || {};
+  const deviceKeys = Object.keys(existingDevices);
+  const knownDevice = Boolean(existingDevices[deviceHash]);
+  if (!knownDevice && deviceKeys.length >= MAX_DEVICES) {
+    throw new Error("This license is already active on two devices. Remove an existing device before adding another.");
+  }
+
   const now = new Date().toISOString();
+  const devices = { ...existingDevices };
+  devices[deviceHash] = {
+    mapValue: { fields: {
+      firstSeenAt: existingDevices[deviceHash]?.mapValue?.fields?.firstSeenAt || timestampValue(now),
+      lastSeenAt: timestampValue(now)
+    }}
+  };
   const entitlement = {
     mapValue: { fields: {
       status: stringValue("active"),
@@ -176,6 +192,8 @@ async function saveEntitlement(uid, licenseHash, gumroad, env) {
     status: stringValue("active"),
     purchaseId: stringValue(purchase.id || ""),
     uses: integerValue(gumroad.uses || 0),
+    deviceLimit: integerValue(MAX_DEVICES),
+    devices: { mapValue: { fields: devices } },
     updatedAt: timestampValue(now)
   };
   if (existing?.fields?.createdAt) licenseFields.createdAt = existing.fields.createdAt;
@@ -193,7 +211,9 @@ async function saveEntitlement(uid, licenseHash, gumroad, env) {
     product: PRODUCT,
     licenseHash,
     productId: env.GUMROAD_PRODUCT_ID,
-    purchaseId: purchase.id || null
+    purchaseId: purchase.id || null,
+    deviceLimit: MAX_DEVICES,
+    activeDevices: Object.keys(devices).length
   };
 }
 
@@ -217,12 +237,17 @@ async function handle(request, env) {
     const user = await verifyFirebaseUser(idToken, env);
     const body = await request.json();
     const licenseKey = String(body.licenseKey || "").trim();
+    const deviceId = String(body.deviceId || "").trim();
     if (!licenseKey || licenseKey.length > MAX_KEY_LENGTH) {
       return json({ error: "Enter a valid Sensory Log license key." }, 400, origin || "*");
+    }
+    if (!deviceId || deviceId.length > MAX_DEVICE_ID_LENGTH) {
+      return json({ error: "This device could not be identified. Refresh the app and try again." }, 400, origin || "*");
     }
 
     const mode = body.mode === "refresh" ? "refresh" : "activate";
     const licenseHash = await hashKey(licenseKey);
+    const deviceHash = await hashKey(deviceId);
     if (mode === "refresh") {
       const existing = await firestoreRequest("licenses/" + licenseHash, { method: "GET" }, env);
       if (!existing.ok) return json({ error: "This license is not attached to your account." }, 403, origin || "*");
@@ -233,7 +258,7 @@ async function handle(request, env) {
     }
 
     const gumroad = await verifyGumroad(licenseKey, env, mode === "activate");
-    const entitlement = await saveEntitlement(user.localId, licenseHash, gumroad, env);
+    const entitlement = await saveEntitlement(user.localId, licenseHash, gumroad, deviceHash, env);
     return json(entitlement, 200, origin || "*");
   } catch (error) {
     return json({ error: error?.message || "License verification failed." }, 403, origin || "*");
