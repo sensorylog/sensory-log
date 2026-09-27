@@ -115,8 +115,15 @@ async function verifyGumroad(licenseKey, env, incrementUsesCount) {
       increment_uses_count: incrementUsesCount ? "true" : "false"
     })
   });
-  const data = await response.json();
-  if (!response.ok || !data.success) throw new Error("That Sensory Log license could not be verified.");
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok || !data.success) {
+    const message = String(data.message || data.error || data.detail || "").trim();
+    throw new Error(
+      message
+        ? "Gumroad rejected this license: " + message
+        : "Gumroad rejected this license (HTTP " + response.status + ")."
+    );
+  }
   const purchase = data.purchase || {};
   if (purchase.refunded || purchase.chargebacked || purchase.cancelled) {
     throw new Error("This Sensory Log purchase is no longer active.");

@@ -217,7 +217,7 @@ async function registerDeviceWithWorker() {
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
     const error = new Error(data.error || "This device could not be registered.");
-    error.code = response.status === 401 ? "unauthenticated" : "permission-denied";
+    if (response.status === 401) error.code = "unauthenticated";
     throw error;
   }
   return data;
@@ -327,7 +327,7 @@ async function boot() {
   });
 
   const purchase = gate.querySelector("[data-purchase]");
-  purchase.href = "https://gumroad.com/"; // Replace with the exact Sensory Log product URL before launch.
+  purchase.href = "https://jbstoresfind.gumroad.com/l/sensory-log";
 
   onAuthStateChanged(auth, async user => {
     currentUser = user;
