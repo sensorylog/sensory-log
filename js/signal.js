@@ -1,9 +1,11 @@
 import { SIGNAL_ITEMS } from "./signal-data.js";
+import { getLocal } from "./core/storage.js";
 import { normalizeSignalFeed, personalizeSignal } from "./core/signal-engine.js";
 
 const SIGNAL_KEY="sensoryLogSignalPrefs_v1";
 const CATEGORIES=["All","People","Apps","Research","Community"];
 const FEED_URL="./signal-feed.json";
+const MANUAL_KEY="sensoryLogPersonalManual_v1";
 
 function prefs(){
   try{
@@ -78,9 +80,9 @@ function render(items=SIGNAL_ITEMS){
         <span class="sl-signal-type">${escapeHtml(current.type)}</span>
         <strong>${escapeHtml(current.title)}</strong>
         <p>${escapeHtml(current.text)}</p>
-        <div class="sl-signal-meta"><span>Source: ${sourceLink(current)}</span><span>Editorial category: ${escapeHtml(current.type)}</span></div>
+        <div class="sl-signal-meta"><span>Source: ${sourceLink(current)}</span><span>Editorial category: ${escapeHtml(current.type)}</span><span class="sl-signal-evidence">${escapeHtml(current.evidence||"reported")}</span></div>
       </article>
-      <div class="sl-signal-items">${visible.slice(1,4).map(item=>`<article class="sl-signal-item"><div class="sl-signal-item-top"><span class="sl-signal-type">${escapeHtml(item.type)}</span><time datetime="${escapeHtml(item.date)}">${formatDate(item.date)}</time></div><strong>${escapeHtml(item.title)}</strong><p>${escapeHtml(item.text)}</p><div class="sl-signal-meta">${sourceLink(item)}</div></article>`).join("")}</div>
+      <div class="sl-signal-items">${visible.slice(1,4).map(item=>`<article class="sl-signal-item"><div class="sl-signal-item-top"><span class="sl-signal-type">${escapeHtml(item.type)}</span><time datetime="${escapeHtml(item.date)}">${formatDate(item.date)}</time></div><strong>${escapeHtml(item.title)}</strong><p>${escapeHtml(item.text)}</p><div class="sl-signal-meta">${sourceLink(item)} <span class="sl-signal-evidence">${escapeHtml(item.evidence||"reported")}</span></div></article>`).join("")}</div>
     </div>
     <div class="sl-signal-actions"><button type="button" data-signal-pause>${p.paused?"Resume":"Pause"}</button><button type="button" data-signal-hide>Hide</button></div>
   </div>`;
@@ -107,7 +109,7 @@ function renderPage(items){
         <div class="sl-signal-card-top"><span class="sl-signal-type">${escapeHtml(item.type)}</span><time datetime="${escapeHtml(item.date)}">${formatDate(item.date)}</time></div>
         <h3>${escapeHtml(item.title)}</h3>
         <p>${escapeHtml(item.text)}</p>
-        <div class="sl-signal-source"><span>Source: ${sourceLink(item)}</span><span>Category: ${escapeHtml(item.type)}</span><span>${escapeHtml(item.note)}</span></div>
+        <div class="sl-signal-source"><span>Source: ${sourceLink(item)}</span><span>Category: ${escapeHtml(item.type)}</span><span>Evidence: ${escapeHtml(item.evidence||"reported")}</span><span>${escapeHtml(item.note)}</span></div>
       </article>`).join("")}
     </div>
     <div class="sl-signal-principles">
