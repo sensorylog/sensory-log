@@ -4,7 +4,7 @@ Sensory Log is a calm, local-first tool for noticing energy, sensory load, maski
 
 ## Open the app
 
-The production app is hosted on Firebase Hosting. The default Firebase Hosting URL is based on the Hosting site ID, commonly the Firebase project ID. citeturn5search0turn5search1
+The production app is hosted on Firebase Hosting. The default Firebase Hosting URL is based on the Hosting site ID, commonly the Firebase project ID.
 
 If the production deployment is temporarily unavailable, use the repository's local development flow instead of assuming GitHub Pages is the production host.
 
@@ -67,4 +67,4 @@ The app does not require a streak, score, or daily target. Use the information a
 
 This is a static browser application with modular JavaScript and CSS. GitHub Actions validates JavaScript syntax and application integrity on pushes and pull requests.
 
-Production deployment is automated through GitHub Actions → Firebase Hosting once the repository's Firebase service-account secret has the required access to the Firebase project. Firebase recommends Application Default Credentials for CI and requires the service account to have appropriate project permissions. citeturn1search0turn1search2
+Production deployment is automated through GitHub Actions → Firebase Hosting once the repository's Firebase service-account secret has the required access to the Firebase project. Firebase recommends Application Default Credentials for CI and requires the service account to have appropriate project permissions.
