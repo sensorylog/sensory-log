@@ -10,3 +10,5 @@
 .sl-manual-editor-actions button[data-editor-save]{background:var(--sl-ink);color:var(--sl-surface-strong)}
 .sl-modal-open{overflow:hidden}
 @media(prefers-reduced-motion:reduce){.sl-manual-editor-backdrop{backdrop-filter:none}}
+
+.sl-manual-updated{margin-top:12px;color:var(--sl-faint);font-size:.68rem;text-align:right;letter-spacing:.01em}
