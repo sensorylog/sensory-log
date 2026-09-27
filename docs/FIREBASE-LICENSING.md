@@ -34,7 +34,7 @@ This is a device limit, not a restriction on the user's Firebase account itself.
 
 A normal activation increments Gumroad's license use count. Routine revalidation uses `increment_uses_count=false` so opening the app does not consume activations.
 
-The browser caches only non-secret entitlement metadata for up to 14 days as an offline convenience. The entitlement includes the two-device limit. The raw Gumroad license key is never persisted by Sensory Log. The cache is not a security boundary and is not used by Firebase Rules. Online Firebase entitlement state remains authoritative.
+The browser caches only non-secret entitlement metadata for up to 14 days as an offline convenience. The entitlement includes the two-device limit. On later sign-ins, the client calls the Worker in `register` mode so the current device is counted without asking the customer to paste the license key again. The raw Gumroad license key is never persisted by Sensory Log. The cache is not a security boundary and is not used by Firebase Rules. Online Firebase entitlement state remains authoritative.
 
 ## Data model
 
