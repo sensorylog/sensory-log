@@ -615,3 +615,133 @@ body::after{
   body{padding:0!important;background:#fff!important}
   .app-header,.app-nav{display:none!important}
 }
+
+
+/* --------------------------------------------------------------------------
+   Phase B canonical shell contract
+   -------------------------------------------------------------------------- */
+
+:root{
+  --sl-content-gutter:clamp(14px,3vw,28px);
+  --sl-shell-bottom-clearance:calc(112px + var(--safe-bottom));
+  --sl-focus-ring:2px solid var(--ink);
+}
+
+html{
+  min-height:100%;
+  overflow-x:hidden;
+  -webkit-text-size-adjust:100%;
+}
+
+body{
+  padding-left:var(--sl-content-gutter);
+  padding-right:var(--sl-content-gutter);
+  padding-bottom:var(--sl-shell-bottom-clearance);
+  overscroll-behavior-x:none;
+}
+
+.wrap{
+  width:100%;
+  max-width:var(--sl-content-max);
+}
+
+.app-shell{
+  width:100%;
+  max-width:var(--sl-content-max);
+  padding-bottom:var(--sl-shell-bottom-clearance);
+}
+
+.app-view{
+  width:100%;
+  min-height:calc(100dvh - 176px);
+  scroll-margin-top:88px;
+}
+
+.app-header{
+  isolation:isolate;
+}
+
+.app-nav{
+  bottom:calc(10px + var(--safe-bottom));
+  padding:6px;
+  min-height:62px;
+}
+
+.app-nav button{
+  min-height:48px;
+}
+
+button,
+a,
+input,
+textarea,
+select,
+summary{
+  -webkit-tap-highlight-color:transparent;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+summary:focus-visible{
+  outline:var(--sl-focus-ring);
+  outline-offset:3px;
+}
+
+@media (max-width:600px){
+  body{
+    padding-top:14px;
+  }
+
+  .app-header{
+    top:8px;
+    margin-top:8px;
+    margin-bottom:18px;
+  }
+
+  .app-view{
+    min-height:calc(100dvh - 154px);
+  }
+
+  .app-nav{
+    width:min(430px,calc(100vw - 20px));
+    bottom:calc(7px + var(--safe-bottom));
+    border-radius:21px;
+  }
+}
+
+@media (min-width:760px){
+  body{
+    padding-left:clamp(22px,4vw,48px);
+    padding-right:clamp(22px,4vw,48px);
+  }
+
+  .app-shell{
+    padding-bottom:120px;
+  }
+
+  .app-nav{
+    bottom:18px;
+  }
+}
+
+@media (prefers-reduced-transparency:reduce){
+  .app-header,
+  .app-nav{
+    -webkit-backdrop-filter:none!important;
+    backdrop-filter:none!important;
+    background:var(--sl-content-surface-hi);
+  }
+}
+
+@media (prefers-reduced-motion:reduce){
+  html{
+    scroll-behavior:auto!important;
+  }
+
+  .app-view.is-active{
+    animation:none!important;
+  }
+}
