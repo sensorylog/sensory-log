@@ -193,7 +193,7 @@ function render(entries){
     root.className="sl-patterns";
     const heading=document.querySelector("h2");
     if(heading && heading.textContent.trim()==="Patterns") heading.replaceWith(root);
-    else document.querySelector(".card")?.insertAdjacentElement("afterend",root);
+    else document.getElementById("view-patterns")?.appendChild(root);
   }
   const {cards,sorted}=buildCards(entries);
   const enough=sorted.length>=5;
