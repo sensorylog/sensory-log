@@ -28,11 +28,11 @@ function validItem(item){
   return item && typeof item==="object"
     && typeof item.id==="string"
     && ["People","Apps","Research","Community"].includes(item.type)
-    && /^\\d{4}-\\d{2}-\\d{2}$/.test(item.date)
+    && /^\d{4}-\d{2}-\d{2}$/.test(item.date)
     && typeof item.title==="string" && item.title.length>0 && item.title.length<=180
     && typeof item.text==="string" && item.text.length>0 && item.text.length<=500
     && typeof item.source==="string" && item.source.length>0
-    && /^https?:\\/\\//.test(item.sourceUrl||"");
+    && /^https?:\/\//.test(item.sourceUrl||"");
 }
 async function loadFeed(){
   try{
