@@ -13,6 +13,8 @@
 <link rel="stylesheet" href="./styles/liquid-glass.css" />
 <link rel="stylesheet" href="./styles/accessibility.css" />
 <link rel="stylesheet" href="./styles/home.css" />
+<link rel="stylesheet" href="./styles/patterns.css" />
+<link rel="stylesheet" href="./styles/regulation.css" />
 <link rel="stylesheet" href="./styles/checkin.css" />
 <link rel="stylesheet" href="./styles/history.css" />
 <link rel="stylesheet" href="./styles/manual.css" />
@@ -21,6 +23,7 @@
 <script type="module" src="./js/app-shell.js"></script>
 <script type="module" src="./js/checkin.js"></script>
 <script type="module" src="./js/home.js"></script>
+<script type="module" src="./js/patterns.js"></script>
 <script type="module" src="./js/regulation.js"></script>
 <script type="module" src="./js/history.js"></script>
 <script type="module" src="./js/manual.js"></script>
@@ -632,6 +635,8 @@
   function save(entries) {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+      window.dispatchEvent(new CustomEvent("sensory-log:entries-changed"));
+      import("./js/core/storage.js").then(({ saveEntries }) => saveEntries(entries)).catch(() => {});
     } catch (e) {
       alert("Could not save. Browser may be blocking storage for this page.");
     }
