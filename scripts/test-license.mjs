@@ -17,6 +17,10 @@ assert(license.includes("waitForLicense"));
 assert(worker.includes("api.gumroad.com/v2/licenses/verify"));
 assert(worker.includes("FIREBASE_SERVICE_ACCOUNT_JSON"));
 assert(worker.includes("identitytoolkit.googleapis.com/v1/accounts:lookup"));
+assert(worker.includes("MAX_DEVICES = 2"));
+assert(worker.includes("deviceHash"));
+assert(license.includes("DEVICE_ID_KEY"));
+assert(license.includes("deviceId: getDeviceId()"));
 assert(rules.includes("request.auth.uid == userId"));
 assert(rules.includes("allow write: if false"));
 
