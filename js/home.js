@@ -1,5 +1,6 @@
 import { getEntries } from "./core/storage.js";
 import { localDateString, parseLocalDate } from "./core/date.js";
+import { deriveState } from "./core/state-engine.js";
 
 const root = document.getElementById("view-home");
 if (!root) throw new Error("Sensory Log home root unavailable");
@@ -19,7 +20,7 @@ function getToday(entries, today) {
   return entries.find(entry => entry.date === today) || null;
 }
 
-function describeState(entry) {
+function describeState(entry, derived = null) {
   if (!entry?.energy) {
     return {
       title: "Start with where you are",
@@ -27,14 +28,14 @@ function describeState(entry) {
       action: "Check in"
     };
   }
-  if (entry.overwhelm >= 4) {
+  if (derived?.needs?.[0]?.id === "less-input" || entry.overwhelm >= 4) {
     return {
       title: "A lot is reaching you",
       detail: "Your sensory load is high in today's check-in. Reducing input may be useful before adding more demands.",
       action: "Find some room"
     };
   }
-  if (entry.energy <= 2 && entry.recovery >= 4) {
+  if (derived?.needs?.[0]?.id === "lower-demand" || (entry.energy <= 2 && entry.recovery >= 4)) {
     return {
       title: "Capacity looks low",
       detail: "Energy is low and recovery need is high today. Protecting space may be useful.",
@@ -69,12 +70,12 @@ function describeState(entry) {
   };
 }
 
-function needFor(entry) {
+function needFor(entry, derived = null) {
   if (!entry?.energy) return {
     title: "One minute is enough",
     detail: "You can log energy now and leave the rest blank."
   };
-  if (entry.overwhelm >= 4) return {
+  if (derived?.needs?.[0]) return {\n    title: derived.needs[0].label,\n    detail: derived.needs[0].reason\n  };\n  if (entry.overwhelm >= 4) return {
     title: "Less input",
     detail: "Quiet, lower light, fewer conversations, or a familiar environment may be worth trying."
   };
@@ -107,8 +108,9 @@ function metric(label, value, hint) {
 function render(entries) {
   const today = localDateString();
   const todayEntry = getToday(entries, today);
-  const state = describeState(todayEntry);
-  const need = needFor(todayEntry);
+  const derived = deriveState(entries, today);
+  const state = describeState(todayEntry, derived);
+  const need = needFor(todayEntry, derived);
   const logged = entries.filter(entry => entry.energy > 0).sort((a,b) => a.date.localeCompare(b.date));
   const prior = logged.filter(entry => entry.date !== today).slice(-7);
   const baseline = average(prior.map(entry => entry.energy));
@@ -138,7 +140,7 @@ function render(entries) {
         <div class="sl-home-status">${todayEntry ? "Logged today" : "Not checked in"}</div>
       </div>
       <div class="sl-home-state">
-        <div class="sl-state-orb" aria-hidden="true"><strong>${todayEntry?.energy || "—"}</strong><span>energy</span></div>
+        <div class="sl-state-orb" aria-hidden="true"><strong>${derived.capacity ?? "—"}</strong><span>capacity</span></div>
         <div class="sl-home-state-copy">
           <h2>${esc(state.title)}</h2>
           <p>${esc(state.detail)}</p>
@@ -156,10 +158,10 @@ function render(entries) {
         <span class="sl-home-section-meta">${todayEntry ? "today" : "waiting"}</span>
       </div>
       <div class="sl-home-metrics">
-        ${metric("Energy", todayEntry?.energy, "capacity")}
-        ${metric("Sensory load", todayEntry?.overwhelm, "input")}
-        ${metric("Recovery", todayEntry?.recovery, "need")}
-        ${metric("Social battery", todayEntry?.socialBattery, "capacity")}
+        ${metric("Energy", todayEntry?.energy, "raw signal")}
+        ${metric("Sensory load", derived.loads.sensory, "derived load")}
+        ${metric("Recovery", derived.recovery, "need")}
+        ${metric("Social battery", todayEntry?.socialBattery, "raw signal")}
       </div>
     </section>
 
