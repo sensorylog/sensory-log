@@ -36,7 +36,7 @@ jobs:
           printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$credentials"
           test -s "$credentials"
           echo "GOOGLE_APPLICATION_CREDENTIALS=$credentials" >> "$GITHUB_ENV"
-          project_id="$(node -e 'const fs=require("fs"); const p=JSON.parse(fs.readFileSync(process.env.CREDENTIALS,"utf8")); if(!p.project_id) process.exit(1); process.stdout.write(p.project_id)' CREDENTIALS="$credentials")"
+          project_id="$(node -e 'const fs=require("fs"); const p=JSON.parse(fs.readFileSync(process.argv[1],"utf8")); if(!p.project_id) process.exit(1); process.stdout.write(p.project_id)' "$credentials")"
           echo "FIREBASE_PROJECT_ID=$project_id" >> "$GITHUB_ENV"
 
       - name: Deploy to Firebase Hosting
