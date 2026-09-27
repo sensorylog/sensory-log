@@ -1,50 +1,231 @@
-const root=document.getElementById("view-checkin") || document.querySelector(".wrap");
-const legacy=document.querySelector(".card");
-if(root&&legacy){
-  const q=s=>document.querySelector(s);
-  const click=(id,cls)=>{const el=q("#"+id+" button."+cls);if(el)el.click()};
-  const selected=(id,cls)=>{const el=q("#"+id+" button."+cls);return el?el.textContent.trim():""};
-  const labels={energy:["Energy","How much capacity do you have right now?"],overwhelm:["Sensory load","How full does your system feel?"],masking:["Masking","How much have you been performing, holding back, or adapting?"],body:["Body","Anything your body is telling you? You can skip this."],drains:["Drains","What has taken something out of you?"],recovery:["Recovery","How much recovery does your system seem to need?"],helped:["Help","Has anything helped so far?"]};
-  const shell=document.createElement("section");shell.className="sl-checkin";shell.id="slCheckin";
-  shell.innerHTML='<div class="sl-checkin-shell"><div class="sl-checkin-top"><div><div class="sl-checkin-kicker">Check in</div><h2 class="sl-checkin-title">Notice first. Explain later.</h2><p class="sl-checkin-sub">A few signals are enough. Everything else is optional.</p></div><div class="sl-checkin-progress" aria-label="Check-in progress"><i class="active"></i><i></i><i></i></div></div><div class="sl-checkin-step active" data-step="0"><p class="sl-prompt">How much capacity do you have right now?</p><p class="sl-helper">1 is depleted. 5 feels solid.</p><div class="sl-checkin-scale" id="newEnergy"></div><div class="sl-scale-caption"><span>Depleted</span><span>Solid</span></div><div class="sl-checkin-date"><span>Logging</span><input type="date" id="newDate"></div><div class="sl-checkin-nav"><button class="next" type="button">Continue</button></div></div><div class="sl-checkin-step" data-step="1"><p class="sl-prompt">What is your system noticing?</p><p class="sl-helper">Pick only what feels useful. You can leave this whole step blank.</p><div class="sl-checkin-choice" id="newContext"></div><div class="sl-checkin-summary" id="contextSummary"></div><div class="sl-checkin-nav"><button class="back" type="button">Back</button><button class="next" type="button">Continue</button></div></div><div class="sl-checkin-step" data-step="2"><p class="sl-prompt">What would support you?</p><p class="sl-helper">This is not a prescription. It is a place to notice what your own history says.</p><div class="sl-checkin-choice" id="newSupport"></div><div class="sl-checkin-summary" id="supportSummary"></div><div class="sl-checkin-nav"><button class="back" type="button">Back</button><button class="save" type="button">Save check-in</button><button class="sl-checkin-skip" id="moreDetails" type="button">Add more detail</button></div><div class="sl-checkin-message" id="newMessage"></div></div></div>';
-  root.appendChild(shell);
-  const detailHost=document.getElementById("view-checkin");
-  if(detailHost && legacy.parentElement!==detailHost) detailHost.appendChild(legacy);
-  legacy.style.display="none";
-  q("#phoneTip")?.remove();
-  const date=q("#newDate");date.value=q("#dateInput")?.value||new Date().toISOString().slice(0,10);
-  date.onchange=()=>{if(q("#dateInput")){q("#dateInput").value=date.value;q("#dateInput").dispatchEvent(new Event("change"))}};
-  const energy=q("#newEnergy");
-  for(let i=1;i<=5;i++){const b=document.createElement("button");b.type="button";b.textContent=i;b.setAttribute("aria-label","Energy "+i+" of 5");b.onclick=()=>{click("energyScale","on-energy");const target=q("#energyScale button:nth-child("+i+")");if(target)target.click();render()};energy.appendChild(b)}
-  const context=[["overwhelmScale","Sensory load","How full your system feels"],["maskingChips","Masking","How much you have been adapting"]];
-  const support=[["recoveryScale","Recovery needed","How much space your system needs"],["socialScale","Social battery","Separate from overall energy"],["sleepScale","Sleep quality","Optional context"]];
-  function build(list,id){
-    const box=q("#"+id);box.innerHTML="";
-    list.forEach(([cid,title,sub])=>{
-      const wrap=document.createElement("div");wrap.style.gridColumn="1/-1";
-      const p=document.createElement("p");p.className="sl-prompt";p.style.marginTop="7px";p.textContent=title;wrap.appendChild(p);
-      const group=document.createElement("div");group.className="sl-checkin-choice";
-      if(cid==="maskingChips"){
-        ["None","1–2 h","3–5 h","6 h+"].forEach((label,i)=>{const b=document.createElement("button");b.type="button";b.textContent=label;b.onclick=()=>{const t=q("#maskingChips button:nth-child("+(i+1)+")");if(t)t.click();render()};group.appendChild(b)});
-      }else{
-        for(let i=1;i<=5;i++){const b=document.createElement("button");b.type="button";b.textContent=i;b.onclick=()=>{const t=q("#"+cid+" button:nth-child("+i+")");if(t)t.click();render()};group.appendChild(b)}
-      }
-      wrap.appendChild(group);box.appendChild(wrap);
-    });
+import { getEntries, saveEntries } from "./core/storage.js";
+import { blankEntry, normalizeEntry } from "./core/schema.js";
+import { localDateString } from "./core/date.js";
+
+const root = document.getElementById("view-checkin");
+if (!root) throw new Error("Sensory Log check-in root unavailable");
+
+const state = {
+  step: 0,
+  date: localDateString(),
+  energy: 0,
+  overwhelm: 0,
+  masking: null,
+  recovery: 0,
+  socialBattery: 0,
+  sleepQuality: 0
+};
+
+const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({
+  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+}[c]));
+
+const maskingOptions = [
+  ["None", 0],
+  ["1–2 h", 1],
+  ["3–5 h", 2],
+  ["6+ h", 3]
+];
+
+const shell = document.createElement("section");
+shell.className = "sl-checkin";
+shell.id = "slCheckin";
+shell.innerHTML = `
+  <div class="sl-checkin-shell">
+    <div class="sl-checkin-top">
+      <div>
+        <div class="sl-checkin-kicker">Check in</div>
+        <h2 class="sl-checkin-title">Notice first. Explain later.</h2>
+        <p class="sl-checkin-sub">A few signals are enough. Everything else is optional.</p>
+      </div>
+      <div class="sl-checkin-progress" aria-label="Check-in progress">
+        <i class="active"></i><i></i><i></i>
+      </div>
+    </div>
+
+    <div class="sl-checkin-step active" data-step="0">
+      <p class="sl-prompt">How much capacity do you have right now?</p>
+      <p class="sl-helper">1 is depleted. 5 feels solid.</p>
+      <div class="sl-checkin-scale" id="newEnergy" role="group" aria-label="Energy"></div>
+      <div class="sl-scale-caption"><span>Depleted</span><span>Solid</span></div>
+      <label class="sl-checkin-date"><span>Logging</span><input type="date" id="newDate"></label>
+      <div class="sl-checkin-nav">
+        <button class="next" type="button">Continue</button>
+      </div>
+    </div>
+
+    <div class="sl-checkin-step" data-step="1">
+      <p class="sl-prompt">What is your system noticing?</p>
+      <p class="sl-helper">Pick only what feels useful. You can leave this step blank.</p>
+      <div class="sl-checkin-field">
+        <div class="sl-field-title">Sensory load</div>
+        <div class="sl-choice" id="newOverwhelm" role="group" aria-label="Sensory load"></div>
+        <div class="sl-scale-caption"><span>Low</span><span>High</span></div>
+      </div>
+      <div class="sl-checkin-field">
+        <div class="sl-field-title">Masking</div>
+        <div class="sl-choice sl-choice-four" id="newMasking" role="group" aria-label="Masking"></div>
+      </div>
+      <div class="sl-checkin-summary" id="contextSummary"></div>
+      <div class="sl-checkin-nav">
+        <button class="back" type="button">Back</button>
+        <button class="next" type="button">Continue</button>
+      </div>
+    </div>
+
+    <div class="sl-checkin-step" data-step="2">
+      <p class="sl-prompt">What would support you?</p>
+      <p class="sl-helper">Notice what you need. Nothing here is a prescription.</p>
+      <div class="sl-checkin-field">
+        <div class="sl-field-title">Recovery needed</div>
+        <div class="sl-choice" id="newRecovery" role="group" aria-label="Recovery needed"></div>
+        <div class="sl-scale-caption"><span>Little</span><span>A lot</span></div>
+      </div>
+      <div class="sl-checkin-field">
+        <div class="sl-field-title">Social battery</div>
+        <div class="sl-choice" id="newSocial" role="group" aria-label="Social battery"></div>
+        <div class="sl-scale-caption"><span>Empty</span><span>Full</span></div>
+      </div>
+      <div class="sl-checkin-field">
+        <div class="sl-field-title">Sleep quality <span class="optional">optional</span></div>
+        <div class="sl-choice" id="newSleep" role="group" aria-label="Sleep quality"></div>
+      </div>
+      <div class="sl-checkin-summary" id="supportSummary"></div>
+      <div class="sl-checkin-nav">
+        <button class="back" type="button">Back</button>
+        <button class="save" type="button">Save check-in</button>
+      </div>
+      <div class="sl-checkin-message" id="newMessage" role="status" aria-live="polite"></div>
+    </div>
+  </div>`;
+root.appendChild(shell);
+
+function buildScale(id, field, count = 5) {
+  const box = document.getElementById(id);
+  for (let i = 1; i <= count; i++) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = i;
+    button.setAttribute("aria-label", `${field} ${i} of ${count}`);
+    button.onclick = () => { state[field] = i; render(); };
+    box.appendChild(button);
   }
-  build(context,"newContext");build(support,"newSupport");
-  function render(){
-    const vals={energy:selected("energyScale","on-energy"),overwhelm:selected("overwhelmScale","on-overwhelm"),masking:selected("maskingChips","active"),recovery:selected("recoveryScale","on-recovery"),social:selected("socialScale","on-social")};
-    const e=q("#newEnergy").children;for(let i=0;i<e.length;i++)e[i].classList.toggle("active",!!vals.energy&&i<Number(vals.energy));
-    q("#contextSummary").innerHTML=(vals.overwhelm||vals.masking)?("<strong>Noted:</strong> "+[vals.overwhelm?"sensory load "+vals.overwhelm:"",vals.masking?"masking "+vals.masking:""].filter(Boolean).join(" · ")):"Nothing selected here — that is completely fine.";
-    q("#supportSummary").innerHTML=(vals.recovery||vals.social)?("<strong>Noted:</strong> "+[vals.recovery?"recovery "+vals.recovery:"",vals.social?"social battery "+vals.social:""].filter(Boolean).join(" · ")):"No support signal selected yet.";
-  }
-  function go(n){shell.querySelectorAll(".sl-checkin-step").forEach(x=>x.classList.toggle("active",Number(x.dataset.step)===n));shell.querySelectorAll(".sl-checkin-progress i").forEach((x,i)=>x.classList.toggle("active",i<=n));render()}
-  shell.querySelectorAll("[data-step='0'] .next").forEach(b=>b.onclick=()=>go(1));
-  shell.querySelectorAll("[data-step='1'] .back").forEach(b=>b.onclick=()=>go(0));
-  shell.querySelectorAll("[data-step='1'] .next").forEach(b=>b.onclick=()=>go(2));
-  shell.querySelectorAll("[data-step='2'] .back").forEach(b=>b.onclick=()=>go(1));
-  q("#moreDetails").onclick=()=>{legacy.style.display="block";q("#moreDetails").textContent="Detailed fields are open below";q("#moreDetails").disabled=true;legacy.scrollIntoView({behavior:"smooth",block:"start"})};
-  shell.querySelector(".save").onclick=()=>{const hidden=q("#saveBtn");if(hidden){hidden.click();setTimeout(()=>{const err=q("#errorMsg");const msg=q("#newMessage");if(err&&err.style.display!=="none"){msg.textContent=err.textContent}else{msg.textContent="Saved. You can leave the rest for another day."}},80)}};
-  render();
 }
+
+function buildMasking() {
+  const box = document.getElementById("newMasking");
+  maskingOptions.forEach(([label, value]) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = label;
+    button.onclick = () => { state.masking = value; render(); };
+    box.appendChild(button);
+  });
+}
+
+buildScale("newEnergy", "energy");
+buildScale("newOverwhelm", "overwhelm");
+buildScale("newRecovery", "recovery");
+buildScale("newSocial", "socialBattery");
+buildScale("newSleep", "sleepQuality");
+buildMasking();
+
+const dateInput = document.getElementById("newDate");
+dateInput.value = state.date;
+dateInput.onchange = () => { state.date = dateInput.value; };
+
+function setSelected(id, value) {
+  document.querySelectorAll(`#${id} button`).forEach((button, index) => {
+    const selected = id === "newMasking"
+      ? maskingOptions[index]?.[1] === value
+      : index + 1 === value;
+    button.classList.toggle("active", selected);
+    button.setAttribute("aria-pressed", selected ? "true" : "false");
+  });
+}
+
+function render() {
+  shell.querySelectorAll(".sl-checkin-step").forEach(step => {
+    step.classList.toggle("active", Number(step.dataset.step) === state.step);
+  });
+  shell.querySelectorAll(".sl-checkin-progress i").forEach((dot, index) => {
+    dot.classList.toggle("active", index <= state.step);
+  });
+
+  setSelected("newEnergy", state.energy);
+  setSelected("newOverwhelm", state.overwhelm);
+  setSelected("newMasking", state.masking);
+  setSelected("newRecovery", state.recovery);
+  setSelected("newSocial", state.socialBattery);
+  setSelected("newSleep", state.sleepQuality);
+
+  document.getElementById("contextSummary").innerHTML =
+    state.overwhelm || state.masking !== null
+      ? `<strong>Noted:</strong> ${[
+          state.overwhelm ? `sensory load ${state.overwhelm}/5` : "",
+          state.masking !== null ? `masking ${esc(maskingOptions[state.masking]?.[0] || "")}` : ""
+        ].filter(Boolean).join(" · ")}`
+      : "Nothing selected here — that is completely fine.";
+
+  document.getElementById("supportSummary").innerHTML =
+    state.recovery || state.socialBattery || state.sleepQuality
+      ? `<strong>Noted:</strong> ${[
+          state.recovery ? `recovery ${state.recovery}/5` : "",
+          state.socialBattery ? `social battery ${state.socialBattery}/5` : "",
+          state.sleepQuality ? `sleep quality ${state.sleepQuality}/5` : ""
+        ].filter(Boolean).join(" · ")}`
+      : "No support signal selected yet.";
+}
+
+async function save() {
+  const message = document.getElementById("newMessage");
+  if (!state.energy) {
+    message.textContent = "Choose your current energy first. Everything else can stay blank.";
+    return;
+  }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(state.date)) {
+    message.textContent = "Choose a valid date.";
+    return;
+  }
+
+  const existing = await getEntries();
+  const previous = existing.find(entry => entry.date === state.date);
+  const entry = normalizeEntry({
+    ...(previous || blankEntry(state.date)),
+    date: state.date,
+    energy: state.energy,
+    overwhelm: state.overwhelm,
+    masking: state.masking,
+    recovery: state.recovery,
+    socialBattery: state.socialBattery,
+    sleepQuality: state.sleepQuality
+  });
+
+  const result = await saveEntries([...existing.filter(entry => entry.date !== state.date), entry]);
+  if (!result.ok) {
+    message.textContent = result.error || "Could not save this check-in locally.";
+    return;
+  }
+
+  window.dispatchEvent(new CustomEvent("sensory-log:entries-changed"));
+  message.textContent = "Saved. You can leave the rest for another day.";
+  document.querySelectorAll(".sl-checkin-nav button").forEach(button => button.disabled = true);
+  setTimeout(() => {
+    document.querySelector('[data-route="home"]')?.click();
+  }, 650);
+}
+
+shell.querySelector('[data-step="0"] .next').onclick = () => {
+  if (!state.energy) {
+    document.getElementById("newMessage").textContent = "Choose your current energy first.";
+    return;
+  }
+  state.step = 1;
+  render();
+};
+shell.querySelector('[data-step="1"] .back').onclick = () => { state.step = 0; render(); };
+shell.querySelector('[data-step="1"] .next').onclick = () => { state.step = 2; render(); };
+shell.querySelector('[data-step="2"] .back').onclick = () => { state.step = 1; render(); };
+shell.querySelector(".save").onclick = save;
+
+render();
