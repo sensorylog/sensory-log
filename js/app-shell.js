@@ -2,6 +2,7 @@ import { initializeFoundation } from "./core/foundation.js";
 import { restoreSignal } from "./signal.js";
 import { apply as applyPreferences } from "./preferences.js";
 import { registerServiceWorker } from "./core/pwa.js";
+import { waitForLicense } from "./license.js";
 
 const ROUTES = Object.freeze({
   home: "view-home",
@@ -108,7 +109,9 @@ function setActive(route, pushHash=true){
   if(target==="reports") loadOptionalReportsTools();
 }
 
-initializeFoundation().catch(error => console.error("[Sensory Log] Foundation", error));
+waitForLicense()
+  .then(() => initializeFoundation())
+  .catch(error => console.error("[Sensory Log] License/Foundation", error));
 applyPreferences();
 registerServiceWorker();
 
