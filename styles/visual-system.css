@@ -745,3 +745,19 @@ summary:focus-visible{
     animation:none!important;
   }
 }
+
+/* Phase D — check-in calm/low-capacity contract */
+.sl-checkin-mode{
+  margin:0 0 18px;
+  min-height:1.2em;
+  color:var(--muted);
+  font-size:.74rem;
+  line-height:1.45;
+}
+.sl-checkin .quick-save{min-width:130px}
+@media(max-width:430px){
+  .sl-checkin .sl-checkin-nav{flex-direction:column}
+  .sl-checkin .sl-checkin-nav .back{width:100%}
+  .sl-checkin .sl-checkin-nav .quick-save,
+  .sl-checkin .sl-checkin-nav .secondary-action{width:100%}
+}

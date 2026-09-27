@@ -32,6 +32,7 @@ shell.className = "sl-checkin";
 shell.id = "slCheckin";
 shell.innerHTML = `
   <div class="sl-checkin-shell">
+    <div class="sl-checkin-mode" id="checkinMode" role="status" aria-live="polite"></div>
     <div class="sl-checkin-top">
       <div>
         <div class="sl-checkin-kicker">Check in</div>
@@ -50,8 +51,10 @@ shell.innerHTML = `
       <div class="sl-scale-caption"><span>Depleted</span><span>Solid</span></div>
       <label class="sl-checkin-date"><span>Logging</span><input type="date" id="newDate"></label>
       <div class="sl-checkin-nav">
-        <button class="next" type="button">Continue</button>
+        <button class="save quick-save" type="button">Save now</button>
+        <button class="next secondary-action" type="button">Add context</button>
       </div>
+      <div class="sl-checkin-message" id="quickMessage" role="status" aria-live="polite"></div>
     </div>
 
     <div class="sl-checkin-step" data-step="1">
@@ -145,6 +148,12 @@ function setSelected(id, value) {
 }
 
 function render() {
+  const mode = document.getElementById("checkinMode");
+  if (mode) mode.textContent = state.energy > 0 && state.energy <= 2
+    ? "Low-capacity mode · save the essentials now, add context only if you want."
+    : state.energy > 0
+      ? "Quick check-in · save the essentials or add context."
+      : "Start with one signal. Everything else can wait.";
   shell.querySelectorAll(".sl-checkin-step").forEach(step => {
     step.classList.toggle("active", Number(step.dataset.step) === state.step);
   });
@@ -175,6 +184,33 @@ function render() {
           state.sleepQuality ? `sleep quality ${state.sleepQuality}/5` : ""
         ].filter(Boolean).join(" · ")}`
       : "No support signal selected yet.";
+}
+
+async function saveQuick() {
+  const message = document.getElementById("quickMessage");
+  if (!state.energy) {
+    message.textContent = "Choose your current energy first.";
+    return;
+  }
+  if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(state.date)) {
+    message.textContent = "Choose a valid date.";
+    return;
+  }
+  const existing = await getEntries();
+  const previous = existing.find(entry => entry.date === state.date);
+  const entry = normalizeEntry({
+    ...(previous || blankEntry(state.date)),
+    date: state.date,
+    energy: state.energy
+  });
+  const result = await saveEntries([...existing.filter(entry => entry.date !== state.date), entry]);
+  if (!result.ok) {
+    message.textContent = result.error || "Could not save this check-in locally.";
+    return;
+  }
+  window.dispatchEvent(new CustomEvent("sensory-log:entries-changed"));
+  message.textContent = "Saved. Nothing else is required.";
+  setTimeout(() => document.querySelector('[data-route="home"]')?.click(), 500);
 }
 
 async function save() {
@@ -215,7 +251,8 @@ async function save() {
   }, 650);
 }
 
-shell.querySelector('[data-step="0"] .next').onclick = () => {
+shell.querySelector(".quick-save").onclick = saveQuick;
+shell.querySelector('[data-step="0"] .secondary-action').onclick = () => {
   if (!state.energy) {
     document.getElementById("newMessage").textContent = "Choose your current energy first.";
     return;
