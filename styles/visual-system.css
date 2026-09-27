@@ -761,3 +761,102 @@ summary:focus-visible{
   .sl-checkin .sl-checkin-nav .quick-save,
   .sl-checkin .sl-checkin-nav .secondary-action{width:100%}
 }
+
+/* Visual cleanup — one system, fewer words, consistent responsive rhythm. */
+.sl-home-hero p,
+.sl-home-section-head p,
+.sl-checkin-sub,
+.sl-pattern-body,
+.sl-reg-head p,
+.sl-history-head p,
+.sl-manual-hero p,
+.sl-report-hero p,
+.sl-signal-page-head p,
+.app-more-hero p {
+  max-width: 42ch;
+}
+.app-more-grid,
+.sl-pattern-grid,
+.sl-reg-modes,
+.sl-manual-grid,
+.sl-signal-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.sl-home-metrics,
+.sl-history-metrics,
+.sl-report-metrics,
+.sl-report-comparison,
+.sl-report-support-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.sl-home-action,
+.sl-pattern-action,
+.sl-reg-mode,
+.sl-more-card,
+.app-more-card {
+  writing-mode: horizontal-tb;
+}
+.app-more-card {
+  text-align: left;
+}
+.sl-home-hero h1,
+.sl-checkin-title,
+.sl-pattern-head h2,
+.sl-reg-head h2,
+.sl-history-head h2,
+.sl-manual-hero h2,
+.sl-report-hero h2,
+.app-more-hero h2,
+.sl-signal-page-head h2 {
+  text-wrap: balance;
+}
+.sl-home-empty,
+.sl-pattern-empty,
+.sl-reg-head p,
+.sl-manual-guidance p,
+.sl-report-muted,
+.sl-signal-card>p {
+  max-width: 48ch;
+}
+@media (max-width: 680px) {
+  .app-more-grid,
+  .sl-pattern-grid,
+  .sl-reg-modes,
+  .sl-manual-grid,
+  .sl-signal-list,
+  .sl-home-metrics,
+  .sl-history-metrics,
+  .sl-report-metrics,
+  .sl-report-comparison,
+  .sl-report-support-grid {
+    grid-template-columns: 1fr;
+  }
+  .sl-home-hero,
+  .sl-checkin-shell {
+    padding: 28px 20px;
+  }
+  .sl-home-hero h1,
+  .sl-checkin-title,
+  .sl-pattern-head h2,
+  .sl-reg-head h2,
+  .sl-history-head h2,
+  .sl-manual-hero h2,
+  .sl-report-hero h2,
+  .app-more-hero h2,
+  .sl-signal-page-head h2 {
+    max-width: 100%;
+    font-size: clamp(2.2rem, 12vw, 3.4rem);
+  }
+  .sl-home-state {
+    grid-template-columns: 1fr;
+    gap: 18px;
+    margin: 30px 0 26px;
+  }
+  .sl-state-orb {
+    width: 104px;
+    height: 104px;
+  }
+  .sl-home-action {
+    min-height: 48px;
+  }
+}
