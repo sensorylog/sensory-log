@@ -18,7 +18,8 @@ const ROUTES = Object.freeze({
   privacy: "view-privacy",
   about: "view-about",
   contact: "view-contact",
-  terms: "view-terms"
+  terms: "view-terms",
+  how: "view-how"
 });
 
 const PRIMARY = ["home","checkin","patterns","regulate","more"];
@@ -44,6 +45,21 @@ const INFO_COPY = Object.freeze({
       ["Before you send","Please do not include passwords, payment details, license keys, or private journal entries unless they are genuinely necessary for support."]
     ],
     actions:[{label:"Open Sensory Log on Gumroad",href:"https://jbstoresfind.gumroad.com/l/sensory-log"}]
+  },
+  how: {
+    kicker:"How Sensory Log works",
+    title:"A simple loop: notice, understand, regulate.",
+    intro:"Sensory Log is built around one practical cycle. You check in with what is happening, look back when you need context, and choose a response that fits the moment.",
+    sections:[
+      ["1. Start with a check-in","When you have something to notice, open Check in. Record what you are experiencing using the controls available there. You do not need to make the entry perfect; the value comes from building an honest record over time."],
+      ["2. Let Home orient you","Home is the starting point for the day. It brings your current state, signals and useful next actions together without asking you to manage a long list of features."],
+      ["3. Look for patterns later","Patterns is for reflection, not judgement. Use your history to compare days and notice repeated relationships in your own experience. A pattern in your log is a clue to explore, not a diagnosis or a rule."],
+      ["4. Regulate when you need to","Regulate is for the present moment. Choose an available regulation mode and follow the session at your own pace. The goal is to give you a practical next step, not to force a particular outcome."],
+      ["5. Keep context in Signal","Signal surfaces useful context separately from your personal log. It is there to help you explore information without making the feed the centre of the product."],
+      ["6. Use More for your deeper tools","More contains History, My Manual, Reports, Signal, Your Data and Privacy Center, plus product information and support. These are deeper tools; you do not need to visit them every day."],
+      ["Your data is yours to manage","Your Data provides export/import tools, while Privacy Center gives you controls around stored information. Keep an export of anything you want to preserve independently of the browser or account."],
+      ["What Sensory Log is not","Sensory Log is a personal reflection and wellness tool. It does not diagnose conditions, provide medical treatment, or replace professional care. Do not use an app recommendation as a substitute for urgent or professional help."]
+    ]
   },
   terms: {
     kicker:"Terms of Service",
@@ -102,7 +118,7 @@ function routeFromHash(){
 
 function setActive(route, pushHash=true){
   const target=ROUTES[route] ? route : "home";
-  document.body.classList.toggle("is-info-route",["about","contact","terms"].includes(target));
+  document.body.classList.toggle("is-info-route",["about","contact","terms","how"].includes(target));
   Object.entries(ROUTES).forEach(([name,id])=>{
     const view=document.getElementById(id);
     if(view) view.classList.toggle("is-active", name===target);
@@ -114,7 +130,7 @@ function setActive(route, pushHash=true){
     btn.classList.toggle("active", isPrimary || isMoreChild);
     btn.setAttribute("aria-current",btn.classList.contains("active")?"page":"false");
   });
-  document.title = target==="home" ? "Sensory Log" : target[0].toUpperCase()+target.slice(1)+" · Sensory Log";
+  document.title = target==="home" ? "Sensory Log" : target==="how" ? "How Sensory Log Works · Sensory Log" : target[0].toUpperCase()+target.slice(1)+" · Sensory Log";
   if(pushHash && location.hash!==("#"+target)) history.pushState(null,"","#"+target);
   // Route changes should reposition decisively, not animate the entire document.\n  // This avoids scroll drift and motion that can be disorienting on mobile.\n  window.scrollTo({top:0,behavior:"auto"});
   renderInfoView(target);
