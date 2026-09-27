@@ -1,7 +1,7 @@
 export const SIGNAL_ITEMS = Object.freeze([
   {
     id:"sensoryme-2026-09",
-    type:"App",
+    type:"Apps",
     date:"2026-09-25",
     title:"SensoryMe reaches its public-launch window",
     text:"SensoryMe describes itself as a sensory profile and toolkit for neurodivergent adults, with a public launch planned for September 25, 2026.",
@@ -11,7 +11,7 @@ export const SIGNAL_ITEMS = Object.freeze([
   },
   {
     id:"unmasked-2026-09",
-    type:"App",
+    type:"Apps",
     date:"2026-09-02",
     title:"Unmasked ships stability and purchase-flow fixes",
     text:"Its September update lists fixes for AI-sharing prompts, offline sign-in, loading failures, saved accommodation letters, and restoring purchases.",
@@ -21,7 +21,7 @@ export const SIGNAL_ITEMS = Object.freeze([
   },
   {
     id:"sylva-2026-09",
-    type:"App",
+    type:"Apps",
     date:"2026-09-09",
     title:"Sylva adds safety and support updates",
     text:"The app lists a new Class 1 medical-device registration, supportive trial reminders, and enhanced crisis signposting.",
