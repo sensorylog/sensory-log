@@ -131,15 +131,19 @@ export function init(){
     const anchor=document.getElementById("view-signal");
     if(anchor)anchor.appendChild(root);
   }
-  loadFeed().then(remote=>{
-    const items=remote.length?remote:normalizeSignalFeed(SIGNAL_ITEMS);
+  Promise.all([loadFeed(), getLocal(MANUAL_KEY, null)]).then(([remote, manual])=>{
+    const base=remote.length?remote:normalizeSignalFeed(SIGNAL_ITEMS);
+    const items=personalizeSignal(base, manual || {});
     renderPage(items);
     render(items);
   });
 }
 export function setSignalVisible(enabled){
   const next=prefs();next.enabled=!!enabled;next.hidden=false;next.paused=false;save(next);
-  loadFeed().then(remote=>render(remote.length?remote:SIGNAL_ITEMS));
+  Promise.all([loadFeed(), getLocal(MANUAL_KEY, null)]).then(([remote, manual])=>{
+    const base=remote.length?remote:normalizeSignalFeed(SIGNAL_ITEMS);
+    render(personalizeSignal(base, manual || {}));
+  });
 }
 export function restoreSignal(){setSignalVisible(true)}
 init();
