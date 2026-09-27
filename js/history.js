@@ -102,7 +102,7 @@ function bind(){
 }
 export async function mountHistory(){
  ensureStyles();
- try{entries=await getEntries();root=document.getElementById("slHistory");if(!root){root=document.createElement("section");root.id="slHistory";root.className="sl-history";const reg=document.getElementById("slRegulation");reg?.insertAdjacentElement("afterend",root)}render();}
+ try{entries=await getEntries();root=document.getElementById("slHistory");if(!root){root=document.createElement("section");root.id="slHistory";root.className="sl-history";document.getElementById("view-history")?.appendChild(root)}render();}
  catch(e){console.error("Sensory Log Calendar",e)}
 }
 
