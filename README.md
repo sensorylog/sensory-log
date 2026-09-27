@@ -17,7 +17,7 @@ The core log is designed to stay on your device:
 - There is no required account for the core logging experience.
 - JSON and CSV export are available from **More → Your data**.
 - Imports are validated, normalized, and merged by calendar date.
-- Clearing browser/site data can remove local history, so keep a backup of anything important.
+- Privacy Center provides an in-app way to reset Sensory Log-owned local data on the device.\n- Clearing browser/site data can remove local history, so keep a backup of anything important.
 
 Optional AI reflection is separate from the core logging flow. If you enable an AI provider and choose a sharing level, the selected data may leave the device to that provider. Written notes are excluded unless you explicitly enable note sharing for AI.
 
@@ -55,7 +55,7 @@ Reports provide 7-day, 30-day, 90-day, or all-time summaries, with optional incl
 
 ### Signal
 
-Signal is a small curated feed of neurodivergence-related people, apps, research, and community updates. It is separate from your personal history and does not personalize its ranking from your check-ins.
+Signal is a small curated feed of neurodivergence-related people, apps, research, and community updates. It can use explicit preferences from your Personal Manual to surface relevant items, but it does not infer sensitive traits from your check-ins.
 
 ## Privacy and safety
 

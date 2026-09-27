@@ -1,0 +1,19 @@
+.sl-privacy{display:grid;gap:14px}
+.sl-privacy-hero,.sl-privacy-card,.sl-privacy-details{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 16px}
+.sl-privacy-kicker{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.sl-privacy-hero h2{margin:0 0 7px;font-size:1.2rem;line-height:1.2}
+.sl-privacy-hero p,.sl-privacy-copy p,.sl-privacy-details p{margin:0;color:var(--muted);font-size:.88rem;line-height:1.55}
+.sl-privacy-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.sl-privacy-row div{display:grid;gap:4px}
+.sl-privacy-row span:not(.sl-privacy-badge){color:var(--muted);font-size:.84rem}
+.sl-privacy-badge{border:1px solid var(--border);border-radius:999px;padding:5px 9px;font-size:.72rem;white-space:nowrap}
+.sl-privacy-divider{height:1px;background:var(--border);margin:15px 0}
+.sl-privacy-copy{display:grid;gap:5px}
+.sl-privacy-danger{border-color:color-mix(in srgb,var(--rust) 45%,var(--border))}
+.sl-privacy-danger>button{margin-top:14px;min-height:44px;border:1px solid var(--rust);border-radius:12px;background:transparent;color:var(--rust);font:inherit;font-weight:700;padding:10px 13px;cursor:pointer}
+.sl-privacy-danger>button:disabled{opacity:.55;cursor:wait}
+.sl-privacy-status{min-height:1.3em;margin:10px 0 0;color:var(--teal);font-size:.84rem}
+.sl-privacy-status.is-error{color:var(--rust)}
+.sl-privacy-details details+details{border-top:1px solid var(--border);margin-top:10px;padding-top:10px}
+.sl-privacy-details summary{font-weight:600}
+.sl-inline-link{border:0;background:none;color:inherit;text-decoration:underline;font:inherit;padding:0;cursor:pointer}
