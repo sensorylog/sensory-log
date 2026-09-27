@@ -25,6 +25,7 @@
 <link rel="stylesheet" href="./styles/backup.css" />
 <link rel="stylesheet" href="./styles/onboarding.css" />
 <link rel="stylesheet" href="./styles/preferences.css" />
+<link rel="stylesheet" href="./styles/privacy.css" />
 
 <!-- Phase B canonical visual engine: intentionally last among feature CSS. -->
 <link rel="stylesheet" href="./styles/visual-system.css" />
@@ -42,6 +43,7 @@
 <script type="module" src="./js/backup.js"></script>
 <script type="module" src="./js/onboarding.js"></script>
 <script type="module" src="./js/preferences.js"></script>
+<script type="module" src="./js/privacy.js"></script>
 </head>
 <body>
 <div class="wrap">
@@ -75,6 +77,7 @@
         <button class="app-more-card" type="button" data-route="reports"><strong>Reports</strong><span>Quiet, evidence-based summaries you can print or save.</span></button>
         <button class="app-more-card" type="button" data-route="signal"><strong>Signal</strong><span>A small feed for useful context, with pause and hide controls.</span></button>
         <button class="app-more-card" type="button" data-route="backup"><strong>Your data</strong><span>Export, import and keep a copy of the information you have logged.</span></button>
+        <button class="app-more-card" type="button" data-route="privacy"><strong>Privacy</strong><span>See what stays local and manage your local data.</span></button>
         <button class="app-more-card app-more-card-secondary" type="button" data-signal-restore><strong>Bring Signal back</strong><span>Restore the Signal feed if you previously hid it.</span></button>
       </div>
       <section id="slPreferences" class="sl-preferences"></section>
@@ -95,6 +98,7 @@
     <section class="app-view" id="view-reports"></section>
     <section class="app-view" id="view-signal"></section>
     <section class="app-view" id="view-backup"><section id="slBackup" class="sl-backup"></section></section>
+    <section class="app-view" id="view-privacy"><section id="slPrivacy" class="sl-privacy"></section></section>
     <section class="app-view" id="view-about"></section>
     <section class="app-view" id="view-contact"></section>
     <section class="app-view" id="view-terms"></section>
