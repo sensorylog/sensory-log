@@ -175,3 +175,69 @@ html[data-license-state="locked"] {
 @media (prefers-reduced-motion: reduce) {
   .sl-license-panel { scroll-behavior: auto; }
 }
+
+.sl-license-password-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 14px;
+}
+.sl-license-password-row label { margin: 0; }
+.sl-license-show-password,
+.sl-license-reset {
+  border: 0;
+  background: transparent;
+  color: rgba(244,244,241,.62);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+}
+.sl-license-show-password:hover,
+.sl-license-reset:hover { color: #f4f4f1; }
+.sl-license-reset {
+  display: block;
+  margin: 12px 0 0 auto;
+  padding: 2px 0;
+}
+.sl-license-google {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.sl-google-icon {
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #fff;
+  color: #202124;
+  font-weight: 700;
+  font-size: 13px;
+}
+.sl-license-primary:disabled,
+.sl-license-google:disabled,
+.sl-license-reset:disabled,
+.sl-license-show-password:disabled,
+.sl-license-auth-tabs button:disabled {
+  opacity: .55;
+  cursor: wait;
+}
+.sl-license-status {
+  transition: opacity .15s ease;
+}
+@media (max-width: 560px) {
+  .sl-license-panel {
+    padding: 26px 20px 24px;
+    border-radius: 24px;
+  }
+  .sl-license-panel h1 {
+    font-size: clamp(30px, 10vw, 42px);
+  }
+  .sl-license-auth-tabs button,
+  .sl-license-primary,
+  .sl-license-google {
+    min-height: 50px;
+  }
+}

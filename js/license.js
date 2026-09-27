@@ -1,14 +1,14 @@
 import {
   browserLocalPersistence,
   createUserWithEmailAndPassword,
-  getAuth,
   GoogleAuthProvider,
   onAuthStateChanged,
   setPersistence,
   signInWithEmailAndPassword,
   signInWithPopup,
   signInWithRedirect,
-  signOut
+  signOut,
+  sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
 import {
   doc,
@@ -17,7 +17,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
 import { firebaseApp, firebaseAuth } from "./core/firebase.js";
 
-const auth = getAuth(firebaseApp);
+const auth = firebaseAuth;
 const db = getFirestore(firebaseApp);
 const LICENSE_WORKER_URL = "https://sensory-log-license.johnkyei221.workers.dev";
 
@@ -90,12 +90,29 @@ async function readEntitlement(uid) {
 
 function messageForError(error) {
   const code = error?.code || "";
+  const messages = {
+    "auth/invalid-email":"That email address doesn't look right.",
+    "auth/weak-password":"Choose a stronger password with at least 6 characters.",
+    "auth/email-already-in-use":"An account already exists with this email. Sign in instead.",
+    "auth/invalid-credential":"That email or password is incorrect.",
+    "auth/user-not-found":"We couldn't find an account with that email.",
+    "auth/wrong-password":"That email or password is incorrect.",
+    "auth/too-many-requests":"Too many attempts. Wait a moment and try again.",
+    "auth/network-request-failed":"Check your connection and try again.",
+    "auth/popup-closed-by-user":"Google sign-in was cancelled.",
+    "auth/popup-blocked":"Google sign-in was blocked. Try again and allow the sign-in window.",
+    "auth/account-exists-with-different-credential":"An account already exists with this email using another sign-in method. Sign in with that method first.",
+    "auth/operation-not-allowed":"This sign-in method is not enabled yet.",
+    "auth/unauthorized-domain":"This app domain is not authorized for sign-in yet."
+  };
+  if (messages[code]) return messages[code];
   if (code.includes("permission-denied")) return "That license is not valid for Sensory Log.";
   if (code.includes("unauthenticated")) return "Sign in first, then activate your license.";
   if (code.includes("failed-precondition")) return "Sensory Log licensing is not configured yet.";
-  if (code.includes("functions/unavailable") || code.includes("unavailable")) return "License verification is temporarily unavailable. Try again in a moment.";
+  if (code.includes("unavailable")) return "License verification is temporarily unavailable. Try again in a moment.";
   return error?.message || "Something went wrong. Please try again.";
 }
+
 
 function createGate() {
   if (document.getElementById("sl-license-gate")) return document.getElementById("sl-license-gate");
@@ -117,16 +134,23 @@ function createGate() {
           <button type="button" data-auth-mode="signup">Create account</button>
         </div>
 
-        <form data-auth-form>
+        <form data-auth-form novalidate>
           <label for="sl-license-email">Email</label>
-          <input id="sl-license-email" type="email" autocomplete="email" required>
-          <label for="sl-license-password">Password</label>
+          <input id="sl-license-email" type="email" inputmode="email" autocomplete="email" autocapitalize="none" spellcheck="false" required>
+          <div class="sl-license-password-row">
+            <label for="sl-license-password">Password</label>
+            <button type="button" class="sl-license-show-password" data-toggle-password>Show</button>
+          </div>
           <input id="sl-license-password" type="password" autocomplete="current-password" minlength="6" required>
+          <div class="sl-license-confirm-wrap" data-confirm-wrap hidden>
+            <label for="sl-license-confirm">Confirm password</label>
+            <input id="sl-license-confirm" type="password" autocomplete="new-password" minlength="6">
+          </div>
           <button type="submit" class="sl-license-primary" data-auth-submit>Sign in</button>
         </form>
-
-        <button type="button" class="sl-license-google" data-google>Continue with Google</button>
-        <div class="sl-license-divider"><span>then</span></div>
+        <button type="button" class="sl-license-reset" data-reset>Forgot password?</button>
+        <div class="sl-license-divider"><span>or</span></div>
+        <button type="button" class="sl-license-google" data-google><span class="sl-google-icon" aria-hidden="true">G</span><span>Continue with Google</span></button>
       </section>
 
       <section class="sl-license-activation" data-activation-section hidden>
@@ -156,11 +180,22 @@ function setStatus(gate, message, isError = false) {
 
 function updateAuthMode(gate, mode) {
   const signup = mode === "signup";
+  gate.dataset.authMode = mode;
   gate.querySelectorAll("[data-auth-mode]").forEach(button => {
-    button.classList.toggle("is-active", button.dataset.authMode === mode);
+    const active = button.dataset.authMode === mode;
+    button.classList.toggle("is-active", active);
+    button.setAttribute("aria-selected", String(active));
   });
   gate.querySelector("[data-auth-submit]").textContent = signup ? "Create account" : "Sign in";
   gate.querySelector("#sl-license-password").autocomplete = signup ? "new-password" : "current-password";
+  gate.querySelector("#sl-license-password").value = "";
+  gate.querySelector("#sl-license-confirm").value = "";
+  gate.querySelector("[data-confirm-wrap]").hidden = !signup;
+  gate.querySelector("#sl-license-confirm").required = signup;
+  gate.querySelector("[data-reset]").hidden = signup;
+  gate.querySelector("[data-toggle-password]").textContent = "Show";
+  gate.querySelector("#sl-license-password").type = "password";
+  gate.querySelector("#sl-license-confirm").type = "password";
 }
 
 async function showAuthenticatedGate(gate, user) {
@@ -264,41 +299,79 @@ async function boot() {
     await setPersistence(auth, browserLocalPersistence);
   } catch (_) {}
 
+  gate.dataset.authMode = "signin";
+  let authBusy = false;
+  const setAuthBusy = busy => {
+    authBusy = busy;
+    gate.querySelectorAll("[data-auth-form] input, [data-auth-form] button, [data-google], [data-reset], [data-auth-mode]").forEach(el => el.disabled = busy);
+    gate.querySelector("[data-auth-submit]").setAttribute("aria-busy", String(busy));
+  };
+
   gate.querySelectorAll("[data-auth-mode]").forEach(button => {
-    button.addEventListener("click", () => updateAuthMode(gate, button.dataset.authMode));
+    button.setAttribute("role", "tab");
+    button.setAttribute("aria-selected", button.dataset.authMode === "signin" ? "true" : "false");
+    button.addEventListener("click", () => { if (!authBusy) updateAuthMode(gate, button.dataset.authMode); });
+  });
+
+  gate.querySelector("[data-toggle-password]").addEventListener("click", () => {
+    const next = gate.querySelector("#sl-license-password").type === "password" ? "text" : "password";
+    gate.querySelector("#sl-license-password").type = next;
+    if (gate.dataset.authMode === "signup") gate.querySelector("#sl-license-confirm").type = next;
+    gate.querySelector("[data-toggle-password]").textContent = next === "password" ? "Show" : "Hide";
   });
 
   gate.querySelector("[data-auth-form]").addEventListener("submit", async event => {
     event.preventDefault();
-    const email = gate.querySelector("#sl-license-email").value.trim();
+    if (authBusy) return;
+    const emailInput = gate.querySelector("#sl-license-email");
+    const email = emailInput.value.trim();
     const password = gate.querySelector("#sl-license-password").value;
-    const signup = gate.querySelector("[data-auth-submit]").textContent === "Create account";
-
+    const confirm = gate.querySelector("#sl-license-confirm").value;
+    const signup = gate.dataset.authMode === "signup";
+    if (!emailInput.checkValidity()) { setStatus(gate, "Enter a valid email address.", true); emailInput.focus(); return; }
+    if (password.length < 6) { setStatus(gate, "Your password needs at least 6 characters.", true); return; }
+    if (signup && password !== confirm) { setStatus(gate, "The passwords don't match.", true); return; }
+    setAuthBusy(true);
     try {
       setStatus(gate, signup ? "Creating your account…" : "Signing you in…");
       if (signup) await createUserWithEmailAndPassword(auth, email, password);
       else await signInWithEmailAndPassword(auth, email, password);
     } catch (error) {
       setStatus(gate, messageForError(error), true);
-    }
+    } finally { setAuthBusy(false); }
+  });
+
+  gate.querySelector("[data-reset]").addEventListener("click", async () => {
+    if (authBusy) return;
+    const input = gate.querySelector("#sl-license-email");
+    if (!input.checkValidity()) { setStatus(gate, "Enter your email first, then tap Forgot password.", true); input.focus(); return; }
+    setAuthBusy(true);
+    try {
+      await sendPasswordResetEmail(auth, input.value.trim());
+      setStatus(gate, "Password reset email sent. Check your inbox.");
+    } catch (error) { setStatus(gate, messageForError(error), true); }
+    finally { setAuthBusy(false); }
   });
 
   gate.querySelector("[data-google]").addEventListener("click", async () => {
+    if (authBusy) return;
+    setAuthBusy(true);
     try {
       setStatus(gate, "Opening Google sign-in…");
-      await signInWithPopup(auth, new GoogleAuthProvider());
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: "select_account" });
+      if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+        await signInWithRedirect(auth, provider);
+        return;
+      }
+      await signInWithPopup(auth, provider);
     } catch (error) {
       if (error?.code === "auth/popup-blocked" || error?.code === "auth/cancelled-popup-request") {
-        try {
-          await signInWithRedirect(auth, new GoogleAuthProvider());
-          return;
-        } catch (redirectError) {
-          setStatus(gate, messageForError(redirectError), true);
-          return;
-        }
+        try { await signInWithRedirect(auth, new GoogleAuthProvider()); return; }
+        catch (redirectError) { setStatus(gate, messageForError(redirectError), true); return; }
       }
       setStatus(gate, messageForError(error), true);
-    }
+    } finally { setAuthBusy(false); }
   });
 
   gate.querySelector("[data-license-form]").addEventListener("submit", async event => {
