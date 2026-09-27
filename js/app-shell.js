@@ -1,5 +1,6 @@
 import { initializeFoundation } from "./core/foundation.js";
 import { restoreSignal } from "./signal.js";
+import { apply as applyPreferences } from "./preferences.js";
 
 const ROUTES = Object.freeze({
   home: "view-home",
@@ -40,6 +41,7 @@ function setActive(route, pushHash=true){
 }
 
 initializeFoundation().catch(error => console.error("[Sensory Log] Foundation", error));
+applyPreferences();
 
 function wireTheme(){
   const button=document.getElementById("themeBtn");
