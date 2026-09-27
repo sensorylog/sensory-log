@@ -109,17 +109,48 @@ function metric(label, value, hint) {
   </div>`;
 }
 
+function greeting() {
+  const hour = new Date().getHours();
+  if (hour < 5) return "Good night";
+  if (hour < 12) return "Good morning";
+  if (hour < 18) return "Good afternoon";
+  return "Good evening";
+}
+
+function needAction(needId) {
+  if (needId === "observe") return "Check in";
+  return "Open Regulate";
+}
+
 function render(entries) {
   const today = localDateString();
   const todayEntry = getToday(entries, today);
   const derived = deriveState(entries, today);
   const state = describeState(todayEntry, derived);
-  const need = needFor(todayEntry, derived);
   const logged = entries.filter(entry => entry.energy > 0).sort((a,b) => a.date.localeCompare(b.date));
   const prior = logged.filter(entry => entry.date !== today).slice(-7);
   const baseline = average(prior.map(entry => entry.energy));
   const delta = baseline && todayEntry?.energy ? todayEntry.energy - baseline : null;
   const recent = logged.slice(-7).reverse();
+  const needs = (derived.needs || []).slice(0, 3);
+
+  const metrics = [
+    ["Sensory", derived.loads.sensory],
+    ["Social", derived.loads.social],
+    ["Recovery", derived.recovery]
+  ];
+
+  const metricMarkup = metrics.map(([label, value]) => `
+    <div class="sl-home-metric">
+      <span class="sl-home-metric-label">${esc(label)}</span>
+      <strong>${value ?? "—"}<small>${value !== null && value !== undefined ? " / 5" : ""}</small></strong>
+    </div>`).join("");
+
+  const needMarkup = needs.map((need, index) => `
+    <button type="button" class="sl-home-need-choice${index === 0 ? " is-primary" : ""}" data-home-need="${esc(need.id)}">
+      <span>${esc(need.label)}</span>
+      <small>${esc(need.reason)}</small>
+    </button>`).join("");
 
   const rhythm = recent.length
     ? recent.map(entry => `<button class="sl-home-day" type="button" data-home-date="${esc(entry.date)}" aria-label="Open ${esc(formatDate(entry.date))}, energy ${entry.energy} of 5">
@@ -131,76 +162,87 @@ function render(entries) {
 
   const baselineBlock = baseline
     ? `<div class="sl-home-baseline-row"><span>Average energy</span><strong>${baseline.toFixed(1)} / 5</strong></div>
-       <div class="sl-home-baseline-row"><span>Today vs baseline</span><strong>${delta > 0 ? "↑ " : delta < 0 ? "↓ " : "— "}${Math.abs(delta).toFixed(1)}</strong></div>`
-    : '<p class="sl-home-empty">A personal baseline needs a few logged days. It is calculated from your history, not a target.</p>';
+       <div class="sl-home-baseline-row"><span>Today vs baseline</span><strong>${delta > 0 ? "↑ " : delta < 0 ? "↓ " : "— "}${Math.abs(delta ?? 0).toFixed(1)}</strong></div>`
+    : '<p class="sl-home-empty">Your baseline will become clearer as you log more days.</p>';
 
   root.innerHTML = `
-    <section class="sl-home-hero" aria-labelledby="slHomeTitle">
-      <div class="sl-home-hero-top">
-        <div>
-          <div class="sl-home-kicker">Today · ${esc(formatDate(today))}</div>
-          <h1 id="slHomeTitle">How are you, right now?</h1>
+    <div class="sl-home">
+      <section class="sl-home-hero" aria-labelledby="slHomeTitle">
+        <div class="sl-home-hero-top">
+          <div>
+            <div class="sl-home-kicker">${esc(greeting())} · ${esc(formatDate(today))}</div>
+            <h1 id="slHomeTitle">Sensory Log</h1>
+          </div>
+          <div class="sl-home-status">${todayEntry ? "Checked in" : "Not checked in"}</div>
         </div>
-        <div class="sl-home-status">${todayEntry ? "Logged today" : "Not checked in"}</div>
-      </div>
-      <div class="sl-home-state">
-        <div class="sl-state-orb" aria-hidden="true"><strong>${derived.capacity ?? "—"}</strong><span>capacity</span></div>
-        <div class="sl-home-state-copy">
-          <h2>${esc(state.title)}</h2>
-          <p>${esc(state.detail)}</p>
+
+        <div class="sl-home-capacity">
+          <div class="sl-capacity-value">
+            <span class="sl-capacity-number">${derived.capacity ?? "—"}</span>
+            <span class="sl-capacity-label">capacity</span>
+          </div>
+          <div class="sl-capacity-context">
+            <strong>${esc(state.title)}</strong>
+            <p>${esc(state.detail)}</p>
+            ${derived.capacityDelta !== null
+              ? `<span class="sl-capacity-delta">${derived.capacityDelta > 0 ? "↑" : derived.capacityDelta < 0 ? "↓" : "—"} ${Math.abs(derived.capacityDelta).toFixed(1)} vs recent baseline</span>`
+              : ""}
+          </div>
         </div>
-      </div>
-      <div class="sl-home-actions">
-        <button type="button" class="sl-home-action primary" data-home-route="checkin">${todayEntry ? "Update check-in" : "Check in"}</button>
-        <button type="button" class="sl-home-action" data-home-route="patterns">See patterns</button>
-      </div>
-    </section>
 
-    <section class="sl-home-section sl-home-signals" aria-labelledby="slSignalsTitle">
-      <div class="sl-home-section-head">
-        <div><span class="sl-home-eyebrow">Right now</span><h2 id="slSignalsTitle">Your signals</h2></div>
-        <span class="sl-home-section-meta">${todayEntry ? "today" : "waiting"}</span>
-      </div>
-      <div class="sl-home-metrics">
-        ${metric("Energy", todayEntry?.energy, "raw signal")}
-        ${metric("Sensory load", derived.loads.sensory, "derived load")}
-        ${metric("Recovery", derived.recovery, "need")}
-        ${metric("Social battery", todayEntry?.socialBattery, "raw signal")}
-      </div>
-    </section>
+        <div class="sl-home-primary-action">
+          <button type="button" class="sl-home-action primary" data-home-route="checkin">${todayEntry ? "Update check-in" : "Check in"}</button>
+          <button type="button" class="sl-home-action secondary" data-home-route="patterns">Patterns</button>
+        </div>
+      </section>
 
-    <section class="sl-home-section sl-home-need" aria-labelledby="slNeedTitle">
-      <div class="sl-home-section-head">
-        <div><span class="sl-home-eyebrow">Next</span><h2 id="slNeedTitle">What might you need?</h2></div>
-      </div>
-      <div class="sl-home-need-content">
-        <span class="sl-home-need-mark" aria-hidden="true"></span>
-        <div><strong>${esc(need.title)}</strong><p>${esc(need.detail)}</p></div>
-      </div>
-      ${todayEntry?.energy && (todayEntry.overwhelm >= 4 || todayEntry.energy <= 2 || todayEntry.recovery >= 4)
-        ? '<button type="button" class="sl-home-inline-action" data-home-route="regulate">Open a regulation protocol</button>' : ""}
-    </section>
+      <section class="sl-home-section sl-home-need" aria-labelledby="slNeedTitle">
+        <div class="sl-home-section-head">
+          <div><span class="sl-home-eyebrow">Next</span><h2 id="slNeedTitle">What do you need?</h2></div>
+        </div>
+        <div class="sl-home-need-choices">
+          ${needMarkup}
+        </div>
+      </section>
 
-    <section class="sl-home-section" aria-labelledby="slBaselineTitle">
-      <div class="sl-home-section-head">
-        <div><span class="sl-home-eyebrow">Over time</span><h2 id="slBaselineTitle">Your baseline</h2></div>
-        <span class="sl-home-section-meta">previous 7 days</span>
-      </div>
-      <div class="sl-home-baseline">${baselineBlock}</div>
-    </section>
+      <section class="sl-home-section sl-home-signals" aria-labelledby="slSignalsTitle">
+        <div class="sl-home-section-head">
+          <div><span class="sl-home-eyebrow">Signals</span><h2 id="slSignalsTitle">Right now</h2></div>
+          <span class="sl-home-section-meta">${todayEntry ? "today" : "waiting"}</span>
+        </div>
+        <div class="sl-home-metrics">${metricMarkup}</div>
+      </section>
 
-    <section class="sl-home-section" aria-labelledby="slRecentTitle">
-      <div class="sl-home-section-head">
-        <div><span class="sl-home-eyebrow">Recent</span><h2 id="slRecentTitle">Your rhythm</h2></div>
-        <span class="sl-home-section-meta">tap a day</span>
-      </div>
-      <div class="sl-home-rhythm">${rhythm}</div>
-    </section>
+      <details class="sl-home-details">
+        <summary>
+          <span><span class="sl-home-eyebrow">Over time</span><strong>Your baseline & rhythm</strong></span>
+          <span class="sl-home-details-arrow" aria-hidden="true">⌄</span>
+        </summary>
+        <div class="sl-home-details-body">
+          <div class="sl-home-baseline">${baselineBlock}</div>
+          <div class="sl-home-rhythm-wrap">
+            <div class="sl-home-detail-label">Recent days</div>
+            <div class="sl-home-rhythm">${rhythm}</div>
+          </div>
+        </div>
+      </details>
+    </div>
   `;
 
   root.querySelectorAll("[data-home-route]").forEach(button => {
     button.addEventListener("click", () => {
       window.location.hash = "#" + button.dataset.homeRoute;
+    });
+  });
+
+  root.querySelectorAll("[data-home-need]").forEach(button => {
+    button.addEventListener("click", () => {
+      const needId = button.dataset.homeNeed;
+      if (needId === "observe") {
+        window.location.hash = "#checkin";
+        return;
+      }
+      window.location.hash = "#regulate";
     });
   });
 
