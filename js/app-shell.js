@@ -142,6 +142,7 @@ function setActive(route, pushHash=true){
     if(view) view.classList.toggle("is-active", name===target);
   });
   wireTheme();
+  ensurePrivacyPolicyLink();
   document.querySelectorAll("[data-route]").forEach(btn=>{
     const isPrimary = btn.dataset.route === target;
     const isMoreChild = ["history","manual","reports","signal","backup","privacy"].includes(target) && btn.dataset.route === "more";
@@ -189,6 +190,18 @@ function wireTheme(){
   button.addEventListener("click",()=>{
     apply(document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark");
   });
+}
+
+function ensurePrivacyPolicyLink(){
+  const links=document.querySelector(".app-info-links");
+  if(!links || links.querySelector('[data-route="privacyPolicy"]')) return;
+  const button=document.createElement("button");
+  button.type="button";
+  button.className="app-info-link";
+  button.dataset.route="privacyPolicy";
+  button.textContent="Data & privacy";
+  links.appendChild(button);
+  button.addEventListener("click",()=>setActive("privacyPolicy"));
 }
 
 function wire(){
