@@ -1,0 +1,97 @@
+/* Sensory Log app shell — one product, separate calm views. */
+.app-shell{
+  width:100%;
+}
+.app-view{
+  display:none;
+  width:100%;
+  animation:sl-view-in .18s ease-out;
+}
+.app-view.is-active{display:block}
+.app-view[hidden]{display:none}
+@keyframes sl-view-in{from{opacity:.0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.app-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  padding:4px 2px 18px;
+}
+.app-brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-width:0;
+}
+.app-brand-mark{
+  width:34px;height:34px;border:1px solid var(--border);border-radius:11px;
+  display:grid;place-items:center;background:var(--surface);
+  box-shadow:0 8px 24px rgba(42,47,42,.06);
+  font-size:13px;font-weight:800;letter-spacing:-.04em;
+}
+.app-brand-copy{min-width:0}
+.app-brand-name{font-size:1.02rem;font-weight:780;letter-spacing:-.02em}
+.app-brand-state{font-size:.72rem;color:var(--muted);margin-top:1px}
+.app-nav{
+  position:fixed;left:50%;bottom:calc(10px + var(--safe-bottom));transform:translateX(-50%);
+  z-index:1000;width:min(430px,calc(100vw - 24px));
+  display:grid;grid-template-columns:repeat(5,1fr);gap:4px;
+  padding:7px;border:1px solid rgba(120,128,120,.22);
+  border-radius:22px;background:rgba(255,255,255,.78);
+  box-shadow:0 16px 45px rgba(20,25,21,.16);
+  backdrop-filter:blur(22px) saturate(130%);-webkit-backdrop-filter:blur(22px) saturate(130%);
+}
+[data-theme="dark"] .app-nav{background:rgba(39,43,39,.82);border-color:rgba(220,225,220,.12)}
+.app-nav button{
+  min-height:48px;border:0;background:transparent;color:var(--muted);border-radius:16px;
+  font:inherit;font-size:.69rem;font-weight:700;cursor:pointer;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:4px;letter-spacing:-.01em;
+}
+.app-nav button span{font-size:1.05rem;line-height:1}
+.app-nav button.active{background:var(--ink);color:var(--surface)}
+.app-nav button:focus-visible,.app-more-card:focus-visible,.app-secondary-btn:focus-visible{
+  outline:2px solid var(--teal);outline-offset:2px
+}
+.app-more{
+  display:grid;gap:12px
+}
+.app-more-hero{
+  padding:25px 20px;border:1px solid var(--border);border-radius:24px;
+  background:var(--surface);box-shadow:0 14px 40px rgba(35,40,36,.06)
+}
+.app-kicker{font-size:.72rem;text-transform:uppercase;letter-spacing:.16em;color:var(--muted);font-weight:750}
+.app-more-hero h2{font-size:2rem;line-height:1.05;margin:8px 0 10px;letter-spacing:-.045em}
+.app-more-hero p{margin:0;color:var(--muted);font-size:.94rem;line-height:1.55}
+.app-more-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.app-more-card{
+  min-height:132px;padding:18px;text-align:left;border:1px solid var(--border);border-radius:20px;
+  background:var(--surface);color:var(--ink);font:inherit;cursor:pointer;
+  display:flex;flex-direction:column;justify-content:space-between;
+  box-shadow:0 10px 28px rgba(35,40,36,.045)
+}
+.app-more-card strong{font-size:1rem}
+.app-more-card span{font-size:.8rem;line-height:1.4;color:var(--muted)}
+.app-secondary{
+  margin-top:4px;padding:18px;border:1px solid var(--border);border-radius:20px;background:var(--surface)
+}
+.app-secondary-row{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.app-secondary-row+.app-secondary-row{margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
+.app-secondary-btn{border:1px solid var(--border);background:var(--bg);color:var(--ink);border-radius:12px;padding:9px 12px;font:inherit;font-size:.8rem;cursor:pointer}
+#view-checkin .sl-checkin,#view-home .sl-home,#view-patterns .sl-patterns,#view-regulation .sl-regulation,
+#view-history .sl-history,#view-manual .sl-manual,#view-reports .sl-reports,#view-signal .sl-signal{width:100%}
+#view-checkin .card{margin-top:18px}
+.legacy-pattern-engine{display:none!important}
+.wrap > .tip{display:none!important}
+body{padding-bottom:calc(92px + var(--safe-bottom))}
+@media(max-width:420px){
+  .app-nav{bottom:calc(7px + var(--safe-bottom));width:calc(100vw - 14px);border-radius:20px}
+  .app-nav button{min-height:46px;font-size:.64rem}
+  .app-more-grid{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){
+  .app-view{animation:none}
+}
+@media print{
+  .app-header,.app-nav{display:none!important}
+  .app-view{display:block!important}
+}

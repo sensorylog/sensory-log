@@ -190,8 +190,9 @@ export async function mountReports() {
       root=document.createElement("section");
       root.id="slReports";
       root.className="sl-reports";
-      const manual=document.getElementById("slManual");
-      (manual || document.querySelector(".backup-card"))?.insertAdjacentElement("afterend",root);
+      document.getElementById("view-reports")?.appendChild(root);
+    const backup=document.querySelector(".backup-card");
+    if(backup && backup.parentElement!==root) root.appendChild(backup);
     }
     render();
   } catch(error) {

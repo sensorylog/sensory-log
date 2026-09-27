@@ -78,7 +78,7 @@ export async function mountRegulation(){
   const entries=await getEntries(),counts=getHelpCounts(entries);
   const personalized=TOOLKIT.map(([name,desc])=>({name,desc,count:counts[name]||0})).sort((a,b)=>b.count-a.count);
   mountRoot=document.getElementById("slRegulation");
-  if(!mountRoot){mountRoot=document.createElement("section");mountRoot.id="slRegulation";mountRoot.className="sl-regulation";const patterns=document.getElementById("slPatterns");patterns?.insertAdjacentElement("beforebegin",mountRoot)}
+  if(!mountRoot){mountRoot=document.createElement("section");mountRoot.id="slRegulation";mountRoot.className="sl-regulation";document.getElementById("view-regulation")?.appendChild(mountRoot)}
   mountRoot.innerHTML=`<div class="sl-reg-head"><div><div class="sl-reg-kicker">Regulation</div><h2>I need help right now</h2><p>No diagnosis. No score. Pick the closest state and use only what feels useful.</p></div></div>
   <div class="sl-reg-modes" aria-label="Regulation modes">${MODES.map(m=>`<button type="button" class="sl-reg-mode" data-reg-mode="${m.id}"><strong>${esc(m.label)}</strong><span>${esc(m.sub)}</span></button>`).join("")}</div>
   <div class="sl-reg-session" aria-live="polite"></div>
