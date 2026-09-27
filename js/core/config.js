@@ -14,6 +14,8 @@ export const APP_CONFIG = Object.freeze({
   },
   license: {
     provider: "firebase",
-    activationRequired: true
+    activationRequired: true,
+    offlineGraceDays: 14,
+    serverVerification: true
   }
 });
