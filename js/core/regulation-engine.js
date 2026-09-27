@@ -4,7 +4,7 @@
  * Descriptive guidance only; never a diagnosis or clinical prescription.
  */
 const clamp=(v,min=0,max=5)=>Math.min(max,Math.max(min,Number(v)));
-const finite=v=>Number.isFinite(Number(v))?Number(v):null;
+const finite=v=>v===null||v===undefined||v===""?null:Number.isFinite(Number(v))?Number(v):null;
 
 const ACTIONS=Object.freeze({
   lessInput:{id:"less-input",title:"Lower the input",summary:"Make the environment quieter, simpler, or less demanding.",mode:"sensory",actions:["Move to a quieter or visually simpler place.","Lower light, sound, notifications, or conversation if useful.","Give yourself a few minutes before taking on the next demand."]},
