@@ -69,4 +69,5 @@ refresh();
 const card=document.querySelector(".card");
 if(card){const o=new MutationObserver(()=>{clearTimeout(o._t);o._t=setTimeout(refresh,100)});o.observe(card,{subtree:true,childList:true,attributes:true})}
 window.addEventListener("storage",refresh);
+window.addEventListener("sensory-log:entries-changed",refresh);
 setInterval(refresh,2500);

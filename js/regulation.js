@@ -88,3 +88,6 @@ export async function mountRegulation(){
   bind();
  }catch(e){console.error("Sensory Log Regulation",e)}
 }
+
+
+mountRegulation();

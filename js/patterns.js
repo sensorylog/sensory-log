@@ -214,3 +214,6 @@ function render(entries){
 export async function mountPatternIntelligence(){
   try{render(await getEntries())}catch(error){console.error("Sensory Log Pattern Intelligence",error);render([])}
 }
+
+
+mountPatternIntelligence();

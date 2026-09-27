@@ -55,11 +55,18 @@ function legacyRead() {
 }
 
 export async function getEntries() {
+  const legacy = legacyRead();
   try {
     const value = await idbGet("entries");
-    if (value) return normalizeEntries(value);
-  } catch {}
-  return legacyRead();
+    const indexed = value ? normalizeEntries(value) : [];
+    if (!legacy.length) return indexed;
+    if (!indexed.length) return legacy;
+    // The legacy UI still writes localStorage during the transition. Merge by
+    // date so a newly saved day cannot be hidden behind an older IndexedDB copy.
+    return normalizeEntries([...indexed, ...legacy]);
+  } catch {
+    return legacy;
+  }
 }
 
 export async function saveEntries(entries) {
