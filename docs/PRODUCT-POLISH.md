@@ -1,6 +1,6 @@
 # Phase K — Product Polish
 
-Phase K hardens Sensory Log for public use without introducing the access gate or admin dashboard.
+Phase K hardens Sensory Log for public use with the Firebase/Cloudflare purchase access system; the separate admin dashboard remains outside this app.
 
 ## Included
 
@@ -9,8 +9,11 @@ Phase K hardens Sensory Log for public use without introducing the access gate o
 - Clear separation between core local logging and optional external services.
 - Public-facing product copy aligned with the current local-first architecture.
 - Accessibility and preference controls remain first-class.
-- Security-sensitive purchase/access infrastructure is intentionally deferred.
-- No account requirement, license gate, subscription, streak, score, or artificial scarcity is introduced in this phase.
+- Firebase Authentication supports email/password and Google accounts.
+- Gumroad license verification runs through the server-side Cloudflare Worker.
+- Each license supports up to two active devices.
+- The separate admin dashboard is intentionally outside this app.
+- No subscription, streak, score, or artificial scarcity is introduced.
 
 ## Deletion contract
 
@@ -18,4 +21,4 @@ Delete removes Sensory Log-owned local IndexedDB data and Sensory Log-owned loca
 
 ## Release rule
 
-The core experience must continue to work without Firebase, AI, or network access.
+The local journal remains usable without AI or network access after entitlement is established. Account/licensing services are required for first-time activation and new-device entitlement registration.
