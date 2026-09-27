@@ -1,4 +1,4 @@
-import { getEntries } from "./core/storage.js";
+import { getEntries, saveEntries } from "./core/storage.js";
 
 const MODES=[
  {id:"sensory",label:"Too much sensory input",sub:"Lower what is reaching you.",steps:["Move somewhere quieter or visually simpler.","Lower the light or cover your eyes if that feels better.","Reduce conversation, notifications, and other incoming demands.","Give yourself a few minutes before deciding what comes next."]},
@@ -21,7 +21,7 @@ const TOOLKIT=[
  ["Stimming freely","Let your body use a familiar regulating movement or action."]
 ];
 
-let active=null, timer=null, remaining=0, mountRoot=null;
+let active=null, timer=null, remaining=0, mountRoot=null, sessionStartedAt=null;
 
 const esc=v=>String(v==null?"":v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const getHelpCounts=entries=>{
@@ -53,22 +53,38 @@ function renderSession(){
  </div>`;
 }
 function startTimer(){
- stopTimer();remaining=120;updateTimer();buzz([35]);timer=setInterval(()=>{remaining--;updateTimer();if(remaining<=0){stopTimer();buzz([45,70,45]);}},1000)
+ stopTimer(); sessionStartedAt=Date.now(); remaining=120; updateTimer(); buzz([35]);
+ timer=setInterval(()=>{remaining--;updateTimer();if(remaining<=0){stopTimer();buzz([45,70,45]);}},1000);
 }
 function updateTimer(){
  const el=mountRoot?.querySelector("#slRegTimer");if(!el)return;
  const m=Math.floor(remaining/60),s=String(remaining%60).padStart(2,"0");el.textContent=`${m}:${s}`;
 }
+async function recordFeedback(feedback){
+  if(!active || !sessionStartedAt) return;
+  const entries=await getEntries();
+  const date=new Date().toISOString().slice(0,10);
+  const current=entries.find(entry=>entry.date===date);
+  if(!current) return;
+  const tags=Array.isArray(current.helped)?current.helped:[];
+  const label=`Regulation: ${active.label} · ${feedback}`;
+  const helped=tags.includes(label)?tags:[...tags,label];
+  const result=await saveEntries([...entries.filter(entry=>entry.date!==date),{...current,helped}]);
+  if(result.ok) window.dispatchEvent(new CustomEvent("sensory-log:entries-changed"));
+}
+
 function bind(){
  mountRoot.querySelectorAll("[data-reg-mode]").forEach(b=>b.onclick=()=>{active=MODES.find(x=>x.id===b.dataset.regMode)||null;stopTimer();renderSession();mountRoot.querySelector(".sl-reg-session")?.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion:reduce)").matches?"auto":"smooth",block:"nearest"})});
  mountRoot.querySelectorAll("[data-reg-action]").forEach(b=>b.onclick=()=>{
    if(b.dataset.regAction==="start")startTimer();
-   if(b.dataset.regAction==="stop")stopTimer(),updateTimer();
-   if(b.dataset.regAction==="close")stopTimer(),active=null,renderSession();
+   if(b.dataset.regAction==="stop"){stopTimer();updateTimer();}
+   if(b.dataset.regAction==="close"){stopTimer();sessionStartedAt=null;active=null;renderSession();}
  });
  mountRoot.querySelectorAll("[data-reg-feedback]").forEach(b=>b.onclick=()=>{
-   const status=mountRoot.querySelector(".sl-reg-feedback-status"); if(status) status.textContent="Noted. You don't need to rate yourself.";
+   const status=mountRoot.querySelector(".sl-reg-feedback-status");
+   if(status) status.textContent="Noted. You don't need to rate yourself.";
    buzz(b.dataset.regFeedback==="easier"?[25]:[]);
+   recordFeedback(b.dataset.regFeedback).catch(error=>console.error("[Sensory Log] Regulation feedback",error));
  });
 }
 
