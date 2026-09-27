@@ -885,3 +885,194 @@ summary:focus-visible{
 @media(max-width:520px){
   .app-more-card{min-height:68px;padding:15px 16px}
 }
+
+
+/* ==========================================================================
+   PHASE B — CALM SURFACE CONTRACT
+   One visual language: hierarchy first, material second, decoration last.
+   ========================================================================== */
+
+:root{
+  --sl-surface-gutter:clamp(18px,4vw,44px);
+  --sl-section-gap:clamp(28px,5vw,56px);
+  --sl-control-radius:16px;
+  --sl-pill-radius:999px;
+}
+
+body{
+  font-feature-settings:"ss01" 1,"cv02" 1;
+  text-rendering:optimizeLegibility;
+}
+
+.app-view{
+  contain:layout style;
+}
+
+.app-view h1,
+.app-view h2,
+.app-view h3{
+  text-wrap:balance;
+}
+
+.app-view p,
+.app-view li{
+  text-wrap:pretty;
+}
+
+.sl-home-hero,
+.sl-checkin-shell,
+.sl-pattern-head,
+.sl-reg-head,
+.sl-history-head,
+.sl-manual-hero,
+.sl-report-hero,
+.app-more-hero,
+.sl-signal-page-head{
+  isolation:isolate;
+}
+
+.sl-home-hero,
+.sl-checkin-shell{
+  box-shadow:
+    0 30px 90px rgba(0,0,0,.18),
+    inset 0 1px 0 rgba(255,255,255,.05);
+}
+
+.sl-home-hero::before,
+.sl-checkin-shell::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    radial-gradient(420px 260px at 86% 8%,rgba(255,255,255,.045),transparent 70%),
+    linear-gradient(120deg,rgba(255,255,255,.018),transparent 42%);
+  opacity:.9;
+}
+
+.sl-home-hero > *,
+.sl-checkin-shell > *{
+  position:relative;
+  z-index:1;
+}
+
+.sl-home-hero h1,
+.sl-checkin-title,
+.sl-pattern-head h2,
+.sl-reg-head h2,
+.sl-history-head h2,
+.sl-manual-hero h2,
+.sl-report-hero h2,
+.app-more-hero h2,
+.sl-signal-page-head h2{
+  font-weight:680;
+  line-height:.92;
+  letter-spacing:-.075em;
+}
+
+.sl-home-hero h1{
+  font-size:var(--sl-display-xl);
+}
+
+.sl-home-section-head h2{
+  font-weight:650;
+  letter-spacing:-.045em;
+}
+
+.sl-home-section,
+.sl-pattern-card,
+.sl-reg-mode,
+.sl-history-summary,
+.sl-history-metrics,
+.sl-manual-card,
+.sl-report-controls,
+.sl-report-metrics,
+.sl-report-comparison,
+.sl-report-support-grid,
+.sl-signal-card,
+.app-more-card{
+  transition:
+    background var(--sl-duration-normal) var(--sl-ease),
+    border-color var(--sl-duration-normal) ease,
+    transform var(--sl-duration-normal) var(--sl-ease-emphasized);
+}
+
+.sl-home-action,
+.sl-pattern-action,
+.sl-reg-mode,
+.app-more-card,
+.app-nav button,
+.theme-btn{
+  transition:
+    transform var(--sl-duration-fast) var(--sl-ease-emphasized),
+    background var(--sl-duration-normal) ease,
+    border-color var(--sl-duration-normal) ease,
+    box-shadow var(--sl-duration-normal) ease;
+}
+
+.sl-home-action:active,
+.sl-pattern-action:active,
+.sl-reg-mode:active,
+.app-more-card:active,
+.app-nav button:active{
+  transform:scale(.985);
+}
+
+.sl-home-action:focus-visible,
+.sl-pattern-action:focus-visible,
+.sl-reg-mode:focus-visible,
+.app-more-card:focus-visible{
+  outline:2px solid var(--ink);
+  outline-offset:3px;
+}
+
+.sl-home-empty,
+.sl-pattern-empty{
+  padding:clamp(20px,4vw,30px);
+  border:1px dashed var(--sl-hairline);
+  border-radius:22px;
+}
+
+.sl-home-empty strong,
+.sl-pattern-empty strong{
+  display:block;
+  margin-bottom:6px;
+  font-size:1rem;
+}
+
+.sl-home-empty p,
+.sl-pattern-empty span{
+  max-width:var(--sl-measure);
+}
+
+@media(max-width:680px){
+  .sl-home-hero,
+  .sl-checkin-shell{
+    border-radius:26px;
+  }
+
+  .sl-home-hero h1{
+    font-size:clamp(3rem,16vw,5rem);
+  }
+
+  .sl-home-state{
+    margin-top:28px;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .sl-home-section,
+  .sl-pattern-card,
+  .sl-reg-mode,
+  .sl-history-summary,
+  .sl-history-metrics,
+  .sl-manual-card,
+  .sl-report-controls,
+  .sl-report-metrics,
+  .sl-report-comparison,
+  .sl-report-support-grid,
+  .sl-signal-card,
+  .app-more-card{
+    transition:none!important;
+  }
+}
