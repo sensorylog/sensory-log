@@ -1,4 +1,5 @@
 import { getEntries } from "./core/storage.js";
+import { geminiModel } from "./core/firebase.js";
 
 const CONSENT_KEY="sensoryLogAiConsent_v1";
 const PROVIDER_KEY="sensoryLogAiProvider_v1";
@@ -38,9 +39,9 @@ function localReflection(entries,question=""){
 }
 
 async function firebaseGemini(prompt){
-  const config=window.SENSORY_LOG_FIREBASE_CONFIG;
-  if(!config?.apiKey||!config?.projectId) throw new Error("Firebase AI is not configured yet.");
-  throw new Error("Firebase AI Logic adapter is awaiting the project's generated Firebase web configuration.");
+  if(!geminiModel) throw new Error("Firebase AI is not configured.");
+  const result=await geminiModel.generateContent(prompt);
+  return result?.response?.text?.() || "Firebase AI returned an empty response.";
 }
 
 async function puter(prompt){
@@ -91,5 +92,9 @@ ${JSON.stringify(payload)}`;
 
 export async function getAiStatus(){
   const s=getAiSettings();
-  return {provider:s.provider,consent:s.consent,available:s.provider==="local"||!!window.puter?.ai?.chat||!!window.SENSORY_LOG_FIREBASE_CONFIG?.projectId};
+  return {
+    provider:s.provider,
+    consent:s.consent,
+    available:s.provider==="local"||!!window.puter?.ai?.chat||!!geminiModel
+  };
 }
