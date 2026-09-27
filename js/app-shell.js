@@ -10,7 +10,8 @@ const ROUTES = Object.freeze({
   history: "view-history",
   manual: "view-manual",
   reports: "view-reports",
-  signal: "view-signal"
+  signal: "view-signal",
+  backup: "view-backup"
 });
 
 const PRIMARY = ["home","checkin","patterns","regulate","more"];
@@ -29,7 +30,7 @@ function setActive(route, pushHash=true){
   wireTheme();
   document.querySelectorAll("[data-route]").forEach(btn=>{
     const isPrimary = btn.dataset.route === target;
-    const isMoreChild = ["history","manual","reports","signal"].includes(target) && btn.dataset.route === "more";
+    const isMoreChild = ["history","manual","reports","signal","backup"].includes(target) && btn.dataset.route === "more";
     btn.classList.toggle("active", isPrimary || isMoreChild);
     btn.setAttribute("aria-current",btn.classList.contains("active")?"page":"false");
   });
