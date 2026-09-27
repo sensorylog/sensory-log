@@ -75,7 +75,11 @@ function needFor(entry, derived = null) {
     title: "One minute is enough",
     detail: "You can log energy now and leave the rest blank."
   };
-  if (derived?.needs?.[0]) return {\n    title: derived.needs[0].label,\n    detail: derived.needs[0].reason\n  };\n  if (entry.overwhelm >= 4) return {
+  if (derived?.needs?.[0]) return {
+    title: derived.needs[0].label,
+    detail: derived.needs[0].reason
+  };
+  if (entry.overwhelm >= 4) return {
     title: "Less input",
     detail: "Quiet, lower light, fewer conversations, or a familiar environment may be worth trying."
   };

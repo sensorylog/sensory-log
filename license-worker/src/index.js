@@ -217,6 +217,55 @@ async function saveEntitlement(uid, licenseHash, gumroad, deviceHash, env) {
   };
 }
 
+async function registerExistingDevice(uid, licenseHash, deviceHash, env) {
+  const licensePath = "licenses/" + licenseHash;
+  const response = await firestoreRequest(licensePath, { method: "GET" }, env);
+  if (!response.ok) throw new Error("Your Sensory Log license could not be found.");
+  const existing = await response.json();
+  const existingUid = existing.fields?.uid?.stringValue;
+  const status = existing.fields?.status?.stringValue;
+  if (existingUid !== uid || status !== "active") {
+    throw new Error("Your Sensory Log license is not active.");
+  }
+
+  const existingDevices = existing.fields?.devices?.mapValue?.fields || {};
+  const deviceKeys = Object.keys(existingDevices);
+  const knownDevice = Boolean(existingDevices[deviceHash]);
+  if (!knownDevice && deviceKeys.length >= MAX_DEVICES) {
+    throw new Error("This license is already active on two devices. Remove an existing device before adding another.");
+  }
+
+  const now = new Date().toISOString();
+  const devices = { ...existingDevices };
+  devices[deviceHash] = {
+    mapValue: { fields: {
+      firstSeenAt: existingDevices[deviceHash]?.mapValue?.fields?.firstSeenAt || timestampValue(now),
+      lastSeenAt: timestampValue(now)
+    }}
+  };
+
+  const updated = await firestoreRequest(
+    licensePath + "?updateMask.fieldPaths=devices&updateMask.fieldPaths=updatedAt",
+    { method: "PATCH", body: JSON.stringify({
+      fields: {
+        devices: { mapValue: { fields: devices } },
+        updatedAt: timestampValue(now)
+      }
+    })},
+    env
+  );
+  if (!updated.ok) throw new Error("The device could not be registered.");
+  return {
+    status: "active",
+    product: PRODUCT,
+    licenseHash,
+    productId: existing.fields?.productId?.stringValue || null,
+    purchaseId: existing.fields?.purchaseId?.stringValue || null,
+    deviceLimit: MAX_DEVICES,
+    activeDevices: Object.keys(devices).length
+  };
+}
+
 async function handle(request, env) {
   const origin = allowedOrigin(request, env);
   if (request.method === "OPTIONS") {
@@ -236,18 +285,30 @@ async function handle(request, env) {
 
     const user = await verifyFirebaseUser(idToken, env);
     const body = await request.json();
-    const licenseKey = String(body.licenseKey || "").trim();
     const deviceId = String(body.deviceId || "").trim();
-    if (!licenseKey || licenseKey.length > MAX_KEY_LENGTH) {
-      return json({ error: "Enter a valid Sensory Log license key." }, 400, origin || "*");
-    }
     if (!deviceId || deviceId.length > MAX_DEVICE_ID_LENGTH) {
       return json({ error: "This device could not be identified. Refresh the app and try again." }, 400, origin || "*");
     }
 
-    const mode = body.mode === "refresh" ? "refresh" : "activate";
-    const licenseHash = await hashKey(licenseKey);
+    const mode = body.mode === "register" ? "register" : body.mode === "refresh" ? "refresh" : "activate";
     const deviceHash = await hashKey(deviceId);
+
+    if (mode === "register") {
+      const userResponse = await firestoreRequest("users/" + encodeURIComponent(user.localId), { method: "GET" }, env);
+      if (!userResponse.ok) return json({ error: "Your Sensory Log account does not have an active license." }, 403, origin || "*");
+      const userData = await userResponse.json();
+      const licenseHash = userData.fields?.entitlement?.mapValue?.fields?.licenseHash?.stringValue;
+      if (!licenseHash) return json({ error: "Your Sensory Log account does not have an active license." }, 403, origin || "*");
+      const entitlement = await registerExistingDevice(user.localId, licenseHash, deviceHash, env);
+      return json(entitlement, 200, origin || "*");
+    }
+
+    const licenseKey = String(body.licenseKey || "").trim();
+    if (!licenseKey || licenseKey.length > MAX_KEY_LENGTH) {
+      return json({ error: "Enter a valid Sensory Log license key." }, 400, origin || "*");
+    }
+
+    const licenseHash = await hashKey(licenseKey);
     if (mode === "refresh") {
       const existing = await firestoreRequest("licenses/" + licenseHash, { method: "GET" }, env);
       if (!existing.ok) return json({ error: "This license is not attached to your account." }, 403, origin || "*");

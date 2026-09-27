@@ -28,7 +28,7 @@ Never commit service-account JSON, `.dev.vars`, or other secrets.
 
 ## Flow
 
-The Worker receives a Firebase ID token plus a Gumroad license key, verifies the Firebase user through Google's Identity Toolkit, verifies the license with Gumroad, prevents the license from being attached to another UID, and writes the entitlement into Firestore using a server-only service account.
+The Worker receives a Firebase ID token, verifies the Firebase user through Google's Identity Toolkit, and verifies Gumroad licensing server-side. Activation accepts a Gumroad license key and records a SHA-256 license hash. Returning devices can use a registration request tied to the user's existing entitlement. A license is limited to two active device identities. Firestore writes use a server-only service account.
 
 Activation increments Gumroad's license use count. Revalidation does not.
 

@@ -171,10 +171,22 @@ async function showAuthenticatedGate(gate, user) {
   try {
     const entitlement = await readEntitlement(user.uid);
     if (entitlement?.status === "active") {
-      currentEntitlement = entitlement;
-      cacheEntitlement(entitlement);
-      unlock();
-      return;
+      try {
+        const registered = await registerDeviceWithWorker();
+        currentEntitlement = { ...entitlement, ...registered };
+        cacheEntitlement(currentEntitlement);
+        unlock();
+        return;
+      } catch (error) {
+        const cached = readCachedEntitlement();
+        if (isUsableOffline(cached)) {
+          currentEntitlement = cached;
+          unlock();
+          return;
+        }
+        setStatus(gate, "This device needs to be registered. Enter your Gumroad license key once.", true);
+        return;
+      }
     }
   } catch (error) {
     const cached = readCachedEntitlement();
@@ -185,6 +197,30 @@ async function showAuthenticatedGate(gate, user) {
     }
     setStatus(gate, "We couldn't check your license. Connect to the internet and try again.", true);
   }
+}
+
+async function registerDeviceWithWorker() {
+  if (!LICENSE_WORKER_URL || LICENSE_WORKER_URL.includes("REPLACE-WITH-YOUR")) {
+    throw new Error("Sensory Log licensing backend is not configured yet.");
+  }
+  const user = firebaseAuth.currentUser;
+  if (!user) throw new Error("Sign in before opening Sensory Log.");
+  const idToken = await user.getIdToken();
+  const response = await fetch(LICENSE_WORKER_URL, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "authorization": "Bearer " + idToken
+    },
+    body: JSON.stringify({ mode: "register", deviceId: getDeviceId() })
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const error = new Error(data.error || "This device could not be registered.");
+    error.code = response.status === 401 ? "unauthenticated" : "permission-denied";
+    throw error;
+  }
+  return data;
 }
 
 async function verifyLicenseWithWorker(licenseKey, mode = "activate") {

@@ -58,7 +58,10 @@ jobs:
       - name: Validate Phase J PWA assets
         run: node -e "const fs=require('fs'); const m=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8')); if(m.display!=='standalone'||!m.scope||!fs.existsSync('sw.js')) process.exit(1); console.log('Phase J PWA assets valid.');"
 
-      - name: Validate Phase K privacy contract\n        run: node scripts/test-privacy.mjs\n\n      - name: Validate Phase L Firebase licensing contract
+      - name: Validate Phase K privacy contract
+        run: node scripts/test-privacy.mjs
+
+      - name: Validate Phase L Firebase licensing contract
         run: node scripts/test-license.mjs
 
       - name: Validate license Worker syntax

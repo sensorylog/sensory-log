@@ -9,7 +9,7 @@ import { buildPersonalModel } from "./manual-engine.js";
 export const QUERY_ENGINE_VERSION = 1;
 export const QUERY_INTENTS = Object.freeze(["summary","trend","relationship","helpful","drains","recovery","manual"]);
 
-const finite=v=>Number.isFinite(Number(v))?Number(v):null;
+const finite=v=>v===null||v===undefined||v===""?null:Number.isFinite(Number(v))?Number(v):null;
 const avg=values=>{const v=values.map(finite).filter(x=>x!==null);return v.length?v.reduce((a,b)=>a+b,0)/v.length:null};
 const round=(v,d=1)=>Number.isFinite(v)?Math.round(v*10**d)/10**d:null;
 const sortEntries=entries=>Array.isArray(entries)?entries.filter(e=>e?.date).slice().sort((a,b)=>a.date.localeCompare(b.date)):[];
