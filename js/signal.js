@@ -1,7 +1,7 @@
 import { SIGNAL_ITEMS } from "./signal-data.js";
 
 const SIGNAL_KEY="sensoryLogSignalPrefs_v1";
-const CATEGORIES=["All","People","Apps","Research","Community"];
+const CATEGORIES=["All","People","Apps","Research","Community"];\nconst FEED_URL="./signal-feed.json";
 
 function prefs(){
   try{
@@ -26,13 +26,13 @@ function sourceLink(item){
 function filteredItems(category){
   return category==="All"?SIGNAL_ITEMS:SIGNAL_ITEMS.filter(item=>item.type===category);
 }
-function render(){
+function render(items){
   const root=document.getElementById("slSignal");
   if(!root)return;
   const p=prefs();
   if(!p.enabled||p.hidden){root.hidden=true;return;}
-  const items=filteredItems(p.category);
-  const current=items[0]||SIGNAL_ITEMS[0];
+  const visible=filteredItems(items,p.category);\n  const current=visible[0]||items[0]||SIGNAL_ITEMS[0];
+
   root.hidden=false;
   root.innerHTML=`<div class="sl-signal-inner" role="region" aria-label="Signal">
     <div class="sl-signal-content">
@@ -43,19 +43,19 @@ function render(){
         <p>${escapeHtml(current.text)}</p>
         <div class="sl-signal-meta">${sourceLink(current)}</div>
       </article>
-      <div class="sl-signal-items">${items.slice(1,4).map(item=>`<article class="sl-signal-item"><div class="sl-signal-item-top"><span class="sl-signal-type">${escapeHtml(item.type)}</span><time datetime="${escapeHtml(item.date)}">${formatDate(item.date)}</time></div><strong>${escapeHtml(item.title)}</strong><p>${escapeHtml(item.text)}</p><div class="sl-signal-meta">${sourceLink(item)}</div></article>`).join("")}</div>
+      <div class="sl-signal-items">${visible.slice(1,4).map(item=>`<article class="sl-signal-item"><div class="sl-signal-item-top"><span class="sl-signal-type">${escapeHtml(item.type)}</span><time datetime="${escapeHtml(item.date)}">${formatDate(item.date)}</time></div><strong>${escapeHtml(item.title)}</strong><p>${escapeHtml(item.text)}</p><div class="sl-signal-meta">${sourceLink(item)}</div></article>`).join("")}</div>
     </div>
     <div class="sl-signal-actions"><button type="button" data-signal-pause>${p.paused?"Resume":"Pause"}</button><button type="button" data-signal-hide>Hide</button></div>
   </div>`;
   root.querySelector("[data-signal-pause]").onclick=()=>{const next=prefs();next.paused=!next.paused;save(next);render()};
   root.querySelector("[data-signal-hide]").onclick=()=>{const next=prefs();next.hidden=true;save(next);render()};
 }
-function renderPage(){
+function renderPage(items){
   const root=document.getElementById("view-signal");
   if(!root)return;
   const p=prefs();
   const active=CATEGORIES.includes(p.category)?p.category:"All";
-  const items=filteredItems(active);
+  const visible=filteredItems(items,active);
   root.innerHTML=`<section class="sl-signal-page" aria-labelledby="signalTitle">
     <div class="sl-signal-page-head">
       <div class="app-kicker">Signal</div>
@@ -66,7 +66,7 @@ function renderPage(){
       ${CATEGORIES.map(category=>`<button type="button" class="${category===active?"is-active":""}" data-signal-category="${category}">${category}</button>`).join("")}
     </div>
     <div class="sl-signal-list">
-      ${items.map(item=>`<article class="sl-signal-card">
+      ${visible.map(item=>`<article class="sl-signal-card">
         <div class="sl-signal-card-top"><span class="sl-signal-type">${escapeHtml(item.type)}</span><time datetime="${escapeHtml(item.date)}">${formatDate(item.date)}</time></div>
         <h3>${escapeHtml(item.title)}</h3>
         <p>${escapeHtml(item.text)}</p>
@@ -79,7 +79,7 @@ function renderPage(){
     </div>
   </section>`;
   root.querySelectorAll("[data-signal-category]").forEach(button=>button.onclick=()=>{
-    const next=prefs();next.category=button.dataset.signalCategory;save(next);renderPage();render();
+    const next=prefs();next.category=button.dataset.signalCategory;save(next);renderPage(items);render(items);
   });
 }
 export function init(){
