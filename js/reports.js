@@ -83,6 +83,9 @@ function evidencePatterns(rows) {
   return cards.slice(0,4);
 }
 
+function periodLabel(days){return days==="all"?"All time":String(days)+" days"}
+function compareWindow(rows,days){if(days==="all"||!rows.length)return null;const end=parseLocalDate(localDateString()),span=Number(days),start=new Date(end.getFullYear(),end.getMonth(),end.getDate()-span),prevEnd=new Date(end.getFullYear(),end.getMonth(),end.getDate()-1);const prev=state.entries.filter(e=>{const d=parseLocalDate(e.date);return d&&d>=start&&d<=prevEnd});const mean=f=>avg(prev.filter(e=>e[f]>0).map(e=>e[f]));return {energy:mean("energy"),sensory:mean("overwhelm"),days:prev.length}}
+function trendLine(rows,field){const points=rows.filter(e=>e[field]>0).slice(-14);if(points.length<2)return "";const w=280,h=54,coords=points.map((e,i)=>((i/(points.length-1))*w)+","+(h-((e[field]-1)/4)*h)).join(" ");return "<div class=\"sl-report-trend\" aria-label=\""+esc(field)+" trend\"><svg viewBox=\"0 0 "+w+" "+h+"\" aria-hidden=\"true\"><polyline points=\""+coords+"\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg></div>"}
 function render() {
   const rows = state.entries.filter(e => inWindow(e,state.days)).sort((a,b)=>a.date.localeCompare(b.date));
   const energy=rows.filter(e=>e.energy>0).map(e=>e.energy);
@@ -95,6 +98,9 @@ function render() {
   const drains=frequencyList(rows,"drains");
   const patterns=evidencePatterns(rows);
   const first=rows[0]?.date, last=rows[rows.length-1]?.date;
+  const comparison=compareWindow(rows,state.days);
+  const measured=rows.filter(e=>e.energy>0||e.overwhelm>0||e.recovery>0||e.sleepQuality>0||e.socialBattery>0).length;
+  const completeness=rows.length?Math.round(measured/rows.length*100):0;
 
   root.innerHTML = `
     <section class="sl-report-hero">
@@ -103,7 +109,7 @@ function render() {
         <h2>Your Sensory Log report</h2>
         <p>A compact view of what you recorded in this period. It describes observations from your own data; it is not a diagnosis or medical assessment.</p>
       </div>
-      <div class="sl-report-range">${first ? esc(dayLabel(first))+" → "+esc(dayLabel(last)) : "No entries in this period"}</div>
+      <div class="sl-report-range">${first ? esc(dayLabel(first))+" → "+esc(dayLabel(last)) : "No entries in this period"}<small>${periodLabel(state.days)} view</small></div>
     </section>
 
     <section class="sl-report-controls" aria-label="Report controls">
@@ -131,9 +137,10 @@ function render() {
           ${metricBlock("Sleep quality",sleep)}
         </div>
       </section>
-
+      <div class="sl-report-trends"><div><span>Energy trend</span>${trendLine(rows,"energy")}</div><div><span>Sensory-load trend</span>${trendLine(rows,"overwhelm")}</div></div>
+      ${comparison ? `<section class="sl-report-section"><div class="sl-report-section-head"><div><div class="sl-report-kicker">Context</div><h3>This period compared with the previous one</h3></div></div><div class="sl-report-comparison"><div><span>Previous period</span><strong>${comparison.days} logged day${comparison.days===1?"":"s"}</strong></div><div><span>Energy average</span><strong>${comparison.energy==null?"—":fmt(comparison.energy)+"/5"}</strong></div><div><span>Sensory load</span><strong>${comparison.sensory==null?"—":fmt(comparison.sensory)+"/5"}</strong></div></div><p class="sl-report-muted">Descriptive comparison only; it does not establish cause.</p></section>` : ""}
       <section class="sl-report-section">
-        <div class="sl-report-section-head"><div><div class="sl-report-kicker">Context</div><h3>What appeared most often</h3></div></div>
+        <div class="sl-report-section-head"><div><div class="sl-report-kicker">Context</div><h3>What appeared most often</h3></div><span>${completeness}% of days had at least one measured signal</span></div>
         <div class="sl-report-columns">
           <div><h4>Common drains</h4>${drains.length ? drains.map(([x,n])=>`<div class="sl-report-list-row"><span>${esc(x)}</span><strong>${n} day${n===1?"":"s"}</strong></div>`).join("") : '<p class="sl-report-muted">No drains recorded.</p>'}</div>
           <div><h4>What helped</h4>${supports.length ? supports.map(([x,n])=>`<div class="sl-report-list-row"><span>${esc(x)}</span><strong>${n} day${n===1?"":"s"}</strong></div>`).join("") : '<p class="sl-report-muted">No support strategies recorded.</p>'}</div>
@@ -175,6 +182,7 @@ function render() {
 }
 
 function bind() {
+  root.querySelectorAll("[data-report-days]").forEach(b=>b.setAttribute("aria-pressed",String(state.days===(b.dataset.reportDays==="all"?"all":Number(b.dataset.reportDays)))));
   root.querySelectorAll("[data-report-days]").forEach(b=>b.onclick=()=>{ state.days=b.dataset.reportDays==="all"?"all":Number(b.dataset.reportDays); render(); });
   const notes=root.querySelector("#slReportNotes");
   if(notes) notes.onchange=()=>{state.includeNotes=notes.checked;render();};
@@ -199,4 +207,5 @@ export async function mountReports() {
     console.error("Sensory Log Reports",error);
   }
 }
+window.addEventListener("sensory-log:entries-changed",async()=>{state.entries=await getEntries();if(root)render()});
 mountReports();
