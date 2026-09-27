@@ -25,11 +25,9 @@ function monthStats(){
  return {rows,avgEnergy:energy.length?energy.reduce((a,b)=>a+b,0)/energy.length:null,avgSensory:sensory.length?sensory.reduce((a,b)=>a+b,0)/sensory.length:null};
 }
 function goToDate(date){
- const input=document.getElementById("dateInput");
- if(!input)return;
- input.value=date;
- input.dispatchEvent(new Event("change",{bubbles:true}));
- input.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion:reduce)").matches?"auto":"smooth",block:"start"});
+ selectedDate=date;
+ window.dispatchEvent(new CustomEvent("sensory-log:open-date",{detail:{date}}));
+ window.location.hash="#checkin";
 }
 function render(){
  const y=cursor.getFullYear(),m=cursor.getMonth();

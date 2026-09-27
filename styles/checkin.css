@@ -32,3 +32,18 @@
 .sl-checkin-message{text-align:center;min-height:1.2em;color:var(--sl-muted);font-size:.78rem;margin-top:9px}
 @media(max-width:390px){.sl-checkin-shell{padding:20px 15px 16px}.sl-checkin-scale{gap:5px}.sl-checkin-choice{grid-template-columns:1fr}.sl-checkin-date input{max-width:135px}}
 @media(prefers-reduced-motion:reduce){.sl-checkin *{scroll-behavior:auto!important}}
+
+
+/* Phase N — standalone check-in controls */
+.sl-checkin-field{margin:28px 0 0}
+.sl-field-title{font-size:.92rem;font-weight:750;letter-spacing:.01em;margin-bottom:10px;color:var(--sl-ink,#202522)}
+.sl-field-title .optional{font-size:.75rem;font-weight:600;color:var(--sl-muted,#7d8580);margin-left:5px}
+.sl-choice{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.sl-choice-four{grid-template-columns:repeat(4,1fr)}
+.sl-choice button,.sl-checkin-scale button{appearance:none;border:1px solid rgba(32,37,34,.14);background:rgba(255,255,255,.54);color:var(--sl-ink,#202522);border-radius:16px;min-height:52px;font:inherit;font-weight:700;cursor:pointer;transition:transform .15s ease,border-color .15s ease,background .15s ease}
+.sl-choice button:hover,.sl-checkin-scale button:hover{transform:translateY(-1px)}
+.sl-choice button.active,.sl-checkin-scale button.active{background:#202522;color:#fff;border-color:#202522}
+.sl-checkin-message{min-height:24px;margin-top:12px;font-size:.9rem;color:var(--sl-muted,#69716c)}
+@media(max-width:600px){
+  .sl-choice button,.sl-checkin-scale button{min-height:48px;border-radius:14px}
+}
