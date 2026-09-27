@@ -12,7 +12,7 @@ function save(prefs) {
   try { localStorage.setItem(KEY, JSON.stringify(prefs)); } catch {}
 }
 
-function apply(prefs = read()) {
+export function apply(prefs = read()) {
   const root = document.documentElement;
   [["motion","motion"],["transparency","transparency"],["contrast","contrast"]].forEach(([key, attr]) => {
     if (prefs[key] === "on") root.dataset[attr] = "reduced";
