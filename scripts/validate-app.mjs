@@ -58,8 +58,17 @@ for (const path of ["signal-feed.json", "signal-policy.json", "signal-sources.js
 
 const html = read("index.html");
 
-if (/maximum-scale\s*=/.test(html)) {
-  fail("index.html: viewport must not disable user zoom");
+const viewport = html.match(/<meta[^>]+name=["']viewport["'][^>]+content=["']([^"']+)["'][^>]*>/i)?.[1] || "";
+if (!viewport) {
+  fail("index.html: viewport metadata is missing");
+} else {
+  if (!/width=device-width/i.test(viewport)) fail("index.html: viewport must include width=device-width");
+  if (!/initial-scale=1(?:\s|,|$)/i.test(viewport)) fail("index.html: viewport must include initial-scale=1");
+  if (!/viewport-fit=cover(?:\s|,|$)/i.test(viewport)) fail("index.html: viewport must include viewport-fit=cover");
+  if (/maximum-scale\s*=/i.test(viewport) || /user-scalable\s*=\s*no/i.test(viewport)) {
+    fail("index.html: viewport must not disable user zoom");
+  }
+  if (/[,:]\s*$/.test(viewport.trim())) fail("index.html: viewport content must not end with a separator");
 }
 
 if (/src=["']\.\/js\/app\.js["']/.test(html)) {
@@ -101,6 +110,14 @@ for (const [path, needle, label] of [
       fail(`js/${file}: ${label}`);
     }
   }
+}
+
+const schema = await import("../js/core/schema.js");
+if (schema.normalizeEntry({ date: "2026-02-30", energy: 3 })) {
+  fail("js/core/schema.js: invalid calendar dates are accepted");
+}
+if (!schema.normalizeEntry({ date: "2026-02-28", energy: 3 })) {
+  fail("js/core/schema.js: valid calendar dates are rejected");
 }
 
 if (existsSync(resolve(root, "storage.rules"))) {
