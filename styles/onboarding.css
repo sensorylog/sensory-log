@@ -1,0 +1,15 @@
+.sl-onboarding{position:fixed;inset:0;z-index:3000;display:grid;place-items:center;padding:20px}
+.sl-onboarding-backdrop{position:absolute;inset:0;background:rgba(12,15,13,.54);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.sl-onboarding-panel{position:relative;width:min(520px,100%);padding:30px 24px 24px;border:1px solid rgba(255,255,255,.24);border-radius:28px;background:color-mix(in srgb,var(--surface) 92%,transparent);box-shadow:0 30px 100px rgba(0,0,0,.3);color:var(--ink)}
+.sl-onboarding-progress{display:flex;gap:6px;margin-bottom:30px}
+.sl-onboarding-progress span{height:3px;flex:1;border-radius:99px;background:var(--border)}
+.sl-onboarding-progress span.is-active{background:var(--ink)}
+.sl-onboarding-kicker{font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;font-weight:750;color:var(--muted);margin-bottom:9px}
+.sl-onboarding-panel h1{font-family:var(--sl-font-display);font-size:clamp(1.8rem,7vw,2.55rem);line-height:1.04;letter-spacing:-.045em;margin:0 0 14px}
+.sl-onboarding-panel p{font-size:1rem;line-height:1.6;color:var(--muted);margin:0;max-width:46ch}
+.sl-onboarding-actions{display:flex;flex-direction:column;gap:9px;margin-top:30px}
+.sl-onboarding-actions button{min-height:48px;border:1px solid var(--ink);border-radius:14px;background:var(--ink);color:var(--surface);font:inherit;font-weight:750;cursor:pointer}
+.sl-onboarding-actions .sl-onboarding-skip{border-color:transparent;background:transparent;color:var(--muted);font-size:.85rem;font-weight:600}
+.sl-onboarding-actions button:focus-visible{outline:2px solid var(--teal);outline-offset:3px}
+[data-theme="dark"] .sl-onboarding-panel{background:color-mix(in srgb,var(--surface) 94%,transparent)}
+@media(prefers-reduced-motion:reduce){.sl-onboarding-backdrop{backdrop-filter:none;-webkit-backdrop-filter:none}}
