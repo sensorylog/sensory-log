@@ -40,11 +40,12 @@ function setGateState(state) {
   document.documentElement.dataset.licenseState = state;
 }
 
-function cacheEntitlement(entitlement, licenseKey = null) {
+function cacheEntitlement(entitlement) {
   try {
+    const safe = { ...entitlement };
+    delete safe.licenseKey;
     localStorage.setItem(CACHE_KEY, JSON.stringify({
-      ...entitlement,
-      licenseKey: licenseKey || entitlement.licenseKey || null,
+      ...safe,
       cachedAt: Date.now()
     }));
   } catch (_) {}
@@ -160,7 +161,7 @@ async function showAuthenticatedGate(gate, user) {
     if (entitlement?.status === "active") {
       currentEntitlement = entitlement;
       cacheEntitlement(entitlement);
-      await maybeRefresh(entitlement);
+      await maybeRefresh();
       unlock();
       return;
     }
@@ -175,21 +176,9 @@ async function showAuthenticatedGate(gate, user) {
   }
 }
 
-async function maybeRefresh(entitlement) {
-  const cached = readCachedEntitlement();
-  if (!navigator.onLine || !entitlement?.licenseHash || !cached?.licenseKey) return;
-
-  try {
-    const result = await refreshLicense({
-      licenseHash: entitlement.licenseHash,
-      licenseKey: cached.licenseKey
-    });
-    const refreshed = { ...entitlement, ...result.data };
-    currentEntitlement = refreshed;
-    cacheEntitlement(refreshed, cached.licenseKey);
-  } catch (_) {
-    // Keep the current verified entitlement; the next online check can retry.
-  }
+async function maybeRefresh() {
+  // Online Firestore entitlement is the normal revalidation path.
+  // The original Gumroad key is deliberately never persisted in browser storage.
 }
 
 function unlock() {
@@ -246,7 +235,7 @@ async function boot() {
       setStatus(gate, "Verifying your purchase…");
       const result = await activateLicense({ licenseKey });
       currentEntitlement = result.data;
-      cacheEntitlement(currentEntitlement, licenseKey);
+      cacheEntitlement(currentEntitlement);
       unlock();
     } catch (error) {
       setStatus(gate, messageForError(error), true);
