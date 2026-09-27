@@ -17,6 +17,15 @@ const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const finite = (value) => Number.isFinite(Number(value)) ? Number(value) : null;
 const cleanString = (value, max = 2000) => typeof value === "string" ? value.trim().slice(0, max) : "";
 
+function validDateString(value) {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const [year, month, day] = value.split("-").map(Number);
+  const date = new Date(year, month - 1, day);
+  return date.getFullYear() === year &&
+    date.getMonth() === month - 1 &&
+    date.getDate() === day;
+}
+
 export function blankEntry(date) {
   return {
     date,
@@ -39,7 +48,7 @@ export function blankEntry(date) {
 
 export function normalizeEntry(input) {
   if (!input || typeof input !== "object") return null;
-  const date = typeof input.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(input.date) ? input.date : null;
+  const date = validDateString(input.date) ? input.date : null;
   if (!date) return null;
 
   const out = blankEntry(date);
