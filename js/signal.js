@@ -29,9 +29,13 @@ function render(items){
   root.hidden=false;
   const current=items[0]||DEFAULT_ITEMS[0];
   root.innerHTML=`<div class="sl-signal-inner" role="region" aria-label="Signal">
+    <div class="sl-signal-content">
+      <span class="sl-signal-label">SIGNAL</span>
+      <div class="sl-signal-text"><strong>${escapeHtml(current.title)}</strong><span> — ${escapeHtml(current.text)}</span></div>
+      <div class="sl-signal-items">${items.slice(0,4).map((item,i)=>i===0?"":`<article><small>${escapeHtml(item.type||"Signal")}</small><strong>${escapeHtml(item.title)}</strong><p>${escapeHtml(item.text)}</p></article>`).join("")}</div>
+    </div>
     <span class="sl-signal-label">SIGNAL</span>
-    <div class="sl-signal-text"><strong>${escapeHtml(current.title)}</strong><span> — ${escapeHtml(current.text)}</span></div>
-    <div class="sl-signal-actions">
+      <div class="sl-signal-actions">
       <button type="button" data-signal-pause>${p.paused?"Resume":"Pause"}</button>
       <button type="button" data-signal-hide>Hide</button>
     </div>
@@ -49,4 +53,5 @@ export async function init(){
   render(remote.length?remote:DEFAULT_ITEMS);
 }
 export function setSignalVisible(enabled){const p=prefs();p.enabled=!!enabled;p.hidden=false;save(p);init()}
+export function restoreSignal(){setSignalVisible(true)}
 init();
