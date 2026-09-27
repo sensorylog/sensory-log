@@ -37,6 +37,9 @@ jobs:
       - name: Validate Phase C state engine
         run: node scripts/test-state-engine.mjs
 
+      - name: Validate Phase D check-in contract
+        run: node scripts/test-checkin.mjs
+
       - name: Validate JavaScript module syntax
         shell: bash
         run: |
