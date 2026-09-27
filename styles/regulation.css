@@ -8,3 +8,16 @@
 @media(min-width:720px){.sl-reg-modes{grid-template-columns:repeat(2,minmax(0,1fr))}.sl-reg-toolkit{margin-top:18px}.sl-reg-tools{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(prefers-reduced-motion:reduce){.sl-reg-mode:hover{transform:none}.sl-reg-mode{transition:none}}
 @media(prefers-reduced-transparency:reduce){.sl-reg-mode,.sl-reg-toolkit,.sl-reg-timer-actions button,.sl-reg-check button{backdrop-filter:none;-webkit-backdrop-filter:none;background:var(--sl-surface-strong)}}
+
+
+.sl-reg-mode,.sl-reg-session-inner,.sl-reg-toolkit{transition:border-color .16s ease,transform .16s ease,background .16s ease}
+.sl-reg-mode[aria-pressed="true"]{border-color:var(--sl-border-hi);background:var(--sl-surface-strong)}
+.sl-reg-mode span{max-width:48ch}
+.sl-reg-timer-value{font-variant-numeric:tabular-nums}
+.sl-reg-check button[aria-pressed="true"]{background:var(--sl-ink);color:var(--sl-bg);border-color:var(--sl-ink)}
+.sl-reg-tool{cursor:default}
+@media(max-width:520px){
+ .sl-reg-session-inner{padding:18px}
+ .sl-reg-timer-actions{display:grid;grid-template-columns:1fr 1fr}
+ .sl-reg-timer-actions button{width:100%}
+}
