@@ -8,5 +8,5 @@ const index = fs.readFileSync("index.html", "utf8");
 assert.match(privacy, /clearAllLocalData/);
 assert.match(privacy, /Delete all local data/);
 assert.match(storage, /export async function clearAllLocalData/);
-assert.match(index, /Privacy center/);
+assert.match(index, /Privacy Center/i);
 console.log("Phase K privacy checks passed.");
