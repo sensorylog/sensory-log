@@ -6,7 +6,7 @@ assert.equal(normalizeSignalItem(base).evidence,"primary");
 assert.equal(normalizeSignalItem({...base,sourceUrl:"http://example.com"}),null);
 assert.equal(normalizeSignalFeed([base,{...base,id:"a"},{...base,id:"b",date:"2026-09-02"}]).length,2);
 const ordered=personalizeSignal([
-  {...base,id:"x",title:"Other topic",date:"2026-09-03"},
+  {...base,id:"x",title:"Other topic",text:"Another subject entirely.",date:"2026-09-03",topics:["other"]},
   {...base,id:"y",title:"Quiet rooms",date:"2026-09-01",topics:["quiet"]}
 ],{sensory:{preferences:["quiet"]}});
 assert.equal(ordered[0].id,"y");
