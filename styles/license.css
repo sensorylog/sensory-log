@@ -1,0 +1,177 @@
+html[data-license-state="checking"] body > *:not(#sl-license-gate),
+html[data-license-state="locked"] body > *:not(#sl-license-gate) {
+  display: none !important;
+}
+
+html[data-license-state="checking"],
+html[data-license-state="locked"] {
+  background: #0a0b0d;
+}
+
+.sl-license-gate {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 28px 18px;
+  box-sizing: border-box;
+  color: #f4f4f1;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255,255,255,.08), transparent 38%),
+    linear-gradient(145deg, #0a0b0d, #121417 55%, #090a0c);
+}
+
+.sl-license-panel {
+  width: min(100%, 520px);
+  padding: clamp(28px, 6vw, 54px);
+  border: 1px solid rgba(255,255,255,.13);
+  border-radius: 30px;
+  background: rgba(24,26,30,.72);
+  box-shadow: 0 30px 90px rgba(0,0,0,.45);
+  backdrop-filter: blur(28px) saturate(120%);
+  -webkit-backdrop-filter: blur(28px) saturate(120%);
+}
+
+.sl-license-mark {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255,255,255,.16);
+  border-radius: 16px;
+  background: rgba(255,255,255,.07);
+  font-weight: 700;
+  letter-spacing: .08em;
+}
+
+.sl-license-kicker {
+  margin-top: 28px;
+  font-size: 11px;
+  letter-spacing: .18em;
+  opacity: .62;
+}
+
+.sl-license-panel h1 {
+  margin: 10px 0 10px;
+  font-size: clamp(32px, 7vw, 52px);
+  line-height: .98;
+  letter-spacing: -.045em;
+}
+
+.sl-license-lead,
+.sl-license-account {
+  color: rgba(244,244,241,.68);
+  line-height: 1.6;
+}
+
+.sl-license-auth-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin: 28px 0 18px;
+  padding: 4px;
+  border-radius: 14px;
+  background: rgba(255,255,255,.06);
+}
+
+.sl-license-auth-tabs button,
+.sl-license-link {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  padding: 11px;
+  border-radius: 11px;
+  cursor: pointer;
+}
+
+.sl-license-auth-tabs button.is-active {
+  background: rgba(255,255,255,.12);
+}
+
+.sl-license-panel label {
+  display: block;
+  margin: 14px 0 7px;
+  font-size: 13px;
+  opacity: .75;
+}
+
+.sl-license-panel input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px 15px;
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 14px;
+  outline: none;
+  color: #fff;
+  background: rgba(0,0,0,.2);
+}
+
+.sl-license-panel input:focus {
+  border-color: rgba(255,255,255,.45);
+  box-shadow: 0 0 0 3px rgba(255,255,255,.08);
+}
+
+.sl-license-primary,
+.sl-license-google,
+.sl-license-purchase {
+  width: 100%;
+  display: block;
+  box-sizing: border-box;
+  margin-top: 14px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.15);
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.sl-license-primary {
+  color: #101114;
+  background: #f4f4f1;
+  font-weight: 700;
+}
+
+.sl-license-google,
+.sl-license-purchase {
+  color: #f4f4f1;
+  background: rgba(255,255,255,.07);
+}
+
+.sl-license-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 24px 0 4px;
+  color: rgba(244,244,241,.45);
+  font-size: 12px;
+}
+
+.sl-license-divider::before,
+.sl-license-divider::after {
+  content: "";
+  height: 1px;
+  flex: 1;
+  background: rgba(255,255,255,.1);
+}
+
+.sl-license-status {
+  min-height: 22px;
+  margin: 18px 0 0;
+  color: rgba(244,244,241,.68);
+  line-height: 1.45;
+}
+
+.sl-license-status.is-error {
+  color: #ffb4a9;
+}
+
+.sl-license-foot {
+  margin: 18px 0 0;
+  text-align: center;
+  font-size: 12px;
+  color: rgba(244,244,241,.42);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sl-license-panel { scroll-behavior: auto; }
+}

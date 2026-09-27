@@ -2,8 +2,15 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Phase A: no cloud user data is enabled yet.
-    // Later phases will add narrowly scoped authenticated collections.
+    match /users/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow create, update, delete: if false;
+    }
+
+    match /licenses/{licenseHash} {
+      allow read, write: if false;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

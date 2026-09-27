@@ -1,4 +1,7 @@
 {
+  "functions": {
+    "source": "functions"
+  },
   "hosting": {
     "public": ".",
     "ignore": [
@@ -9,7 +12,8 @@
       "firestore.rules",
       "scripts/**",
       "signal-sources.json",
-      "signal-policy.json"
+      "signal-policy.json",
+      "functions/**"
     ],
     "headers": [
       {
