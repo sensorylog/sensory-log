@@ -7,7 +7,8 @@ export const STORAGE_KEYS = Object.freeze({
   entries: "sensoryLog_v3",
   settings: "sensoryLogSettings_v1",
   theme: "sensoryTheme",
-  foundation: "sensoryLogFoundation_v1"
+  foundation: "sensoryLogFoundation_v1",
+  manual: "sensoryLogPersonalManual_v1"
 });
 
 const ARRAY_FIELDS = ["body", "mood", "drains", "helped"];
