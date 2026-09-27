@@ -2,7 +2,7 @@
 
 ## Architecture
 
-Sensory Log uses Firebase Authentication for identity, a 2nd-generation callable Cloud Function for license activation/revalidation, and Firestore for the server-side entitlement record.
+Sensory Log uses Firebase Authentication for identity, a 2nd-generation Worker endpoint Cloud Function for license activation/revalidation, and Firestore for the server-side entitlement record.
 
 The browser never contains a master license key and never decides that a Gumroad purchase is valid.
 
@@ -12,7 +12,7 @@ The browser never contains a master license key and never decides that a Gumroad
 2. Gumroad supplies a unique license key.
 3. Customer creates/signs into a Sensory Log Firebase account.
 4. The browser sends the license key to `activateLicense`.
-5. The callable function verifies the key with Gumroad's license verification endpoint.
+5. The Worker endpoint function verifies the key with Gumroad's license verification endpoint.
 6. The function hashes the key and stores only the hash in Firestore.
 7. The user's entitlement is attached to the Firebase UID.
 8. Sensory Log unlocks.
@@ -56,13 +56,13 @@ Raw license keys are not stored in Firestore.
 - Firebase Authentication identifies the user.
 - Firestore Rules allow a user to read only their own entitlement.
 - Clients cannot write entitlement records.
-- The callable functions require Auth and App Check.
+- The Worker endpoint functions require Auth and App Check.
 - Gumroad verification happens server-side.
-- App Check should be monitored before enforcement and then enforced in production. Firebase documents App Check enforcement for callable functions and recommends monitoring before enabling enforcement. citeturn1search3turn1search7
+- App Check should be monitored before enforcement and then enforced in production. Firebase documents App Check enforcement for Worker endpoint functions and recommends monitoring before enabling enforcement. citeturn1search3turn1search7
 
 ## Important deployment requirement
 
-Cloud Functions deployment requires the Firebase project's pay-as-you-go Blaze plan and creates managed build infrastructure. The Sensory Log static hosting and local-first app do not need Functions; the licensing backend does. Firebase documents this deployment requirement. citeturn1search4
+Cloudflare Worker deployment requires the Firebase project's pay-as-you-go Blaze plan and creates managed build infrastructure. The Sensory Log static hosting and local-first app do not need Functions; the licensing backend does. Firebase documents this deployment requirement. citeturn1search4
 
 ## Firebase Console setup
 
@@ -84,3 +84,10 @@ Google sign-in is supported by Firebase Authentication; on mobile, Firebase reco
 ## Deliberate boundary
 
 The future admin dashboard is a separate application. It should use privileged server-side/admin APIs and must never ship Firebase Admin credentials to Sensory Log.
+
+
+## Blaze-free backend
+
+Sensory Log does not require Firebase Blaze for licensing. Firebase Authentication, Firestore, Hosting and App Check remain in Firebase. The license verification backend runs on a Cloudflare Worker Free plan. The Worker verifies the Firebase ID token, verifies the Gumroad license, and writes the entitlement to Firestore using a service-account secret held by Cloudflare. Cloudflare Workers Free currently allows 100,000 requests/day. 
+
+The service-account JSON must never be committed to GitHub or shipped to the browser. Configure it as a Cloudflare Worker Secret.
