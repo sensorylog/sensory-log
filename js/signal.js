@@ -57,6 +57,19 @@ function render(items=SIGNAL_ITEMS){
   const current=visible[0]||items[0]||SIGNAL_ITEMS[0];
 
   root.hidden=false;
+  if(p.paused){
+    root.innerHTML=`<div class="sl-signal-inner sl-signal-paused" role="region" aria-label="Signal paused">
+      <div class="sl-signal-content">
+        <div class="sl-signal-heading"><span class="sl-signal-label">SIGNAL</span><span class="sl-signal-status">Paused</span></div>
+        <p class="sl-signal-paused-copy">Signal is paused. Your check-ins and personal history are unaffected.</p>
+      </div>
+      <div class="sl-signal-actions"><button type="button" data-signal-pause>Resume</button><button type="button" data-signal-hide>Hide</button></div>
+    </div>`;
+    root.querySelector("[data-signal-pause]").onclick=()=>{const next=prefs();next.paused=false;save(next);render(items)};
+    root.querySelector("[data-signal-hide]").onclick=()=>{const next=prefs();next.hidden=true;save(next);render(items)};
+    return;
+  }
+
   root.innerHTML=`<div class="sl-signal-inner" role="region" aria-label="Signal">
     <div class="sl-signal-content">
       <div class="sl-signal-heading"><span class="sl-signal-label">SIGNAL</span><span class="sl-signal-status">Curated context · ${formatDate(current.date)}</span></div>
@@ -64,7 +77,7 @@ function render(items=SIGNAL_ITEMS){
         <span class="sl-signal-type">${escapeHtml(current.type)}</span>
         <strong>${escapeHtml(current.title)}</strong>
         <p>${escapeHtml(current.text)}</p>
-        <div class="sl-signal-meta">${sourceLink(current)}</div>
+        <div class="sl-signal-meta"><span>Source: ${sourceLink(current)}</span><span>Editorial category: ${escapeHtml(current.type)}</span></div>
       </article>
       <div class="sl-signal-items">${visible.slice(1,4).map(item=>`<article class="sl-signal-item"><div class="sl-signal-item-top"><span class="sl-signal-type">${escapeHtml(item.type)}</span><time datetime="${escapeHtml(item.date)}">${formatDate(item.date)}</time></div><strong>${escapeHtml(item.title)}</strong><p>${escapeHtml(item.text)}</p><div class="sl-signal-meta">${sourceLink(item)}</div></article>`).join("")}</div>
     </div>
@@ -83,7 +96,7 @@ function renderPage(items){
     <div class="sl-signal-page-head">
       <div class="app-kicker">Signal</div>
       <h2 id="signalTitle">What’s moving around neurodivergence.</h2>
-      <p>A small, curated view of useful app, people, research and community updates. No endless scroll. No engagement score. Sources are always shown.</p>
+      <p>A small, curated view of useful app, people, research and community updates. No endless scroll. No engagement score. Every item shows its source, date and editorial category.</p>
     </div>
     <div class="sl-signal-filters" role="group" aria-label="Signal categories">
       ${CATEGORIES.map(category=>`<button type="button" class="${category===active?"is-active":""}" data-signal-category="${category}">${category}</button>`).join("")}
@@ -93,12 +106,13 @@ function renderPage(items){
         <div class="sl-signal-card-top"><span class="sl-signal-type">${escapeHtml(item.type)}</span><time datetime="${escapeHtml(item.date)}">${formatDate(item.date)}</time></div>
         <h3>${escapeHtml(item.title)}</h3>
         <p>${escapeHtml(item.text)}</p>
-        <div class="sl-signal-source"><span>${sourceLink(item)}</span><span>${escapeHtml(item.note)}</span></div>
+        <div class="sl-signal-source"><span>Source: ${sourceLink(item)}</span><span>Category: ${escapeHtml(item.type)}</span><span>${escapeHtml(item.note)}</span></div>
       </article>`).join("")}
     </div>
     <div class="sl-signal-principles">
       <strong>How Signal works</strong>
       <p>Signal is curated rather than personalized from your Sensory Log data. It does not read your check-ins, sell attention, or use your history to rank stories.</p>
+      <p>People = people and lived-experience voices · Apps = products and releases · Research = research or research reporting · Community = organizations and community updates.</p>
     </div>
   </section>`;
   root.querySelectorAll("[data-signal-category]").forEach(button=>button.onclick=()=>{
