@@ -16,6 +16,16 @@ const ROUTES = Object.freeze({
 });
 
 const PRIMARY = ["home","checkin","patterns","regulate","more"];
+let aiUiPromise = null;
+
+async function loadOptionalReportsTools(){
+  if(aiUiPromise) return aiUiPromise;
+  aiUiPromise = import("./ai-ui.js").catch(error => {
+    aiUiPromise = null;
+    console.warn("[Sensory Log] Optional AI tools unavailable", error);
+  });
+  return aiUiPromise;
+}
 
 function routeFromHash(){
   const raw=(location.hash||"#home").slice(1).trim().toLowerCase();
@@ -38,6 +48,13 @@ function setActive(route, pushHash=true){
   document.title = target==="home" ? "Sensory Log" : target[0].toUpperCase()+target.slice(1)+" · Sensory Log";
   if(pushHash && location.hash!==("#"+target)) history.replaceState(null,"","#"+target);
   window.scrollTo({top:0,behavior:document.documentElement.dataset.motion==="reduced"?"auto":"smooth"});
+  const activeView=document.getElementById(ROUTES[target]);
+  if(activeView){
+    activeView.setAttribute("tabindex","-1");
+    activeView.focus({preventScroll:true});
+  }
+  window.dispatchEvent(new CustomEvent("sensory-log:route-changed",{detail:{route:target}}));
+  if(target==="reports") loadOptionalReportsTools();
 }
 
 initializeFoundation().catch(error => console.error("[Sensory Log] Foundation", error));
@@ -63,6 +80,8 @@ function wireTheme(){
 }
 
 function wire(){
+  if(document.documentElement.dataset.shellWired==="true") return;
+  document.documentElement.dataset.shellWired="true";
   document.querySelectorAll("[data-route]").forEach(btn=>{
     btn.addEventListener("click",()=>setActive(btn.dataset.route));
   });
