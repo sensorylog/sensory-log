@@ -1,35 +1,151 @@
-import { getEntries } from "./core/storage.js";
-import { localDateString, parseLocalDate } from "./core/date.js";
-const KEY="sensoryLogManual_v1"; let entries=[], manual={notes:{}}, root=null;
-const esc=v=>String(v??"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
-const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
-const load=()=>{try{const x=JSON.parse(localStorage.getItem(KEY)||"{}");return x&&typeof x==="object"&&x.notes&&typeof x.notes==="object"?x:{notes:{}}}catch{return{notes:{}}}}; const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(manual))}catch{}};
-const median=a=>{const v=[...a].sort((x,y)=>x-y);if(!v.length)return null;const m=Math.floor(v.length/2);return v.length%2?v[m]:(v[m-1]+v[m])/2};
-const rangeLabel=(values)=>{if(!values.length)return "Not enough data yet";const m=median(values);return `Typical logged value: ${m.toFixed(1)}/5`};
-const latestLabel=()=>{const dates=entries.map(e=>e.date).sort();const d=dates.length?parseLocalDate(dates.at(-1)):null;return d?new Intl.DateTimeFormat(undefined,{month:"short",day:"numeric",year:"numeric"}).format(d):"No entries yet"};
-const top=(field,limit=3)=>{const m=new Map();entries.forEach(e=>(e[field]||[]).forEach(v=>m.set(v,(m.get(v)||0)+1)));return [...m.entries()].sort((a,b)=>b[1]-a[1]).slice(0,limit)};
-function section(title,items,kind){return "<section class=\"sl-manual-section\"><div class=\"sl-manual-kicker\">"+kind+"</div><h3>"+title+"</h3>"+(items.length?items.map(x=>"<div class=\"sl-manual-item\"><span>"+esc(x[0])+"</span><small>"+x[1]+" logged day"+(x[1]===1?"":"s")+"</small></div>").join(""):"<p class=\"sl-manual-muted\">Nothing consistent enough to show yet.</p>")+"</section>"}
-function build(){const energy=entries.filter(e=>e.energy>0).map(e=>e.energy),sensory=entries.filter(e=>e.overwhelm>0).map(e=>e.overwhelm),low=entries.filter(e=>e.energy>0&&e.energy<=2),high=entries.filter(e=>e.overwhelm>=4);return {signals:[["energy","Energy baseline",energy.length?"Your logged energy averages "+avg(energy).toFixed(1)+"/5 across "+energy.length+" days. "+rangeLabel(energy):"Not enough logged days yet to estimate your baseline."],["sensory","Sensory load",sensory.length?"Your logged sensory load averages "+avg(sensory).toFixed(1)+"/5 across "+sensory.length+" days. "+rangeLabel(sensory):"Log a few more days to see your usual sensory load."],["low","Lower-capacity days",low.length?low.length+" logged days had energy at 1–2/5. Compare these with masking, sleep, social battery and drains.":"No lower-capacity days are recorded yet."],["high","High sensory-load days",high.length?high.length+" logged days had sensory load at 4–5/5.":"No high sensory-load days are recorded yet."]],supports:top("helped"),drains:top("drains"),body:top("body")}}
-function render(){const d=build();root.innerHTML="<section class=\"sl-manual-hero\"><div><div class=\"sl-manual-kicker\">Personal operating manual</div><h2>Learn what your system tends to need.</h2><p>This is built from your own log. It describes patterns; it does not diagnose you.</p></div><span class=\"sl-manual-count\">"+entries.length+" days</span></section><section class=\"sl-manual-grid\">"+d.signals.map(s=>"<article class=\"sl-manual-card\"><div class=\"sl-manual-card-top\"><span>"+esc(s[1])+"</span><button type=\"button\" data-manual-note=\""+s[0]+"\">Edit</button></div><p>"+esc(s[2])+"</p>"+(manual.notes[s[0]]?"<blockquote>"+esc(manual.notes[s[0]])+"</blockquote>":"")+"<button class=\"sl-manual-note-btn\" type=\"button\" data-manual-note=\""+s[0]+"\">"+(manual.notes[s[0]]?"Change your note":"Add your own note")+"</button></article>").join("")+"</section>"+section("What has helped",d.supports,"Support")+section("Common drains",d.drains,"Load")+section("Body signals you log most",d.body,"Body")+"<section class=\"sl-manual-guidance\"><div class=\"sl-manual-kicker\">Use this as a guide</div><h3>Your manual can change.</h3><p>These observations become more useful as your history grows. A pattern is not a rule, and a difficult day is not a failure.</p><p>When you know something about yourself that the data cannot show yet, add it as your own note.</p></section><div class=\"sl-manual-updated\">Built from your saved history · Last logged day: ${latestLabel()}</div>";bind()}
-let editor=null;
-function ensureEditor(){
-  if(editor)return editor;
-  editor=document.createElement("div");
-  editor.className="sl-manual-editor";
-  editor.hidden=true;
-  editor.innerHTML='<div class="sl-manual-editor-backdrop" data-editor-cancel></div><section class="sl-manual-editor-panel" role="dialog" aria-modal="true" aria-labelledby="slManualEditorTitle"><div class="sl-manual-kicker">Your note</div><h3 id="slManualEditorTitle">Add context only you know</h3><textarea maxlength="500" rows="6" aria-label="Personal operating manual note"></textarea><div class="sl-manual-editor-actions"><button type="button" data-editor-cancel>Cancel</button><button type="button" data-editor-save>Save note</button></div></section>';
-  document.body.appendChild(editor);
-  editor.querySelectorAll("[data-editor-cancel]").forEach(b=>b.onclick=()=>closeEditor());
-  editor.querySelector("[data-editor-save]").onclick=()=>{manual.notes[editor.dataset.noteId]=editor.querySelector("textarea").value.trim().slice(0,500);save();closeEditor();render()};
-  editor.addEventListener("keydown",e=>{if(e.key==="Escape")closeEditor()});
-  return editor;
+import { getEntries, getLocal, setLocal } from "./core/storage.js";
+import { buildPersonalModel, DEFAULT_MANUAL } from "./core/manual-engine.js";
+
+const KEY = "sensoryLogPersonalManual_v1";
+let root = null;
+let entries = [];
+let model = null;
+
+const esc = value => String(value ?? "").replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
+const lines = values => (Array.isArray(values) ? values : []).join("\n");
+
+async function loadManual() {
+  const saved = await getLocal(KEY, DEFAULT_MANUAL);
+  return saved && typeof saved === "object" ? saved : DEFAULT_MANUAL;
 }
-function closeEditor(){if(!editor)return;editor.hidden=true;editor.dataset.noteId="";document.body.classList.remove("sl-modal-open")}
-function openEditor(id){
-  const el=ensureEditor();el.dataset.noteId=id;el.hidden=false;document.body.classList.add("sl-modal-open");
-  const area=el.querySelector("textarea");area.value=manual.notes[id]||"";requestAnimationFrame(()=>area.focus());
+
+async function saveManual(value) {
+  const result = await setLocal(KEY, value);
+  if (!result.ok) throw new Error(result.error || "Could not save your manual locally.");
 }
-function bind(){root.querySelectorAll("[data-manual-note]").forEach(b=>b.onclick=()=>openEditor(b.dataset.manualNote))}
-export async function mountManual(){manual=load();entries=await getEntries();root=document.getElementById("slManual");if(!root){root=document.createElement("section");root.id="slManual";root.className="sl-manual";document.getElementById("view-manual")?.appendChild(root)}render()}
-window.addEventListener("sensory-log:entries-changed",async()=>{entries=await getEntries();if(root)render()});
+
+function evidenceList(values) {
+  if (!values?.length) return '<p class="sl-manual-muted">Not enough history yet.</p>';
+  return values.map(item => \`<div class="sl-manual-evidence-row"><span>\${esc(item.label)}</span><small>\${item.days} logged day\${item.days === 1 ? "" : "s"}</small></div>\`).join("");
+}
+
+function render() {
+  if (!root || !model) return;
+  const d = model.declared, e = model.evidence;
+  root.innerHTML = \`
+    <section class="sl-manual-hero"><div><div class="sl-manual-kicker">Personal operating manual</div><h2>A model of what you know about yourself.</h2><p>Your declarations stay separate from what your history happens to show. You decide what belongs in your manual.</p></div><span class="sl-manual-count">\${e.days} logged day\${e.days === 1 ? "" : "s"}</span></section>
+
+    <section class="sl-manual-model-card">
+      <div class="sl-manual-kicker">Declare it</div><h3>Sensory profile</h3>
+      <p>Write preferences and inputs you already know are useful or difficult. One item per line.</p>
+      <div class="sl-manual-model-grid">
+        <div class="sl-manual-field"><label for="slManualSensory">Prefer / works well</label><textarea id="slManualSensory">\${esc(lines(d.sensory.preferences))}</textarea></div>
+        <div class="sl-manual-field"><label for="slManualReduce">Reduce when possible</label><textarea id="slManualReduce">\${esc(lines(d.sensory.reduce))}</textarea></div>
+        <div class="sl-manual-field"><label for="slManualHelpful">Helpful inputs</label><textarea id="slManualHelpful">\${esc(lines(d.sensory.helpfulInputs))}</textarea></div>
+        <div class="sl-manual-field"><label for="slManualGeneral">Other preferences</label><textarea id="slManualGeneral">\${esc(lines(d.preferences))}</textarea></div>
+      </div>
+    </section>
+
+    <section class="sl-manual-model-card">
+      <div class="sl-manual-kicker">Performance & masking</div><h3>What changes when you have to perform?</h3>
+      <div class="sl-manual-model-grid">
+        <div class="sl-manual-field"><label for="slManualSituations">Situations that increase masking</label><textarea id="slManualSituations">\${esc(lines(d.masking.situations))}</textarea></div>
+        <div class="sl-manual-field"><label for="slManualStrategies">Things that make it easier</label><textarea id="slManualStrategies">\${esc(lines(d.masking.strategies))}</textarea></div>
+      </div>
+    </section>
+
+    <section class="sl-manual-model-card">
+      <div class="sl-manual-kicker">Communication</div><h3>How should other people communicate with you?</h3>
+      <div class="sl-manual-model-grid">
+        <div class="sl-manual-field"><label for="slManualPreferred">Prefer</label><textarea id="slManualPreferred">\${esc(lines(d.communication.preferred))}</textarea></div>
+        <div class="sl-manual-field"><label for="slManualAvoid">Avoid</label><textarea id="slManualAvoid">\${esc(lines(d.communication.avoid))}</textarea></div>
+        <div class="sl-manual-field"><label for="slManualScripts">Useful phrases / scripts</label><textarea id="slManualScripts">\${esc(lines(d.communication.scripts))}</textarea></div>
+        <div class="sl-manual-field"><label for="slManualStrengths">Strengths I choose to name</label><textarea id="slManualStrengths">\${esc(lines(d.strengths))}</textarea></div>
+      </div>
+    </section>
+
+    <section class="sl-manual-model-card">
+      <div class="sl-manual-kicker">Accommodation builder</div><h3>Turn a need into your own request.</h3>
+      <p>This creates plain-language requests. It does not decide what you are legally or medically entitled to.</p>
+      <div class="sl-manual-accommodation"><input id="slManualNeed" maxlength="120" placeholder="Need (e.g. noise)"><input id="slManualRequest" maxlength="300" placeholder="My request (e.g. a quieter room)"><button type="button" id="slManualAddAccommodation">Add</button></div>
+      <div class="sl-manual-declared-list">\${d.accommodations.length ? d.accommodations.map((a,i)=>\`<span class="sl-manual-chip">\${esc(a.need)} · \${esc(a.request)} <button type="button" data-remove-accommodation="\${i}" aria-label="Remove \${esc(a.need)}">×</button></span>\`).join("") : '<p class="sl-manual-muted">No accommodation requests yet.</p>'}</div>
+    </section>
+
+    <section class="sl-manual-model-card">
+      <div class="sl-manual-kicker">History is evidence, not identity</div><h3>What your log has shown</h3>
+      <p>These are descriptive repetitions from your saved entries. They do not automatically become preferences or strengths.</p>
+      <div class="sl-manual-evidence"><div class="sl-manual-evidence-title">Helpful</div>\${evidenceList(e.helpful)}</div>
+      <div class="sl-manual-evidence"><div class="sl-manual-evidence-title">Drains</div>\${evidenceList(e.drains)}</div>
+      <div class="sl-manual-evidence"><div class="sl-manual-evidence-title">Body signals</div>\${evidenceList(e.body)}</div>
+    </section>
+
+    <section class="sl-manual-model-card">
+      <div class="sl-manual-kicker">Private context</div><h3>Anything else you want this manual to remember?</h3>
+      <div class="sl-manual-field"><textarea id="slManualNotes" maxlength="1000" rows="5" placeholder="Only include what you want to keep here.">\${esc(d.notes)}</textarea></div>
+      <div class="sl-manual-model-actions"><button class="sl-manual-save" type="button" id="slManualSave">Save my manual</button></div>
+      <div class="sl-manual-updated" id="slManualStatus" role="status" aria-live="polite"></div>
+    </section>\`;
+  bind();
+}
+
+function textLines(id) {
+  return document.getElementById(id).value.split("\n").map(v => v.trim()).filter(Boolean).slice(0, 30);
+}
+
+function collect() {
+  const d = model.declared;
+  return {
+    version: 1,
+    sensory: { preferences: textLines("slManualSensory"), reduce: textLines("slManualReduce"), helpfulInputs: textLines("slManualHelpful") },
+    masking: { situations: textLines("slManualSituations"), strategies: textLines("slManualStrategies") },
+    communication: { preferred: textLines("slManualPreferred"), avoid: textLines("slManualAvoid"), scripts: textLines("slManualScripts") },
+    accommodations: d.accommodations,
+    strengths: textLines("slManualStrengths"),
+    preferences: textLines("slManualGeneral"),
+    notes: document.getElementById("slManualNotes").value.trim().slice(0, 1000)
+  };
+}
+
+function bind() {
+  root.querySelector("#slManualAddAccommodation")?.addEventListener("click", () => {
+    const need = root.querySelector("#slManualNeed").value.trim().slice(0, 120);
+    const request = root.querySelector("#slManualRequest").value.trim().slice(0, 300);
+    if (!need || !request) return;
+    model.declared.accommodations.push({ need, request });
+    model.declared.accommodations = model.declared.accommodations.slice(0, 20);
+    render();
+  });
+  root.querySelectorAll("[data-remove-accommodation]").forEach(button => button.addEventListener("click", () => {
+    model.declared.accommodations.splice(Number(button.dataset.removeAccommodation), 1);
+    render();
+  }));
+  root.querySelector("#slManualSave")?.addEventListener("click", async () => {
+    const status = root.querySelector("#slManualStatus");
+    try {
+      await saveManual(collect());
+      model = buildPersonalModel(await loadManual(), entries);
+      status.textContent = "Saved locally. Your manual is ready to use across the app.";
+      window.dispatchEvent(new CustomEvent("sensory-log:manual-changed"));
+    } catch (error) {
+      status.textContent = error.message;
+    }
+  });
+}
+
+export async function mountManual() {
+  entries = await getEntries();
+  model = buildPersonalModel(await loadManual(), entries);
+  root = document.getElementById("slManual");
+  if (!root) {
+    root = document.createElement("section");
+    root.id = "slManual";
+    root.className = "sl-manual";
+    document.getElementById("view-manual")?.appendChild(root);
+  }
+  render();
+}
+
+window.addEventListener("sensory-log:entries-changed", async () => {
+  entries = await getEntries();
+  if (root) {
+    model = buildPersonalModel(await loadManual(), entries);
+    render();
+  }
+});
+
 mountManual();
