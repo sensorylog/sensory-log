@@ -9,14 +9,13 @@ const average = values => values.length ? values.reduce((a, b) => a + b, 0) / va
 const esc = value => String(value ?? "").replace(/[&<>"']/g, char => ({
   "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
 }[char]));
-const today = localDateString();
 
 function formatDate(value, options = { weekday:"short", month:"short", day:"numeric" }) {
   const date = parseLocalDate(value);
   return date ? new Intl.DateTimeFormat(undefined, options).format(date) : value;
 }
 
-function getToday(entries) {
+function getToday(entries, today) {
   return entries.find(entry => entry.date === today) || null;
 }
 
@@ -106,7 +105,8 @@ function metric(label, value, hint) {
 }
 
 function render(entries) {
-  const todayEntry = getToday(entries);
+  const today = localDateString();
+  const todayEntry = getToday(entries, today);
   const state = describeState(todayEntry);
   const need = needFor(todayEntry);
   const logged = entries.filter(entry => entry.energy > 0).sort((a,b) => a.date.localeCompare(b.date));
