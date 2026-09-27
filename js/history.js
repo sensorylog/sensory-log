@@ -80,7 +80,7 @@ function detail(e){
  </section>`;
 }
 function row(e){
- return `<button type="button" class="sl-history-row" data-history-date="${e.date}"><span><strong>${esc(dayName(parseLocalDate(e.date)))}</strong><small>${e.note?esc(e.note):"No note"}</small></span><span class="sl-history-row-value"><strong>${e.energy||"—"}/5</strong><small>energy</small></span></button>`;
+ return `<button type="button" class="sl-history-row ${e.date===selectedDate?"is-selected":""}" data-history-date="${e.date}"><span><strong>${esc(dayName(parseLocalDate(e.date)))}</strong><small>${e.note?esc(e.note):"No note"}</small></span><span class="sl-history-row-value"><strong>${e.energy||"—"}/5</strong><small>energy</small></span></button>`;
 }
 function bind(){
  root.querySelectorAll("[data-history-action]").forEach(b=>b.onclick=()=>{
