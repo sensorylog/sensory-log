@@ -241,7 +241,7 @@ async function verifyLicenseWithWorker(licenseKey, mode = "activate") {
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
     const error = new Error(data.error || "License verification failed.");
-    error.code = response.status === 401 ? "unauthenticated" : "permission-denied";
+    if (response.status === 401) error.code = "unauthenticated";
     throw error;
   }
   return data;
