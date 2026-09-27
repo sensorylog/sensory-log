@@ -23,7 +23,7 @@ Gumroad's license verification API supports `product_id`, `license_key`, and an 
 
 A normal activation increments Gumroad's license use count. Routine revalidation uses `increment_uses_count=false` so opening the app does not consume activations.
 
-The browser caches the last verified entitlement for up to 14 days as an offline convenience. That cache is not a security boundary and is not used by Firebase Rules. Online verification remains authoritative.
+The browser caches only non-secret entitlement metadata for up to 14 days as an offline convenience. The raw Gumroad license key is never persisted by Sensory Log. The cache is not a security boundary and is not used by Firebase Rules. Online Firebase entitlement state remains authoritative.
 
 ## Data model
 
