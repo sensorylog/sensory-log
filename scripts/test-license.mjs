@@ -25,6 +25,6 @@ assert(license.includes("mode: " + '"register"'));
 assert(worker.includes('body.mode === "register"'));
 assert(worker.includes("registerExistingDevice"));
 assert(rules.includes("request.auth.uid == userId"));
-assert(rules.includes("allow write: if false"));
+assert(rules.includes("allow read, write: if false"));
 
 console.log("Phase L Firebase licensing contract valid.");
