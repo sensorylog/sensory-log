@@ -199,8 +199,6 @@ export async function mountReports() {
       root.id="slReports";
       root.className="sl-reports";
       document.getElementById("view-reports")?.appendChild(root);
-    const backup=document.querySelector(".backup-card");
-    if(backup && backup.parentElement!==root) root.appendChild(backup);
     }
     render();
   } catch(error) {
