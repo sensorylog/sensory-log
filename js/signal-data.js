@@ -60,6 +60,26 @@ export const SIGNAL_ITEMS = Object.freeze([
     note:"Research/news summary; read the underlying study for methodology and limitations."
   },
   {
+    id:"georgia-pavlopoulou-2026-09",
+    type:"People",
+    date:"2026-09-22",
+    title:"Dr Georgia Pavlopoulou writes on belonging and neurodivergence",
+    text:"Autism Central published a piece from Dr Georgia Pavlopoulou exploring belonging, identity, culture and the different communities that shape neurodivergent life.",
+    source:"Autism Central",
+    sourceUrl:"https://www.autismcentral.nhs.uk/news/blog-honouring-our-communities",
+    note:"Published by Autism Central; this is a perspective piece, not a clinical guideline."
+  },
+  {
+    id:"saffy-2026-08",
+    type:"People",
+    date:"2026-08-06",
+    title:"Saffy shares a lived-experience story about acceptance",
+    text:"Australia's disability sector published Saffron Canny-Smith's story about living with ADHD, autism and chronic illness, and finding acceptance and community.",
+    source:"Australian Government — IDPwD",
+    sourceUrl:"https://www.idpwd.gov.au/stories/saffy-finds-acceptance-and-community",
+    note:"First-person lived experience published by an Australian Government disability program."
+  },
+  {
     id:"understood-news-2026-09",
     type:"Community",
     date:"2026-09-23",
