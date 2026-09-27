@@ -7,6 +7,7 @@ import {
   setPersistence,
   signInWithEmailAndPassword,
   signInWithPopup,
+  signInWithRedirect,
   signOut
 } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
 import {
@@ -222,6 +223,15 @@ async function boot() {
       setStatus(gate, "Opening Google sign-in…");
       await signInWithPopup(auth, new GoogleAuthProvider());
     } catch (error) {
+      if (error?.code === "auth/popup-blocked" || error?.code === "auth/cancelled-popup-request") {
+        try {
+          await signInWithRedirect(auth, new GoogleAuthProvider());
+          return;
+        } catch (redirectError) {
+          setStatus(gate, messageForError(redirectError), true);
+          return;
+        }
+      }
       setStatus(gate, messageForError(error), true);
     }
   });
