@@ -1,56 +1,70 @@
-# Sensory Log — Setup Guide
+# Sensory Log
 
-Thanks for picking this up. Here’s everything you need to know to access and use it.
+Sensory Log is a calm, local-first tool for noticing energy, sensory load, masking, recovery, and the patterns that emerge over time.
 
-## How to Open It
+## Open the app
 
-1. Tap the link below to launch the web app directly in your browser:  
-   https://sensorylog.github.io/sensory-log/
+The production app is hosted on Firebase Hosting. The default Firebase Hosting URL is based on the Hosting site ID, commonly the Firebase project ID. citeturn5search0turn5search1
 
-2. To save it as a permanent app on your phone:
-   - **iPhone (Safari):** Tap the **Share** icon (box with an arrow pointing up) at the bottom, scroll down, and tap **Add to Home Screen**.
-   - **Android (Chrome):** Tap the **Menu** icon (three vertical dots) at the top right and select **Add to Home screen** or **Install app**.
+If the production deployment is temporarily unavailable, use the repository's local development flow instead of assuming GitHub Pages is the production host.
 
-That’s it. It now lives on your home screen like a native app with zero installation, zero account setup, and zero tracking.
+## Your data
 
----
+The core log is designed to stay on your device:
 
-## Where Your Data Lives
+- Entries are stored in IndexedDB when available.
+- localStorage remains as a compatibility/fallback layer.
+- There is no required account for the core logging experience.
+- JSON and CSV export are available from **More → Your data**.
+- Imports are validated, normalized, and merged by calendar date.
+- Clearing browser/site data can remove local history, so keep a backup of anything important.
 
-Everything you log — energy, masking, sensory tags, notes — is saved directly in your browser’s local storage on your own device. Your entries are stored locally and are never uploaded to a server.
+Optional AI reflection is separate from the core logging flow. If you enable an AI provider and choose a sharing level, the selected data may leave the device to that provider. Written notes are excluded unless you explicitly enable note sharing for AI.
 
-This also means:
-- Your data stays put as long as you keep using the same browser on the same device.
-- If you clear your browsing data or history, your entries will be erased.
-- Your entries won’t automatically sync to a different device or browser.
+## What the app does
 
-For extra protection, use the **Export JSON** or **Export CSV** backup button near the bottom of the page to save your entries as a file. If you ever switch devices, clear your browser, or just want peace of mind, use **Import backup** to restore from that file — it merges with whatever is already there, so you won’t lose anything by importing.
+### Check in
 
----
+The progressive check-in asks for:
 
-## Using It Day to Day
+1. Current energy/capacity
+2. Sensory load and masking
+3. Recovery need, social battery, and optional sleep quality
 
-Tap the icon on your home screen to open it quickly each day. It takes under a minute to log:
-- Tap your energy level (1–5)
-- Tap how long you masked today
-- Tap whatever drained you — or add custom tags
-- Tap how much recovery you needed
-- Optional: add a quick note
-- Hit **Save today**
+Only energy is required to save a useful check-in.
 
-After about two weeks of logging, a pattern box will appear showing insights, such as how your energy the day after heavy masking compares to lighter days.
+### Patterns
 
-It’s worth exporting a backup every few weeks, especially before clearing your browser data or switching phones.
+Pattern Intelligence looks for repeated observations in your own history. It deliberately avoids treating correlations as diagnoses or proof of cause. Cards appear once there is enough repeated information to make a comparison useful.
 
----
+### Regulation
 
-## A Few Honest Notes
+Regulation provides short, state-based protocols and a two-minute reset timer. It can use your previously logged helpful strategies as context.
 
-- This is a personal tracking tool, not a diagnostic or medical device. It’s meant to give you clearer information to bring into conversations with a professional if you want to.
-- If a day feels like too much to log, skip it. There’s no streak to protect and no guilt built into this tool.
+### History
 
----
+History gives you a local calendar and recent-entry view. Selecting a day opens that date in Check in so you can review or update it.
 
-## Questions or Something Broken?
+### Personal operating manual
 
-Reach out through the platform you purchased this on and I’ll help sort it out.
+The manual summarizes descriptive signals from your own history and lets you add context that the data cannot capture.
+
+### Reports
+
+Reports provide 7-day, 30-day, 90-day, or all-time summaries, with optional inclusion of your written notes when printing/saving a report.
+
+### Signal
+
+Signal is a small curated feed of neurodivergence-related people, apps, research, and community updates. It is separate from your personal history and does not personalize its ranking from your check-ins.
+
+## Privacy and safety
+
+Sensory Log is a personal reflection and journaling tool, not medical care, diagnosis, treatment, or a substitute for professional advice.
+
+The app does not require a streak, score, or daily target. Use the information as context for your own decisions and keep backups of anything you want to preserve.
+
+## Development
+
+This is a static browser application with modular JavaScript and CSS. GitHub Actions validates JavaScript syntax and application integrity on pushes and pull requests.
+
+Production deployment is automated through GitHub Actions → Firebase Hosting once the repository's Firebase service-account secret has the required access to the Firebase project. Firebase recommends Application Default Credentials for CI and requires the service account to have appropriate project permissions. citeturn1search0turn1search2
