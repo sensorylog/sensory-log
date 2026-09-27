@@ -26,29 +26,38 @@ const PRIMARY = ["home","checkin","patterns","regulate","more"];
 const INFO_COPY = Object.freeze({
   about: {
     kicker:"About Sensory Log",
-    title:"A calmer way to notice your patterns.",
-    body:[
-      "Sensory Log is a private, local-first tool for noticing energy, sensory load, recovery and the patterns that emerge over time.",
-      "It is designed to help you understand your own experience without turning it into a diagnosis, a score, or a streak."
+    title:"A calmer way to notice what matters.",
+    intro:"Sensory Log is a private, local-first space for noticing energy, sensory load, recovery and the patterns that emerge over time.",
+    sections:[
+      ["Notice","Log what is happening without turning your experience into a score, streak or diagnosis."],
+      ["Understand","Use your own history to see repeated patterns and context over time."],
+      ["Regulate","Choose small, practical actions that fit how you feel right now."]
     ]
   },
   contact: {
     kicker:"Contact us",
-    title:"Questions, feedback or support?",
-    body:[
-      "We want to hear when something is unclear, broken, or could be more useful.",
-      "For support, product feedback, privacy questions, or other messages, use the contact method provided with your Sensory Log purchase or product receipt."
-    ]
+    title:"Talk to a real person.",
+    intro:"Found a bug, have feedback, need help with your purchase, or want to ask a product question? Start here.",
+    sections:[
+      ["Purchase & account","For purchase or access questions, open your Sensory Log purchase page on Gumroad and use the seller contact/support option there."],
+      ["Product feedback","Tell us what feels unclear, what broke, or what would make Sensory Log more useful. Include your device/browser and what you expected to happen if you are reporting a bug."],
+      ["Before you send","Please do not include passwords, payment details, license keys, or private journal entries unless they are genuinely necessary for support."]
+    ],
+    actions:[{label:"Open Sensory Log on Gumroad",href:"https://jbstoresfind.gumroad.com/l/sensory-log"}]
   },
   terms: {
     kicker:"Terms of Service",
-    title:"Using Sensory Log",
-    body:[
-      "Sensory Log is provided as a personal reflection and journaling tool. It is not medical care, diagnosis, treatment, or a substitute for professional advice.",
-      "You are responsible for the information you choose to enter and for deciding how you use observations from the app. Features may change as the product evolves.",
-      "By using Sensory Log, you agree to use the app lawfully and not to misuse, disrupt, reverse-engineer, or attempt to gain unauthorized access to the service or its infrastructure.",
-      "Because Sensory Log is local-first, you should keep your own backups of information you want to preserve. The app provides export tools for this purpose.",
-      "These terms are intended as a clear product-use summary and do not replace any legally required rights or notices that apply in your jurisdiction."
+    title:"Simple terms for using Sensory Log.",
+    intro:"These terms describe the intended use of the product. They are written to be readable rather than hidden behind legal language.",
+    sections:[
+      ["1. What Sensory Log is","Sensory Log is a personal reflection and journaling tool. It is not medical care, diagnosis, treatment, or a substitute for professional advice."],
+      ["2. Your information","You are responsible for the information you choose to enter and for keeping backups of anything you want to preserve. The app provides export tools for this purpose."],
+      ["3. Local-first design","Core journal information is designed to remain on your device. Optional features can involve external services when you explicitly use them; those services have their own terms and privacy practices."],
+      ["4. Account and access","A Firebase account and valid product entitlement are used to unlock the purchased product. You must keep your account secure and must not bypass access controls."],
+      ["5. Acceptable use","Use Sensory Log lawfully and do not interfere with, disrupt, or attempt unauthorized access to the app or its supporting infrastructure."],
+      ["6. Changes","Features, content and supporting services may change as the product evolves."],
+      ["7. Service availability","Online account, licensing and optional external features depend on third-party infrastructure and may occasionally be unavailable. Your local core log is designed to remain usable independently where the browser permits."],
+      ["8. Your rights","These terms do not remove consumer, privacy, or other rights that cannot lawfully be excluded in your jurisdiction."]
     ]
   }
 });
@@ -59,14 +68,22 @@ function renderInfoView(route){
   const root=document.getElementById(ROUTES[route]);
   if(!root || root.dataset.infoRendered==="true") return;
   root.dataset.infoRendered="true";
+  const sections=copy.sections.map(([heading,body])=>`<section class="app-info-section"><h3>${heading}</h3><p>${body}</p></section>`).join("");
+  const actions=(copy.actions||[]).map(action=>`<a class="app-info-action" href="${action.href}" target="_blank" rel="noopener noreferrer">${action.label}<span aria-hidden="true">↗</span></a>`).join("");
   root.innerHTML=`<article class="app-info-page">
-    <button type="button" class="app-info-back" data-route="more" aria-label="Back to More">← More</button>
+    <div class="app-info-topbar">
+      <button type="button" class="app-info-back" data-route="more" aria-label="Back to More"><span aria-hidden="true">←</span><span>More</span></button>
+      <span class="app-info-page-label">Sensory Log</span>
+    </div>
     <div class="app-kicker">${copy.kicker}</div>
     <h2>${copy.title}</h2>
-    ${copy.body.map(p=>`<p>${p}</p>`).join("")}
+    <p class="app-info-intro">${copy.intro}</p>
+    <div class="app-info-sections">${sections}</div>
+    ${actions ? `<div class="app-info-actions">${actions}</div>` : ""}
   </article>`;
   root.querySelector("[data-route]").addEventListener("click",()=>setActive("more"));
 }
+
 let aiUiPromise = null;
 
 async function loadOptionalReportsTools(){
@@ -85,6 +102,7 @@ function routeFromHash(){
 
 function setActive(route, pushHash=true){
   const target=ROUTES[route] ? route : "home";
+  document.body.classList.toggle("is-info-route",["about","contact","terms"].includes(target));
   Object.entries(ROUTES).forEach(([name,id])=>{
     const view=document.getElementById(id);
     if(view) view.classList.toggle("is-active", name===target);
