@@ -1,73 +1,223 @@
 import { getEntries } from "./core/storage.js";
 import { localDateString, parseLocalDate } from "./core/date.js";
 
-const root=document.getElementById("view-home");
-if(!root) throw new Error("Sensory Log home root unavailable");
-const esc=v=>String(v==null?"":v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const clamp=(n,a,b)=>Math.min(b,Math.max(a,n));
-const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
-const today=localDateString();
+const root = document.getElementById("view-home");
+if (!root) throw new Error("Sensory Log home root unavailable");
 
-function scale(id,cls){
-  const b=document.querySelector("#"+id+" button."+cls);
-  if(!b) return 0;
-  const n=parseInt(b.textContent,10);
-  return Number.isFinite(n)?n:0;
-}
-function masking(){
-  const b=document.querySelector("#maskingChips .active");
-  if(!b)return null;
-  const t=b.textContent.trim();
-  if(t==="None")return 0;
-  if(t.indexOf("1")>=0)return 1;
-  if(t.indexOf("3")>=0)return 2;
-  return 3;
-}
-function live(){
-  return {energy:scale("energyScale","on-energy"),overwhelm:scale("overwhelmScale","on-overwhelm"),recovery:scale("recoveryScale","on-recovery"),social:scale("socialScale","on-social"),masking:masking()};
-}
-function effective(entries){
-  const saved=entries.find(e=>e.date===today)||null, l=live();
-  return {energy:l.energy||saved?.energy||0,overwhelm:l.overwhelm||saved?.overwhelm||0,recovery:l.recovery||saved?.recovery||0,social:l.social||saved?.socialBattery||0,masking:l.masking??saved?.masking??null};
-}
-function message(s){
-  if(!s.energy)return ["Your state is waiting","Start with a small check-in. Nothing needs to be perfect."];
-  if(s.overwhelm>=4)return ["A lot is reaching you","Your sensory load is high today. Reducing input may be useful before adding more demands."];
-  if(s.energy<=2&&s.recovery>=4)return ["Capacity looks low","You’re logging low energy with a high need for recovery. Protecting space may help."];
-  if(s.masking>=2&&s.energy<=3)return ["You may need more room","Today includes heavier masking alongside lower energy. Notice what feels easier when you can unmask."];
-  if(s.energy>=4&&s.overwhelm<=2)return ["Your state looks steadier","Energy is relatively solid and sensory load is not especially high in today’s check-in."];
-  if(s.recovery>=4)return ["Recovery is asking for attention","Your recovery rating is high. Consider checking what has actually helped on similar days."];
-  return ["Your state is mixed","Nothing needs to be solved here. The useful part is noticing what is present."];
-}
-function need(s){
-  if(!s.energy)return ["Start wherever you are","A one-minute check-in is enough. You can leave anything else blank."];
-  if(s.overwhelm>=4)return ["Less input","Quiet, lower light, fewer conversations, or a familiar environment may be worth trying."];
-  if(s.energy<=2)return ["Lower the demand","Choose the smallest next action and leave room for recovery rather than pushing through."];
-  if(s.recovery>=4)return ["Recovery space","Look back at strategies that have helped you recover without adding more stimulation."];
-  if(s.masking>=2)return ["Less performance","If it is safe to do so, notice where you can reduce social or sensory masking."];
-  return ["Keep observing","Your current signals do not point to one obvious need. That is useful information too."];
-}
-function dateLabel(v){const d=parseLocalDate(v);return d?new Intl.DateTimeFormat(undefined,{weekday:"short",month:"short",day:"numeric"}).format(d):v}
-function shortDate(v){const d=parseLocalDate(v);return d?new Intl.DateTimeFormat(undefined,{month:"short",day:"numeric"}).format(d):v}
-function metric(label,v){return '<div class="sl-metric"><div class="sl-metric-label">'+label+'</div><div class="sl-metric-value">'+(v||"—")+'<span>'+(v?" / 5":"")+'</span></div><div class="sl-metric-bar"><i style="width:'+(v?clamp(v/5*100,0,100):0)+'%"></i></div></div>'}
+const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
+const average = values => values.length ? values.reduce((a, b) => a + b, 0) / values.length : null;
+const esc = value => String(value ?? "").replace(/[&<>"']/g, char => ({
+  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+}[char]));
+const today = localDateString();
 
-function render(entries){
-  let home=document.getElementById("slHome");
-  if(!home){home=document.createElement("section");home.id="slHome";home.className="sl-home";root.appendChild(home);}
-  const s=effective(entries),m=message(s),n=need(s);
-  const hist=entries.filter(e=>e.energy>0).sort((a,b)=>a.date.localeCompare(b.date));
-  const prior=hist.filter(e=>e.date!==today).slice(-7).map(e=>e.energy),base=avg(prior);
-  const delta=base&&s.energy?s.energy-base:null;
-  const recent=hist.slice(-7).reverse();
-  const days=recent.length?recent.map(e=>'<div class="sl-day"><div class="sl-day-date">'+esc(shortDate(e.date))+'</div><div class="sl-day-score">'+e.energy+'/5</div><div class="sl-day-note">'+(e.overwhelm?"load "+e.overwhelm:"no load")+'</div></div>').join(""):'<p class="sl-home-empty">Your recent state will appear here as you log days.</p>';
-  const mask=s.masking===null?"":'<div class="sl-baseline" style="margin-top:15px"><div class="sl-baseline-row"><span>Masking</span><strong>'+(s.masking===0?"None":s.masking===1?"1–2 hours":s.masking===2?"3–5 hours":"6+ hours")+'</strong></div></div>';
-  home.innerHTML='<section class="sl-home-hero" aria-labelledby="slHomeTitle"><div class="sl-home-kicker">Today · '+esc(dateLabel(today))+'</div><h2 id="slHomeTitle" class="sl-home-title">How are you, right now?</h2><p class="sl-home-date">A private read of what you have logged — not a diagnosis, and not a score you need to chase.</p><div class="sl-state-orb" aria-hidden="true"><div class="sl-state-score">'+(s.energy||"—")+'</div></div><p class="sl-state-caption">'+esc(m[0])+'</p><p class="sl-state-detail">'+esc(m[1])+'</p><div class="sl-home-actions"><button type="button" class="sl-home-action primary" data-sl-scroll="checkin">Check in</button><button type="button" class="sl-home-action" data-sl-scroll="patterns">See patterns</button></div></section><section class="sl-home-section" aria-labelledby="slSignalsTitle"><div class="sl-home-section-head"><h3 id="slSignalsTitle" class="sl-home-section-title">Your signals</h3><span class="sl-home-section-meta">today</span></div><div class="sl-metrics">'+metric("Energy",s.energy)+metric("Sensory load",s.overwhelm)+metric("Recovery",s.recovery)+metric("Social battery",s.social)+'</div></section><section class="sl-home-section" aria-labelledby="slNeedTitle"><div class="sl-home-section-head"><h3 id="slNeedTitle" class="sl-home-section-title">What might you need?</h3></div><div class="sl-need"><div class="sl-need-mark" aria-hidden="true"></div><div class="sl-need-copy"><strong>'+esc(n[0])+'</strong><span>'+esc(n[1])+'</span></div></div>'+mask+'</section><section class="sl-home-section" aria-labelledby="slBaselineTitle"><div class="sl-home-section-head"><h3 id="slBaselineTitle" class="sl-home-section-title">Your baseline</h3><span class="sl-home-section-meta">last 7 logged days</span></div>'+(base?'<div class="sl-baseline"><div class="sl-baseline-row"><span>Average energy</span><strong>'+base.toFixed(1)+' / 5</strong></div><div class="sl-baseline-row"><span>Today vs baseline</span><strong>'+(delta>0?"↑ ":delta<0?"↓ ":"=")+Math.abs(delta).toFixed(1)+'</strong></div></div>':'<p class="sl-home-empty">A personal baseline needs a few logged days. It is calculated from your own history, not a generic target.</p>')+'</section><section class="sl-home-section" aria-labelledby="slRecentTitle" style="grid-column:1/-1"><div class="sl-home-section-head"><h3 id="slRecentTitle" class="sl-home-section-title">Recent rhythm</h3><span class="sl-home-section-meta">most recent first</span></div><div class="sl-recent">'+days+'</div></section>';
-  home.querySelectorAll("[data-sl-scroll]").forEach(btn=>btn.onclick=()=>{window.location.hash=btn.dataset.slScroll==="checkin"?"#checkin":"#patterns"});
+function formatDate(value, options = { weekday:"short", month:"short", day:"numeric" }) {
+  const date = parseLocalDate(value);
+  return date ? new Intl.DateTimeFormat(undefined, options).format(date) : value;
 }
-async function refresh(){try{render(await getEntries())}catch(e){console.error("Sensory Log Home",e);render([])}}
+
+function getToday(entries) {
+  return entries.find(entry => entry.date === today) || null;
+}
+
+function describeState(entry) {
+  if (!entry?.energy) {
+    return {
+      title: "Start with where you are",
+      detail: "A quick check-in gives the rest of the app something real to work with.",
+      action: "Check in"
+    };
+  }
+  if (entry.overwhelm >= 4) {
+    return {
+      title: "A lot is reaching you",
+      detail: "Your sensory load is high in today's check-in. Reducing input may be useful before adding more demands.",
+      action: "Find some room"
+    };
+  }
+  if (entry.energy <= 2 && entry.recovery >= 4) {
+    return {
+      title: "Capacity looks low",
+      detail: "Energy is low and recovery need is high today. Protecting space may be useful.",
+      action: "Protect some space"
+    };
+  }
+  if (entry.masking >= 2 && entry.energy <= 3) {
+    return {
+      title: "You may need more room",
+      detail: "Lower energy and heavier masking are showing up together today. Notice what becomes easier when you can reduce performance.",
+      action: "Make some room"
+    };
+  }
+  if (entry.energy >= 4 && entry.overwhelm <= 2) {
+    return {
+      title: "Your state looks steadier",
+      detail: "Energy is relatively solid and sensory load is not especially high in today's check-in.",
+      action: "Keep noticing"
+    };
+  }
+  if (entry.recovery >= 4) {
+    return {
+      title: "Recovery is asking for attention",
+      detail: "Your recovery need is high today. Looking back at what has helped on similar days may be useful.",
+      action: "Recover"
+    };
+  }
+  return {
+    title: "Your state is mixed",
+    detail: "There is no single answer to solve. The useful part is noticing what is present.",
+    action: "Keep noticing"
+  };
+}
+
+function needFor(entry) {
+  if (!entry?.energy) return {
+    title: "One minute is enough",
+    detail: "You can log energy now and leave the rest blank."
+  };
+  if (entry.overwhelm >= 4) return {
+    title: "Less input",
+    detail: "Quiet, lower light, fewer conversations, or a familiar environment may be worth trying."
+  };
+  if (entry.energy <= 2) return {
+    title: "Lower the demand",
+    detail: "Choose the smallest next action and leave room for recovery rather than pushing through."
+  };
+  if (entry.recovery >= 4) return {
+    title: "Recovery space",
+    detail: "Look back at strategies that have helped you recover without adding more stimulation."
+  };
+  if (entry.masking >= 2) return {
+    title: "Less performance",
+    detail: "If it is safe to do so, notice where you can reduce social or sensory masking."
+  };
+  return {
+    title: "Keep observing",
+    detail: "Your current signals do not point to one obvious need. That is useful information too."
+  };
+}
+
+function metric(label, value, hint) {
+  return `<div class="sl-home-metric">
+    <span class="sl-home-metric-label">${esc(label)}</span>
+    <strong>${value || "—"}<small>${value ? " / 5" : ""}</small></strong>
+    <span class="sl-home-metric-hint">${esc(hint)}</span>
+  </div>`;
+}
+
+function render(entries) {
+  const todayEntry = getToday(entries);
+  const state = describeState(todayEntry);
+  const need = needFor(todayEntry);
+  const logged = entries.filter(entry => entry.energy > 0).sort((a,b) => a.date.localeCompare(b.date));
+  const prior = logged.filter(entry => entry.date !== today).slice(-7);
+  const baseline = average(prior.map(entry => entry.energy));
+  const delta = baseline && todayEntry?.energy ? todayEntry.energy - baseline : null;
+  const recent = logged.slice(-7).reverse();
+
+  const rhythm = recent.length
+    ? recent.map(entry => `<button class="sl-home-day" type="button" data-home-date="${esc(entry.date)}" aria-label="Open ${esc(formatDate(entry.date))}, energy ${entry.energy} of 5">
+        <span>${esc(formatDate(entry.date, {month:"short",day:"numeric"}))}</span>
+        <strong>${entry.energy}</strong>
+        <i style="--day-level:${clamp(entry.energy / 5, 0, 1)}"></i>
+      </button>`).join("")
+    : '<p class="sl-home-empty">Your rhythm will appear here as you log days.</p>';
+
+  const baselineBlock = baseline
+    ? `<div class="sl-home-baseline-row"><span>Average energy</span><strong>${baseline.toFixed(1)} / 5</strong></div>
+       <div class="sl-home-baseline-row"><span>Today vs baseline</span><strong>${delta > 0 ? "↑ " : delta < 0 ? "↓ " : "— "}${Math.abs(delta).toFixed(1)}</strong></div>`
+    : '<p class="sl-home-empty">A personal baseline needs a few logged days. It is calculated from your history, not a target.</p>';
+
+  root.innerHTML = `
+    <section class="sl-home-hero" aria-labelledby="slHomeTitle">
+      <div class="sl-home-hero-top">
+        <div>
+          <div class="sl-home-kicker">Today · ${esc(formatDate(today))}</div>
+          <h1 id="slHomeTitle">How are you, right now?</h1>
+        </div>
+        <div class="sl-home-status">${todayEntry ? "Logged today" : "Not checked in"}</div>
+      </div>
+      <div class="sl-home-state">
+        <div class="sl-state-orb" aria-hidden="true"><strong>${todayEntry?.energy || "—"}</strong><span>energy</span></div>
+        <div class="sl-home-state-copy">
+          <h2>${esc(state.title)}</h2>
+          <p>${esc(state.detail)}</p>
+        </div>
+      </div>
+      <div class="sl-home-actions">
+        <button type="button" class="sl-home-action primary" data-home-route="checkin">${todayEntry ? "Update check-in" : "Check in"}</button>
+        <button type="button" class="sl-home-action" data-home-route="patterns">See patterns</button>
+      </div>
+    </section>
+
+    <section class="sl-home-section" aria-labelledby="slSignalsTitle">
+      <div class="sl-home-section-head">
+        <div><span class="sl-home-eyebrow">Right now</span><h2 id="slSignalsTitle">Your signals</h2></div>
+        <span class="sl-home-section-meta">${todayEntry ? "today" : "waiting"}</span>
+      </div>
+      <div class="sl-home-metrics">
+        ${metric("Energy", todayEntry?.energy, "capacity")}
+        ${metric("Sensory load", todayEntry?.overwhelm, "input")}
+        ${metric("Recovery", todayEntry?.recovery, "need")}
+        ${metric("Social battery", todayEntry?.socialBattery, "capacity")}
+      </div>
+    </section>
+
+    <section class="sl-home-section sl-home-need" aria-labelledby="slNeedTitle">
+      <div class="sl-home-section-head">
+        <div><span class="sl-home-eyebrow">Next</span><h2 id="slNeedTitle">What might you need?</h2></div>
+      </div>
+      <div class="sl-home-need-content">
+        <span class="sl-home-need-mark" aria-hidden="true"></span>
+        <div><strong>${esc(need.title)}</strong><p>${esc(need.detail)}</p></div>
+      </div>
+      ${todayEntry?.energy && (todayEntry.overwhelm >= 4 || todayEntry.energy <= 2 || todayEntry.recovery >= 4)
+        ? '<button type="button" class="sl-home-inline-action" data-home-route="regulate">Open a regulation protocol</button>' : ""}
+    </section>
+
+    <section class="sl-home-section" aria-labelledby="slBaselineTitle">
+      <div class="sl-home-section-head">
+        <div><span class="sl-home-eyebrow">Over time</span><h2 id="slBaselineTitle">Your baseline</h2></div>
+        <span class="sl-home-section-meta">previous 7 days</span>
+      </div>
+      <div class="sl-home-baseline">${baselineBlock}</div>
+    </section>
+
+    <section class="sl-home-section" aria-labelledby="slRecentTitle">
+      <div class="sl-home-section-head">
+        <div><span class="sl-home-eyebrow">Recent</span><h2 id="slRecentTitle">Your rhythm</h2></div>
+        <span class="sl-home-section-meta">tap a day</span>
+      </div>
+      <div class="sl-home-rhythm">${rhythm}</div>
+    </section>
+  `;
+
+  root.querySelectorAll("[data-home-route]").forEach(button => {
+    button.addEventListener("click", () => {
+      window.location.hash = "#" + button.dataset.homeRoute;
+    });
+  });
+
+  root.querySelectorAll("[data-home-date]").forEach(button => {
+    button.addEventListener("click", () => {
+      window.dispatchEvent(new CustomEvent("sensory-log:open-date", {
+        detail: { date: button.dataset.homeDate }
+      }));
+    });
+  });
+}
+
+async function refresh() {
+  try {
+    render(await getEntries());
+  } catch (error) {
+    console.error("[Sensory Log] Home", error);
+    render([]);
+  }
+}
+
 refresh();
-const card=document.querySelector(".card");
-if(card){const o=new MutationObserver(()=>{clearTimeout(o._t);o._t=setTimeout(refresh,100)});o.observe(card,{subtree:true,childList:true,attributes:true})}
-window.addEventListener("storage",refresh);
-window.addEventListener("sensory-log:entries-changed",refresh);
-setInterval(refresh,2500);
+window.addEventListener("sensory-log:entries-changed", refresh);
+window.addEventListener("sensory-log:open-date", event => {
+  if (event.detail?.date) window.location.hash = "#checkin";
+});
