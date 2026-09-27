@@ -1,7 +1,7 @@
 /**
  * Sensory Log — resilient local-first storage.
- * IndexedDB is the future primary store; the v1 bridge below preserves the
- * original localStorage dataset until the new UI adopts this module.
+ * IndexedDB is the primary store; the legacy localStorage dataset remains
+ * readable for backwards compatibility and migration.
  */
 import { DATA_VERSION, STORAGE_KEYS, normalizeEntries } from "./schema.js";
 
@@ -61,9 +61,9 @@ export async function getEntries() {
     const indexed = value ? normalizeEntries(value) : [];
     if (!legacy.length) return indexed;
     if (!indexed.length) return legacy;
-    // The legacy UI still writes localStorage during the transition. Merge by
-    // date so a newly saved day cannot be hidden behind an older IndexedDB copy.
-    return normalizeEntries([...indexed, ...legacy]);
+    // IndexedDB is the current write target. Put it last so an older legacy
+    // localStorage copy can never overwrite a newer IndexedDB entry for a date.
+    return normalizeEntries([...legacy, ...indexed]);
   } catch {
     return legacy;
   }
