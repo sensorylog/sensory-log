@@ -184,7 +184,7 @@ async function showAuthenticatedGate(gate, user) {
           unlock();
           return;
         }
-        setStatus(gate, error?.message || "This device could not be registered.", true);
+        setStatus(gate, "This device needs to be registered. Enter your Gumroad license key once.", true);
         return;
       }
     }
