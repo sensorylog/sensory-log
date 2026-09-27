@@ -12,7 +12,7 @@ assert(!index.includes("access-gate.css"));
 assert(index.includes("styles/license.css"));
 assert(firebase.includes("getAuth"));
 assert(!firebase.includes("getFunctions"));
-assert(license.includes("activateLicense"));
+assert(license.includes("verifyLicenseWithWorker"));
 assert(license.includes("waitForLicense"));
 assert(worker.includes("api.gumroad.com/v2/licenses/verify"));
 assert(worker.includes("FIREBASE_SERVICE_ACCOUNT_JSON"));
@@ -21,6 +21,9 @@ assert(worker.includes("MAX_DEVICES = 2"));
 assert(worker.includes("deviceHash"));
 assert(license.includes("DEVICE_ID_KEY"));
 assert(license.includes("deviceId: getDeviceId()"));
+assert(license.includes("mode: " + '"register"'));
+assert(worker.includes('body.mode === "register"'));
+assert(worker.includes("registerExistingDevice"));
 assert(rules.includes("request.auth.uid == userId"));
 assert(rules.includes("allow write: if false"));
 
