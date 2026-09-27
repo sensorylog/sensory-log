@@ -1,4 +1,5 @@
 import { getEntries, saveEntries } from "./core/storage.js";
+import { localDateString } from "./core/date.js";
 
 const MODES=[
  {id:"sensory",label:"Too much sensory input",sub:"Lower what is reaching you.",steps:["Move somewhere quieter or visually simpler.","Lower the light or cover your eyes if that feels better.","Reduce conversation, notifications, and other incoming demands.","Give yourself a few minutes before deciding what comes next."]},
@@ -63,7 +64,7 @@ function updateTimer(){
 async function recordFeedback(feedback){
   if(!active || !sessionStartedAt) return;
   const entries=await getEntries();
-  const date=new Date().toISOString().slice(0,10);
+  const date=localDateString();
   const current=entries.find(entry=>entry.date===date);
   if(!current) return;
   const tags=Array.isArray(current.helped)?current.helped:[];
