@@ -40,6 +40,16 @@ function render(){
   }
 
   const items=SIGNAL_ITEMS;
+  if(p.paused){
+    root.hidden=false;
+    root.innerHTML=`<div class="sl-signal-inner" role="region" aria-label="Signal paused">
+      <div class="sl-signal-content"><div class="sl-signal-heading"><span class="sl-signal-label">SIGNAL</span><span class="sl-signal-status">Paused</span></div><div class="sl-signal-feature"><p>Signal is paused. Nothing new is being surfaced here.</p></div></div>
+      <div class="sl-signal-actions"><button type="button" data-signal-pause>Resume</button><button type="button" data-signal-hide>Hide</button></div>
+    </div>`;
+    root.querySelector("[data-signal-pause]").onclick=()=>{const next=prefs();next.paused=false;save(next);render()};
+    root.querySelector("[data-signal-hide]").onclick=()=>{const next=prefs();next.hidden=true;save(next);render()};
+    return;
+  }
   const current=items[0];
   root.hidden=false;
   root.innerHTML=`<div class="sl-signal-inner" role="region" aria-label="Signal">
