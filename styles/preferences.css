@@ -1,0 +1,12 @@
+.sl-preferences{margin-top:12px}
+.sl-preferences-card{padding:18px;border:1px solid var(--border);border-radius:20px;background:var(--surface)}
+.sl-preferences-kicker{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:750}
+.sl-preferences-card h3{margin:6px 0 5px;font-size:1rem}
+.sl-preferences-card>p{margin:0;color:var(--muted);font-size:.82rem;line-height:1.45}
+.sl-preference-list{margin-top:14px}
+.sl-preference-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 0;border-top:1px solid var(--border)}
+.sl-preference-row>div{display:grid;gap:3px}
+.sl-preference-row strong{font-size:.86rem}
+.sl-preference-row span{font-size:.76rem;color:var(--muted);line-height:1.35}
+.sl-preference-row button{min-width:72px;min-height:40px;padding:7px 10px;border:1px solid var(--border);border-radius:11px;background:var(--bg);color:var(--ink);font:inherit;font-size:.78rem;font-weight:700;cursor:pointer}
+.sl-preference-row button:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
