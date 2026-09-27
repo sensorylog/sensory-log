@@ -150,7 +150,7 @@ function render(entries) {
       </div>
     </section>
 
-    <section class="sl-home-section" aria-labelledby="slSignalsTitle">
+    <section class="sl-home-section sl-home-signals" aria-labelledby="slSignalsTitle">
       <div class="sl-home-section-head">
         <div><span class="sl-home-eyebrow">Right now</span><h2 id="slSignalsTitle">Your signals</h2></div>
         <span class="sl-home-section-meta">${todayEntry ? "today" : "waiting"}</span>
