@@ -46,7 +46,7 @@ function setActive(route, pushHash=true){
     btn.setAttribute("aria-current",btn.classList.contains("active")?"page":"false");
   });
   document.title = target==="home" ? "Sensory Log" : target[0].toUpperCase()+target.slice(1)+" · Sensory Log";
-  if(pushHash && location.hash!==("#"+target)) history.replaceState(null,"","#"+target);
+  if(pushHash && location.hash!==("#"+target)) history.pushState(null,"","#"+target);
   window.scrollTo({top:0,behavior:document.documentElement.dataset.motion==="reduced"?"auto":"smooth"});
   const activeView=document.getElementById(ROUTES[target]);
   if(activeView){
@@ -86,6 +86,7 @@ function wire(){
     btn.addEventListener("click",()=>setActive(btn.dataset.route));
   });
   window.addEventListener("hashchange",()=>setActive(routeFromHash(),false));
+  window.addEventListener("popstate",()=>setActive(routeFromHash(),false));
   document.querySelectorAll("[data-signal-restore]").forEach(btn=>btn.addEventListener("click",()=>restoreSignal()));
   setActive(routeFromHash(),false);
 }
