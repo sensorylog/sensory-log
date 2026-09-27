@@ -9,7 +9,7 @@
 const MIN_SAMPLE = 3;
 const DAY_MS = 86400000;
 
-const finite = value => Number.isFinite(Number(value)) ? Number(value) : null;
+const finite = value => value === null || value === undefined || value === "" ? null : Number.isFinite(Number(value)) ? Number(value) : null;
 const avg = values => {
   const valid = values.map(finite).filter(v => v !== null);
   return valid.length ? valid.reduce((a,b)=>a+b,0)/valid.length : null;
