@@ -52,6 +52,9 @@ jobs:
       - name: Validate Phase H Signal engine
         run: node scripts/test-signal-engine.mjs
 
+      - name: Validate Phase I Ask Your Data engine
+        run: node scripts/test-query-engine.mjs
+
       - name: Validate JavaScript module syntax
         shell: bash
         run: |
