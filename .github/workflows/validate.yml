@@ -34,6 +34,9 @@ jobs:
       - name: Validate Phase A data contracts
         run: node scripts/test-foundation.mjs
 
+      - name: Validate Phase C state engine
+        run: node scripts/test-state-engine.mjs
+
       - name: Validate JavaScript module syntax
         shell: bash
         run: |
