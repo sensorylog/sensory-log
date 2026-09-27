@@ -34,6 +34,8 @@ function setActive(route, pushHash=true){
   window.scrollTo({top:0,behavior:document.documentElement.dataset.motion==="reduced"?"auto":"smooth"});
 }
 
+initializeFoundation().catch(error => console.error("[Sensory Log] Foundation", error));
+
 function wire(){
   document.querySelectorAll("[data-route]").forEach(btn=>{
     btn.addEventListener("click",()=>setActive(btn.dataset.route));
