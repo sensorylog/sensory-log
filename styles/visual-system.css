@@ -1076,3 +1076,206 @@ body{
     transition:none!important;
   }
 }
+
+/* Phase B — dedicated information surfaces + dark-mode legibility */
+body.is-info-route{
+  padding:0;
+  min-height:100dvh;
+}
+body.is-info-route .wrap{
+  max-width:none;
+}
+body.is-info-route .app-header,
+body.is-info-route .app-nav{
+  display:none;
+}
+body.is-info-route .app-shell{
+  max-width:none;
+  padding:0;
+}
+body.is-info-route .app-view{
+  min-height:100dvh;
+}
+body.is-info-route .app-view.is-active{
+  display:block;
+}
+.app-info-page{
+  min-height:100dvh;
+  width:min(760px,100%);
+  margin:0 auto;
+  padding:
+    calc(18px + var(--safe-bottom))
+    clamp(20px,5vw,44px)
+    64px;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+}
+.app-info-topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  min-height:52px;
+  margin-bottom:clamp(52px,9vh,92px);
+}
+.app-info-back{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  min-height:44px;
+  padding:8px 12px 8px 4px;
+  border:0;
+  border-radius:12px;
+  background:transparent;
+  color:var(--ink);
+  font:inherit;
+  font-size:.82rem;
+  font-weight:650;
+  cursor:pointer;
+}
+.app-info-back:hover{background:var(--sl-material-fill)}
+.app-info-page-label{
+  color:var(--muted);
+  font-size:.68rem;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.app-info-page h2{
+  margin:10px 0 18px;
+  max-width:12ch;
+  font-size:clamp(2.8rem,9vw,5.8rem);
+  line-height:.91;
+  letter-spacing:-.075em;
+  font-weight:680;
+}
+.app-info-intro{
+  max-width:52ch;
+  margin:0 0 clamp(42px,7vw,68px);
+  color:var(--ink);
+  font-size:clamp(1rem,2.5vw,1.18rem);
+  line-height:1.55;
+}
+.app-info-sections{
+  border-top:1px solid var(--sl-hairline);
+}
+.app-info-section{
+  display:grid;
+  grid-template-columns:minmax(130px,.55fr) minmax(0,1.45fr);
+  gap:28px;
+  padding:25px 0;
+  border-bottom:1px solid var(--sl-hairline);
+}
+.app-info-section h3{
+  margin:0;
+  font-size:.78rem;
+  line-height:1.35;
+  font-weight:700;
+  color:var(--ink);
+}
+.app-info-section p{
+  max-width:52ch;
+  margin:0;
+  color:var(--muted);
+  font-size:.88rem;
+  line-height:1.65;
+}
+.app-info-actions{
+  margin-top:32px;
+}
+.app-info-action{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  min-height:58px;
+  padding:0 18px;
+  border:1px solid var(--sl-border);
+  border-radius:18px;
+  background:var(--sl-material-fill);
+  color:var(--ink);
+  text-decoration:none;
+  font-size:.86rem;
+  font-weight:650;
+  box-shadow:0 12px 34px rgba(0,0,0,.12);
+}
+.app-info-action:hover{
+  background:var(--sl-material-fill-strong);
+  border-color:var(--sl-border-hi);
+}
+[data-theme="light"] .app-info-action{
+  box-shadow:0 12px 34px rgba(31,39,35,.08);
+}
+[data-theme="dark"] .app-info-page{
+  color-scheme:dark;
+}
+
+/* Dark surfaces: never rely on low-opacity gray text for primary reading content. */
+[data-theme="dark"] .app-info-section p,
+[data-theme="dark"] .app-info-intro{
+  color:#c9cfcc;
+}
+[data-theme="dark"] .app-more-card span,
+[data-theme="dark"] .app-more-hero p,
+[data-theme="dark"] .app-brand-state{
+  color:#b8bfbc;
+}
+[data-theme="dark"] .app-nav button{
+  color:#b8bfbc;
+}
+[data-theme="dark"] .app-nav button.active{
+  color:#101312;
+  background:#f2f3f1;
+}
+[data-theme="dark"] .app-nav button:hover{
+  color:#f2f3f1;
+  background:rgba(255,255,255,.10);
+}
+[data-theme="dark"] input,
+[data-theme="dark"] textarea,
+[data-theme="dark"] select{
+  color:#f2f3f1;
+}
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder{
+  color:#9da5a1;
+  opacity:1;
+}
+[data-theme="dark"] .app-more-card,
+[data-theme="dark"] .sl-pattern-card,
+[data-theme="dark"] .sl-reg-mode,
+[data-theme="dark"] .sl-manual-card,
+[data-theme="dark"] .sl-signal-card{
+  color:#f2f3f1;
+}
+[data-theme="dark"] .app-more-card span,
+[data-theme="dark"] .sl-pattern-body,
+[data-theme="dark"] .sl-pattern-meta,
+[data-theme="dark"] .sl-signal-card>p{
+  color:#b8bfbc;
+}
+[data-theme="light"] .app-info-section p,
+[data-theme="light"] .app-info-intro{
+  color:#4f5753;
+}
+
+@media(max-width:680px){
+  .app-info-page{
+    padding:
+      calc(12px + var(--safe-bottom))
+      20px
+      44px;
+  }
+  .app-info-topbar{
+    margin-bottom:52px;
+  }
+  .app-info-page h2{
+    font-size:clamp(2.7rem,14vw,4.2rem);
+  }
+  .app-info-section{
+    grid-template-columns:1fr;
+    gap:9px;
+    padding:21px 0;
+  }
+}
