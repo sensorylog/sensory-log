@@ -11,7 +11,7 @@
 const clamp = (value, min = 0, max = 5) =>
   Math.min(max, Math.max(min, Number(value)));
 
-const finite = value => Number.isFinite(Number(value)) ? Number(value) : null;
+const finite = value => value === null || value === undefined || value === "" ? null : Number.isFinite(Number(value)) ? Number(value) : null;
 
 const average = values => {
   const valid = values.map(finite).filter(value => value !== null);
