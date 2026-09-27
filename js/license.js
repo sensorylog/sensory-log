@@ -15,15 +15,11 @@ import {
   getDoc,
   getFirestore
 } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
-import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-functions.js";
-import { firebaseApp } from "./core/firebase.js";
+import { firebaseApp, firebaseAuth } from "./core/firebase.js";
 
 const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
-const functions = getFunctions(firebaseApp, "us-central1");
-
-const activateLicense = httpsCallable(functions, "activateLicense");
-const refreshLicense = httpsCallable(functions, "refreshLicense");
+const LICENSE_WORKER_URL = "https://REPLACE-WITH-YOUR-SENSORY-LOG-LICENSE-WORKER.workers.dev";
 
 const CACHE_KEY = "sensoryLog_entitlement_v2";
 const OFFLINE_GRACE_MS = 14 * 24 * 60 * 60 * 1000;
@@ -162,7 +158,6 @@ async function showAuthenticatedGate(gate, user) {
     if (entitlement?.status === "active") {
       currentEntitlement = entitlement;
       cacheEntitlement(entitlement);
-      await maybeRefresh();
       unlock();
       return;
     }
@@ -177,9 +172,28 @@ async function showAuthenticatedGate(gate, user) {
   }
 }
 
-async function maybeRefresh() {
-  // Online Firestore entitlement is the normal revalidation path.
-  // The original Gumroad key is deliberately never persisted in browser storage.
+async function verifyLicenseWithWorker(licenseKey, mode = "activate") {
+  if (!LICENSE_WORKER_URL || LICENSE_WORKER_URL.includes("REPLACE-WITH-YOUR")) {
+    throw new Error("Sensory Log licensing backend is not configured yet.");
+  }
+  const user = firebaseAuth.currentUser;
+  if (!user) throw new Error("Sign in before activating Sensory Log.");
+  const idToken = await user.getIdToken();
+  const response = await fetch(LICENSE_WORKER_URL, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "authorization": "Bearer " + idToken
+    },
+    body: JSON.stringify({ licenseKey, mode })
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const error = new Error(data.error || "License verification failed.");
+    error.code = response.status === 401 ? "unauthenticated" : "permission-denied";
+    throw error;
+  }
+  return data;
 }
 
 function unlock() {
@@ -243,8 +257,8 @@ async function boot() {
 
     try {
       setStatus(gate, "Verifying your purchase…");
-      const result = await activateLicense({ licenseKey });
-      currentEntitlement = result.data;
+      const result = await verifyLicenseWithWorker(licenseKey, "activate");
+      currentEntitlement = result;
       cacheEntitlement(currentEntitlement);
       unlock();
     } catch (error) {
