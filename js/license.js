@@ -19,7 +19,7 @@ import { firebaseApp, firebaseAuth } from "./core/firebase.js";
 
 const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
-const LICENSE_WORKER_URL = "https://REPLACE-WITH-YOUR-SENSORY-LOG-LICENSE-WORKER.workers.dev";
+const LICENSE_WORKER_URL = "https://sensory-log-license.johnkyei221.workers.dev";
 
 const CACHE_KEY = "sensoryLog_entitlement_v2";
 const OFFLINE_GRACE_MS = 14 * 24 * 60 * 60 * 1000;
