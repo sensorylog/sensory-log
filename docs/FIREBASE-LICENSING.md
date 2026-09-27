@@ -2,7 +2,7 @@
 
 ## Architecture
 
-Sensory Log uses Firebase Authentication for identity, a 2nd-generation Worker endpoint Cloud Function for license activation/revalidation, and Firestore for the server-side entitlement record.
+Sensory Log uses Firebase Authentication for identity, a Cloudflare Worker for license activation/revalidation, and Firestore for the server-side entitlement record.
 
 The browser never contains a master license key and never decides that a Gumroad purchase is valid.
 
@@ -19,11 +19,22 @@ The browser never contains a master license key and never decides that a Gumroad
 
 Gumroad's license verification API supports `product_id`, `license_key`, and an optional use-count increment. Gumroad also lets sellers manage license use counts, disable keys, and change seats from its dashboard. citeturn5search1turn5search3
 
+## Two-device access
+
+Each license can be active on up to **2 devices** at the same time. The browser creates a stable random device identifier and sends it only during license activation/revalidation. The Worker stores only a SHA-256 hash of that device identifier.
+
+- Existing device: allowed and its last-seen time is updated.
+- New device: allowed until the license has 2 active devices.
+- Third device: blocked until an existing device is removed by the future admin tooling.
+- Clearing browser storage or using a different browser can create a new device identity, so device removal/transfer support belongs in the admin dashboard.
+
+This is a device limit, not a restriction on the user's Firebase account itself.
+
 ## Revalidation
 
 A normal activation increments Gumroad's license use count. Routine revalidation uses `increment_uses_count=false` so opening the app does not consume activations.
 
-The browser caches only non-secret entitlement metadata for up to 14 days as an offline convenience. The raw Gumroad license key is never persisted by Sensory Log. The cache is not a security boundary and is not used by Firebase Rules. Online Firebase entitlement state remains authoritative.
+The browser caches only non-secret entitlement metadata for up to 14 days as an offline convenience. The entitlement includes the two-device limit. The raw Gumroad license key is never persisted by Sensory Log. The cache is not a security boundary and is not used by Firebase Rules. Online Firebase entitlement state remains authoritative.
 
 ## Data model
 
@@ -56,13 +67,13 @@ Raw license keys are not stored in Firestore.
 - Firebase Authentication identifies the user.
 - Firestore Rules allow a user to read only their own entitlement.
 - Clients cannot write entitlement records.
-- The Worker endpoint functions require Auth and App Check.
+- The Worker endpoint requires Firebase Auth; App Check enforcement can be added/strengthened separately.
 - Gumroad verification happens server-side.
 - App Check should be monitored before enforcement and then enforced in production. Firebase documents App Check enforcement for Worker endpoint functions and recommends monitoring before enabling enforcement. citeturn1search3turn1search7
 
 ## Important deployment requirement
 
-Cloudflare Worker deployment requires the Firebase project's pay-as-you-go Blaze plan and creates managed build infrastructure. The Sensory Log static hosting and local-first app do not need Functions; the licensing backend does. Firebase documents this deployment requirement. citeturn1search4
+The licensing backend runs on a Cloudflare Worker, so Sensory Log does not require Firebase Blaze for this architecture. Firebase Auth, Firestore, Hosting and App Check remain on the Firebase Spark plan where eligible. citeturn1search4
 
 ## Firebase Console setup
 
@@ -73,11 +84,11 @@ Before production activation:
 3. Add the production hosting domain to Authentication authorized domains.
 4. Create the Gumroad product with unique license keys enabled.
 5. Copy the Gumroad Product ID.
-6. Set the Functions parameter `GUMROAD_PRODUCT_ID`.
+6. Set the Cloudflare Worker secret `GUMROAD_PRODUCT_ID`.
 7. Register Sensory Log with Firebase App Check and verify the production domain.
-8. Monitor App Check traffic before enforcement changes.
-9. Deploy Functions and Firestore Rules.
-10. Test a real Gumroad license and a deliberately invalid key.
+8. Configure the Worker secrets, including `ALLOWED_ORIGINS`.
+9. Deploy the Cloudflare Worker and Firestore Rules.
+10. Test a real Gumroad license, a deliberately invalid key, and activation from two different devices.
 
 Google sign-in is supported by Firebase Authentication; on mobile, Firebase recommends redirect-based flows in general, although the current implementation uses popup for simplicity and should be revisited if mobile popup behavior proves unreliable. citeturn6search0turn6search1
 
