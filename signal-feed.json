@@ -1,7 +1,17 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-14T12:15:35Z",
+  "generatedAt": "2026-11-15T12:47:39Z",
   "items": [
+    {
+      "id": "autisable-4d35264a87f93519",
+      "type": "Community",
+      "date": "2026-11-14",
+      "title": "Teaching Hygiene and Personal Care to an Autistic Teen: Start Smaller Than You Think",
+      "text": "Brushing teeth, showering, and dressing involve dozens of small steps and a lot of sensory input. Here is how to break them down, what to try, and when a full curriculum can help.",
+      "source": "Autisable",
+      "sourceUrl": "https://autisable.com/blog/teaching-hygiene-and-personal-care-to-an-autistic-teen",
+      "note": "Automatically collected from an approved HTTPS publisher feed; screened for freshness, duplicates, and clearly unsafe actionable claims."
+    },
     {
       "id": "autism-spectrum-news-8a08ad6cfb4c4e4a",
       "type": "Research",
@@ -83,16 +93,6 @@
       "note": "Automatically collected from an approved HTTPS publisher feed; screened for freshness, duplicates, and clearly unsafe actionable claims."
     },
     {
-      "id": "autisable-90e5039ebb1c542a",
-      "type": "Community",
-      "date": "2026-11-08",
-      "title": "Pod 35: Aaron Wright, Author of Thirteen Doors",
-      "text": "Aaron grew up in the heart of Central Valley, California., the son of two educators. His father worked in special",
-      "source": "Autisable",
-      "sourceUrl": "https://autisable.com/blog/aaronwright",
-      "note": "Automatically collected from an approved HTTPS publisher feed; screened for freshness, duplicates, and clearly unsafe actionable claims."
-    },
-    {
       "id": "autism-spectrum-news-d8a9fef3fc9af3e7",
       "type": "Research",
       "date": "2026-11-04",
@@ -170,16 +170,6 @@
       "text": "Help autistic children enjoy Halloween with tips for sensory comfort, safety, and stress-free trick-or-treating. The post Practice Before the Night: A Halloween Plan for Families of Children with Autism and Sensory Differences appeared first on Autism Spectrum News .",
       "source": "Autism Spectrum News",
       "sourceUrl": "https://autismspectrumnews.org/practice-before-the-night-a-halloween-plan-for-families-of-children-with-autism-and-sensory-differences",
-      "note": "Automatically collected from an approved HTTPS publisher feed; screened for freshness, duplicates, and clearly unsafe actionable claims."
-    },
-    {
-      "id": "asan-97e94c53e461a4b4",
-      "type": "Community",
-      "date": "2026-09-30",
-      "title": "ASAN September Update",
-      "text": "Dear friend, This month, our community has fought back against attacks on our rights and our futures. Learn what ASAN has been working on and how you can get involved. This month, ASAN released a new toolkit called The “Profound Autism” Label Hurts Autistic People. This toolkit talks about autistic community history. I",
-      "source": "Autistic Self Advocacy Network",
-      "sourceUrl": "https://autisticadvocacy.org/2026/09/asan-september-26-update/?utm_source=rss&utm_medium=rss&utm_campaign=asan-september-26-update",
       "note": "Automatically collected from an approved HTTPS publisher feed; screened for freshness, duplicates, and clearly unsafe actionable claims."
     }
   ]
