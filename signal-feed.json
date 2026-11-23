@@ -1,7 +1,27 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-22T13:24:42Z",
+  "generatedAt": "2026-11-23T16:05:21Z",
   "items": [
+    {
+      "id": "autism-spectrum-news-19bedc1b5401dc5c",
+      "type": "Research",
+      "date": "2026-11-23",
+      "title": "Webinar: The Secret to Staff Retention Starts Before Day One",
+      "text": "Staff retention starts well before an employee’s first day. In this free webinar, hosted by Mental Health News Education, publisher of Autism Spectrum News and Behavioral Health News, Logan Jamieson […] The post Webinar: The Secret to Staff Retention Starts Before Day One appeared first on Autism Spectrum News .",
+      "source": "Autism Spectrum News",
+      "sourceUrl": "https://autismspectrumnews.org/webinar-the-secret-to-staff-retention-starts-before-day-one",
+      "note": "Automatically collected from an approved HTTPS publisher feed; screened for freshness, duplicates, and clearly unsafe actionable claims."
+    },
+    {
+      "id": "autisable-03101f8f2e9fa0fb",
+      "type": "Community",
+      "date": "2026-11-23",
+      "title": "Thanksgiving with an Autistic Child: A Plan for the Table",
+      "text": "Thanksgiving with an autistic child means a long meal, new foods and a full house. Seven steps to plan the plate, the table and the quiet room ahead of time.",
+      "source": "Autisable",
+      "sourceUrl": "https://autisable.com/blog/thanksgiving-with-an-autistic-child-a-plan-for-the-table-mv9zy6i0",
+      "note": "Automatically collected from an approved HTTPS publisher feed; screened for freshness, duplicates, and clearly unsafe actionable claims."
+    },
     {
       "id": "autisable-f6e10c7526500468",
       "type": "Community",
@@ -93,16 +113,6 @@
       "note": "Automatically collected from an approved HTTPS publisher feed; screened for freshness, duplicates, and clearly unsafe actionable claims."
     },
     {
-      "id": "autisable-ce87aa362cd1e729",
-      "type": "Community",
-      "date": "2026-11-16",
-      "title": "Blog #528: Why Doing Government-Related Tasks Seem Like Learning Another Language in the Eyes of a Neurodivergent?",
-      "text": "… Don Knotts: Speaking Broken French Dean Jones: “Will you give it to me in English?” Don Knotts: “Sure, we’re",
-      "source": "Autisable",
-      "sourceUrl": "https://autisable.com/blog/blog-528-why-doing-government-related-tasks-seem-like-learning-another-language-in-the-eyes-of-a-neurodivergent",
-      "note": "Automatically collected from an approved HTTPS publisher feed; screened for freshness, duplicates, and clearly unsafe actionable claims."
-    },
-    {
       "id": "autism-spectrum-news-8a08ad6cfb4c4e4a",
       "type": "Research",
       "date": "2026-11-13",
@@ -160,16 +170,6 @@
       "text": "Discover how movement and physical activity may support self-regulation, thinking skills, and learning in autistic children. The post Does Movement Help Autistic Children Learn? What the Research Tells Us appeared first on Autism Spectrum News .",
       "source": "Autism Spectrum News",
       "sourceUrl": "https://autismspectrumnews.org/does-movement-help-autistic-children-learn-what-the-research-tells-us",
-      "note": "Automatically collected from an approved HTTPS publisher feed; screened for freshness, duplicates, and clearly unsafe actionable claims."
-    },
-    {
-      "id": "autism-spectrum-news-4d0b285f8ea9cc41",
-      "type": "Research",
-      "date": "2026-10-22",
-      "title": "The Sound in the Corridor: The Science of Regulation",
-      "text": "Learn how understanding triggers and emotional regulation can help parents and educators better support autistic children in distress. The post The Sound in the Corridor: The Science of Regulation appeared first on Autism Spectrum News .",
-      "source": "Autism Spectrum News",
-      "sourceUrl": "https://autismspectrumnews.org/the-sound-in-the-corridor-the-science-of-regulation",
       "note": "Automatically collected from an approved HTTPS publisher feed; screened for freshness, duplicates, and clearly unsafe actionable claims."
     }
   ]
